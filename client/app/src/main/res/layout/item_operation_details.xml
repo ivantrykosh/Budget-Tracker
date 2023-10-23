@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/item_operation_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Financial income" />
+
+    <View
+        android:id="@+id/item_operation_color"
+        android:layout_width="7dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/item_operation_note"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_operation_category" />
+
+    <TextView
+        android:id="@+id/item_operation_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/item_operation_category"
+        tools:text="From mother" />
+
+    <TextView
+        android:id="@+id/item_operation_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@+id/item_operation_color"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="$100" />
+
+    <TextView
+        android:id="@+id/item_operation_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@+id/item_operation_color"
+        app:layout_constraintTop_toBottomOf="@+id/item_operation_value"
+        tools:text="16/10/2023" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

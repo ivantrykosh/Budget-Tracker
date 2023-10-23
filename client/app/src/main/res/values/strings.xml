@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Budget Tracker</string>
+    <string name="balance_for">Balance for %s</string>
+    <string name="main_incomes_text">Incomes:</string>
+    <string name="main_expenses_text">Expenses:</string>
+    <string name="main_total_text">Total:</string>
+    <string name="last_incomes">Last incomes</string>
 </resources>
