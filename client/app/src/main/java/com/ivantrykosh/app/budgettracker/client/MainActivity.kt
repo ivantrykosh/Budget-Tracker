@@ -3,6 +3,7 @@ package com.ivantrykosh.app.budgettracker.client
 import android.os.Bundle
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ivantrykosh.app.budgettracker.client.adapter.OperationItemAdapter
@@ -34,9 +35,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set on click listener for hamburger menu
+        // Set on click listener for hamburger menu for opening navigation drawer
         binding.topAppBar.setNavigationOnClickListener {
-            Toast.makeText(this, "Hello!", Toast.LENGTH_SHORT).show()
+            binding.mainDrawerLayout.open()
         }
 
         // Set on click listener for main FAB
