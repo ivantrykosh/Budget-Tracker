@@ -27,9 +27,8 @@ public class Transaction {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account; // Account to which transaction belongs
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category; // Category to which transaction belongs
+    @Column(name = "category", nullable = false)
+    private String category; // Category of transaction
 
     @Column(name = "value", nullable = false)
     private Double value; // Value of transaction
