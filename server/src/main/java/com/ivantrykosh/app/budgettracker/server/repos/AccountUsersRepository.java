@@ -2,7 +2,10 @@ package com.ivantrykosh.app.budgettracker.server.repos;
 
 import com.ivantrykosh.app.budgettracker.server.model.AccountUsers;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * Repository interface for managing Account entities.
@@ -10,4 +13,25 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AccountUsersRepository extends JpaRepository<AccountUsers, Long> {
+
+    /**
+     * Find all accounts users by user2Id
+     * @param user2Id user2Id by which accounts users are found
+     * @return Found accounts users
+     */
+    List<AccountUsers> findAllByUser2Id(@NonNull Long user2Id);
+
+    /**
+     * Find all accounts users by user3Id
+     * @param user3Id user3Id by which accounts users are found
+     * @return Found accounts users
+     */
+    List<AccountUsers> findAllByUser3Id(@NonNull Long user3Id);
+
+    /**
+     * Find all accounts users by user4Id
+     * @param user4Id user4Id by which accounts users are found
+     * @return Found accounts users
+     */
+    List<AccountUsers> findAllByUser4Id(@NonNull Long user4Id);
 }
