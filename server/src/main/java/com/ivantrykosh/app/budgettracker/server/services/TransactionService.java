@@ -3,6 +3,7 @@ package com.ivantrykosh.app.budgettracker.server.services;
 import com.ivantrykosh.app.budgettracker.server.model.Transaction;
 import com.ivantrykosh.app.budgettracker.server.repos.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
@@ -47,7 +48,7 @@ public class TransactionService {
      * @return The list of transactions.
      */
     public List<Transaction> getTransactionsByAccountId(Long accountId) {
-        return transactionRepository.findAllByAccountAccountId(accountId);
+        return transactionRepository.findAllByAccountAccountIdOrderByDateDesc(accountId);
     }
 
     /**
@@ -57,7 +58,7 @@ public class TransactionService {
      * @return The list of transactions.
      */
     public List<Transaction> getTransactionsByAccountIds(List<Long> accountIds) {
-        return transactionRepository.findAllByAccountAccountIdIn(accountIds);
+        return transactionRepository.findAllByAccountAccountIdInOrderByDateDesc(accountIds);
     }
 
     /**
@@ -77,7 +78,44 @@ public class TransactionService {
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
         Date endDate = calendar.getTime();
 
-        return transactionRepository.findAllByAccountAccountIdInAndDateBetween(accountIds, startDate, endDate);
+        return transactionRepository.findAllByAccountAccountIdInAndDateBetweenOrderByDateDesc(accountIds, startDate, endDate);
+    }
+
+    /**
+     * Retrieves list of income transactions by accountIds.
+     *
+     * @param accountIds The IDs of the accounts to retrieve transactions.
+     * @param pageNumber The number of page.
+     * @param numberOfTransaction The number of transactions to retrieve.
+     * @return The list of transactions.
+     */
+    public List<Transaction> getIncomeTransactionsByAccountIds(List<Long> accountIds, Integer pageNumber, Integer numberOfTransaction) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, numberOfTransaction);
+        return transactionRepository.findAllByAccountAccountIdInAndValueGreaterThanOrderByDateDesc(accountIds, 0.0, pageRequest);
+    }
+
+    /**
+     * Retrieves list of expense transactions by accountIds.
+     *
+     * @param accountIds The IDs of the accounts to retrieve transactions.
+     * @param pageNumber The number of page.
+     * @param numberOfTransaction The number of transactions to retrieve.
+     * @return The list of transactions.
+     */
+    public List<Transaction> getExpenseTransactionsByAccountIds(List<Long> accountIds, Integer pageNumber, Integer numberOfTransaction) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, numberOfTransaction);
+        return transactionRepository.findAllByAccountAccountIdInAndValueLessThanOrderByDateDesc(accountIds, 0.0, pageRequest);
+    }
+
+    /**
+     * Calculate sum of transactions with specified type and accountId.
+     *
+     * @param accountId The ID of the account to retrieve transaction.
+     * @param isIncome The type of transaction. If income, then isIncome has to be true, otherwise false.
+     * @return The sum of transactions
+     */
+    public Double getSumOfTransactionsWithAccountIdAndSpecifiedType(Long accountId, boolean isIncome) {
+        return transactionRepository.calculateSumByAccountIdAndType(accountId, isIncome);
     }
 
     /**

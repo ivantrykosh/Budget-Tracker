@@ -18,4 +18,8 @@ public class AccountDto {
     private Long userId; // ID of user to whom account belongs
 
     private String name; // Name of account
+
+    private Double incomesSum; // Sum of incomes
+
+    private Double expensesSum; // Sum of expenses
 }
