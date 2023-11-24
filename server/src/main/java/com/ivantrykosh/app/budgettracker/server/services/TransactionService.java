@@ -134,7 +134,7 @@ public class TransactionService {
      * @param transactionId The ID of the transaction to delete.
      * @return The deleted transaction if found, otherwise null.
      */
-    public Transaction deleteAccountById(Long transactionId) {
+    public Transaction deleteTransactionById(Long transactionId) {
         Optional<Transaction> transaction = transactionRepository.findById(transactionId);
         transactionRepository.deleteById(transactionId);
         return transaction.orElse(null);
