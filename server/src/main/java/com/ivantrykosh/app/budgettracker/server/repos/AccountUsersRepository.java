@@ -6,6 +6,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for managing Account entities.
@@ -13,6 +14,13 @@ import java.util.List;
  */
 @Repository
 public interface AccountUsersRepository extends JpaRepository<AccountUsers, Long> {
+
+    /**
+     * Find all account users by account ID
+     * @param accountId accountId by which account users are found
+     * @return Found account users
+     */
+    Optional<AccountUsers> findByAccountAccountId(@NonNull Long accountId);
 
     /**
      * Find all accounts users by user2Id

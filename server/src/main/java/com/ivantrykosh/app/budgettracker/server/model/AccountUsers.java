@@ -25,12 +25,12 @@ public class AccountUsers {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account; // Account to which users belong
 
-    @Column(name = "user2_id", nullable = false)
+    @Column(name = "user2_id")
     private Long user2Id; // Second user id
 
-    @Column(name = "user3_id", nullable = false)
+    @Column(name = "user3_id")
     private Long user3Id; // Third user id
 
-    @Column(name = "user4_id", nullable = false)
+    @Column(name = "user4_id")
     private Long user4Id; // Fourth user id
 }

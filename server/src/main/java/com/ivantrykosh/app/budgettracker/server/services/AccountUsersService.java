@@ -41,6 +41,17 @@ public class AccountUsersService {
     }
 
     /**
+     * Retrieves account users by account ID.
+     *
+     * @param accountId The ID of the account to retrieve.
+     * @return The account users if found, otherwise null.
+     */
+    public AccountUsers getAccountUsersByAccountId(Long accountId) {
+        Optional<AccountUsers> accountUsers = accountUsersRepository.findByAccountAccountId(accountId);
+        return accountUsers.orElse(null);
+    }
+
+    /**
      * Retrieves all accounts users by userId
      * @param userId The ID of the user to retrieve
      * @return The list of account users
@@ -61,7 +72,7 @@ public class AccountUsersService {
      * @param accountUsers The account users to be updated.
      * @return The updated account users.
      */
-    public AccountUsers updateUser(AccountUsers accountUsers) {
+    public AccountUsers updateAccountUsers(AccountUsers accountUsers) {
         return accountUsersRepository.save(accountUsers);
     }
 
@@ -71,7 +82,7 @@ public class AccountUsersService {
      * @param accountUsersId The ID of the account users to delete.
      * @return The deleted account users if found, otherwise null.
      */
-    public AccountUsers deleteUserById(Long accountUsersId) {
+    public AccountUsers deleteAccountUsersById(Long accountUsersId) {
         Optional<AccountUsers> accountUsers = accountUsersRepository.findById(accountUsersId);
         accountUsersRepository.deleteById(accountUsersId);
         return accountUsers.orElse(null);

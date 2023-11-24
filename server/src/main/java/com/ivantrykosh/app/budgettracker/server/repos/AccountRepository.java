@@ -17,7 +17,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     /**
      * Find all accounts by user ID
      * @param userId userId by which accounts are found
-     * @return Found accounts users
+     * @return Found accounts
      */
     List<Account> findAllByUserUserId(@NonNull Long userId);
 }

@@ -30,7 +30,7 @@ public class Transaction {
     @Column(name = "category", nullable = false)
     private String category; // Category of transaction
 
-    @Column(name = "value", nullable = false)
+    @Column(name = "transaction_value", nullable = false)
     private Double value; // Value of transaction
 
     @Column(name = "date", nullable = false)

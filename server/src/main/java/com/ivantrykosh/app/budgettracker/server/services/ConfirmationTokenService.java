@@ -5,6 +5,7 @@ import com.ivantrykosh.app.budgettracker.server.repos.ConfirmationTokenRepositor
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -35,6 +36,15 @@ public class ConfirmationTokenService {
     public ConfirmationToken getConfirmationTokenById(Long confirmationTokenId) {
         Optional<ConfirmationToken> confirmationToken = confirmationTokenRepository.findById(confirmationTokenId);
         return confirmationToken.orElse(null);
+    }
+
+    /**
+     * Retrieves all confirmation tokens by userId
+     * @param userId The ID of the user to retrieve
+     * @return The list of confirmation tokens
+     */
+    public List<ConfirmationToken> getConfirmationTokenByUserId(Long userId) {
+        return confirmationTokenRepository.findAllByUserUserId(userId);
     }
 
     /**

@@ -2,7 +2,10 @@ package com.ivantrykosh.app.budgettracker.server.repos;
 
 import com.ivantrykosh.app.budgettracker.server.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 /**
  * Repository interface for managing User entities.
@@ -10,4 +13,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    /**
+     * Find user by email
+     * @param email email by which user is found
+     * @return found user
+     */
+    Optional<User> findByEmail(@NonNull String email);
 }

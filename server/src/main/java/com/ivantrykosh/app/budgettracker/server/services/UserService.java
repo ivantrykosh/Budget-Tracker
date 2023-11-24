@@ -38,6 +38,17 @@ public class UserService {
     }
 
     /**
+     * Retrieves a user by their email.
+     *
+     * @param email The email of the user to retrieve.
+     * @return The user if found, otherwise null.
+     */
+    public User getUserByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.orElse(null);
+    }
+
+    /**
      * Updates a user in the database.
      *
      * @param user The user to be updated.
