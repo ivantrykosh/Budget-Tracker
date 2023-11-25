@@ -30,7 +30,7 @@ public class AccountUsersMapper implements Mapper<AccountUsers, AccountUsersDto>
         accountUsersDto.setUser2Id(accountUsers.getUser2Id());
         accountUsersDto.setUser3Id(accountUsers.getUser3Id());
         accountUsersDto.setUser4Id(accountUsers.getUser4Id());
-        accountUsersDto.setAccountUsersId(accountId);
+        accountUsersDto.setAccountId(accountId);
         return accountUsersDto;
     }
 

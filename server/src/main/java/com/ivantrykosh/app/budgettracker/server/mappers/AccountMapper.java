@@ -3,11 +3,22 @@ package com.ivantrykosh.app.budgettracker.server.mappers;
 import com.ivantrykosh.app.budgettracker.server.dtos.AccountDto;
 import com.ivantrykosh.app.budgettracker.server.model.Account;
 import com.ivantrykosh.app.budgettracker.server.model.User;
+import com.ivantrykosh.app.budgettracker.server.services.TransactionService;
 
 /**
  * Mapper for Account
  */
 public class AccountMapper implements Mapper<Account, AccountDto> {
+
+    private TransactionService transactionService;
+
+    /**
+     * Create an instance of AccountMapper with the specified TransactionService
+     * @param transactionService TransactionService to be used by the AccountMapper.
+     */
+    public AccountMapper(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     /**
      * Convert from Account to AccountDto
@@ -25,9 +36,18 @@ public class AccountMapper implements Mapper<Account, AccountDto> {
             userId = account.getUser().getUserId();
         }
 
+        Double incomesSum = 0.0;
+        Double expensesSum = 0.0;
+        if (account.getAccountId() != null) {
+            incomesSum = transactionService.getSumOfTransactionsWithAccountIdAndSpecifiedType(account.getAccountId(), true);
+            expensesSum = transactionService.getSumOfTransactionsWithAccountIdAndSpecifiedType(account.getAccountId(), false);
+        }
+
         AccountDto accountDto = new AccountDto();
         accountDto.setAccountId(account.getAccountId());
         accountDto.setName(account.getName());
+        accountDto.setIncomesSum(incomesSum);
+        accountDto.setExpensesSum(expensesSum);
         accountDto.setUserId(userId);
         return accountDto;
     }
