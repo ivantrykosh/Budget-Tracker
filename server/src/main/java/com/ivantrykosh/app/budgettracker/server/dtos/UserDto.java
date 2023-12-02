@@ -19,8 +19,6 @@ public class UserDto {
 
     private String email; // User email
 
-    private String passwordSalt; // Password salt
-
     private String passwordHash; // Password hash
 
     private Date registrationDate; // Date of registration

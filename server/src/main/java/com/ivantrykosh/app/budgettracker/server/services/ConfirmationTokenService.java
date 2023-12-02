@@ -39,11 +39,22 @@ public class ConfirmationTokenService {
     }
 
     /**
+     * Retrieves a confirmation token entity by its confirmation token.
+     *
+     * @param token The confirmation token of the confirmation token entity to retrieve.
+     * @return The confirmation token entity if found, otherwise null.
+     */
+    public ConfirmationToken getConfirmationTokenByConfirmationToken(String token) {
+        Optional<ConfirmationToken> confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
+        return confirmationToken.orElse(null);
+    }
+
+    /**
      * Retrieves all confirmation tokens by userId
      * @param userId The ID of the user to retrieve
      * @return The list of confirmation tokens
      */
-    public List<ConfirmationToken> getConfirmationTokenByUserId(Long userId) {
+    public List<ConfirmationToken> getConfirmationTokensByUserId(Long userId) {
         return confirmationTokenRepository.findAllByUserUserId(userId);
     }
 
@@ -61,11 +72,23 @@ public class ConfirmationTokenService {
      * Deletes a confirmation token by their ID.
      *
      * @param confirmationTokenId The ID of the confirmation token to delete.
-     * @return The deleted confirmation if found, otherwise null.
+     * @return The deleted confirmation token if found, otherwise null.
      */
     public ConfirmationToken deleteConfirmationTokenById(Long confirmationTokenId) {
         Optional<ConfirmationToken> confirmationToken = confirmationTokenRepository.findById(confirmationTokenId);
         confirmationTokenRepository.deleteById(confirmationTokenId);
         return confirmationToken.orElse(null);
+    }
+
+    /**
+     * Deletes confirmation tokens by their user ID.
+     *
+     * @param userId The user ID, by which confirmation tokens are deleted.
+     * @return The deleted confirmation tokens.
+     */
+    public List<ConfirmationToken> deleteConfirmationTokensByUserId(Long userId) {
+        List<ConfirmationToken> confirmationTokens = getConfirmationTokensByUserId(userId);
+        confirmationTokenRepository.deleteAll(confirmationTokens);
+        return confirmationTokens;
     }
 }

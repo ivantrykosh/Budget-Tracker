@@ -31,7 +31,6 @@ class UserMapperTest {
         assertEquals(user.getUserId(), userDto.getUserId(), "User IDs are not equals!");
         assertEquals(user.getEmail(), userDto.getEmail(), "User emails are not equals!");
         assertEquals(user.getPasswordHash(), userDto.getPasswordHash(), "User hashes are not equals!");
-        assertEquals(user.getPasswordSalt(), userDto.getPasswordSalt(), "User salts are not equals!");
         assertEquals(user.getRegistrationDate(), userDto.getRegistrationDate(), "User registration dates are not equals!");
         assertEquals(user.getIsVerified(), userDto.getIsVerified(), "User IsVerifieds are not equals!");
     }
@@ -68,7 +67,6 @@ class UserMapperTest {
         assertEquals(userDto.getUserId(), user.getUserId(), "User IDs are not equals!");
         assertEquals(userDto.getEmail(), user.getEmail(), "User emails are not equals!");
         assertEquals(userDto.getPasswordHash(), user.getPasswordHash(), "User hashes are not equals!");
-        assertEquals(userDto.getPasswordSalt(), user.getPasswordSalt(), "User salts are not equals!");
         assertEquals(userDto.getRegistrationDate(), user.getRegistrationDate(), "User registration dates are not equals!");
         assertEquals(userDto.getIsVerified(), user.getIsVerified(), "User IsVerifieds are not equals!");
     }
@@ -98,7 +96,6 @@ class UserMapperTest {
         User user = new User();
         user.setUserId(1L);
         user.setEmail("test@email.com");
-        user.setPasswordSalt("salt");
         user.setPasswordHash("hash");
         user.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         user.setIsVerified(false);
@@ -115,7 +112,6 @@ class UserMapperTest {
         UserDto userDto = new UserDto();
         userDto.setUserId(1L);
         userDto.setEmail("test@email.com");
-        userDto.setPasswordSalt("salt");
         userDto.setPasswordHash("hash");
         userDto.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         userDto.setIsVerified(false);

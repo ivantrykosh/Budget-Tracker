@@ -40,7 +40,6 @@ class AccountServiceTest {
     public void saveUser() {
         User newUser = new User();
         newUser.setEmail("testemail@gmail.com");
-        newUser.setPasswordSalt("salt");
         newUser.setPasswordHash("hash");
         newUser.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         newUser.setIsVerified(false);
@@ -205,6 +204,46 @@ class AccountServiceTest {
         Account savedAccount = accountService.saveAccount(account);
 
         assertNull(accountService.getAccountById(Long.MAX_VALUE), "Account is deleted!");
+    }
+
+    /**
+     * Test deleting Accounts with user ID
+     */
+    @Test
+    void deleteAccountsByUserId() {
+        Account account1 = createNewValidAccount();
+
+        Account account2 = createNewValidAccount();
+        account2.setName("test account 2");
+
+        // Save accounts
+        Account savedAccount1 = accountService.saveAccount(account1);
+        Account savedAccount2 = accountService.saveAccount(account2);
+
+        // Delete accounts
+        List<Account> retrievedAccounts = accountService.deleteAccountsByUserId(user.getUserId());
+
+        // Print saved and retrieved accounts
+        System.out.println(savedAccount1 + "\n" + savedAccount2 + "\n" + retrievedAccounts);
+
+        // Assert parameters are equals
+        assertEquals(2, retrievedAccounts.size(), "Size of account's list is not 2!");
+        assertEquals(savedAccount1.getName(), retrievedAccounts.get(0).getName(), "Names are not equals!");
+        assertEquals(savedAccount2.getName(), retrievedAccounts.get(1).getName(), "Names are not equals!");
+        assertEquals(0, accountService.getAccountsByUserId(user.getUserId()).size(), "Accounts are not deleted!");
+    }
+
+    /**
+     * Test deleting Account with invalid user ID
+     */
+    @Test
+    void deleteAccountsByInvalidUserId() {
+        Account account = createNewValidAccount();
+
+        // Save account
+        Account savedAccount = accountService.saveAccount(account);
+
+        assertEquals(0, accountService.deleteAccountsByUserId(Long.MAX_VALUE).size(), "List is not empty!");
     }
 
     /**

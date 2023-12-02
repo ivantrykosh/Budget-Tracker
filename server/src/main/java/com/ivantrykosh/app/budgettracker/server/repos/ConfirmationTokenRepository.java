@@ -6,6 +6,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for managing Confirmation Token entities.
@@ -20,4 +21,11 @@ public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationT
      * @return Found confirmation tokens
      */
     List<ConfirmationToken> findAllByUserUserId(@NonNull Long userId);
+
+    /**
+     * Find confirmation token entity by confirmation token
+     * @param confirmationToken confirmation token by which token is found
+     * @return Found confirmation token entity
+     */
+    Optional<ConfirmationToken> findByConfirmationToken(@NonNull String confirmationToken);
 }

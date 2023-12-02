@@ -188,7 +188,6 @@ class UserServiceTest {
         // User data
         User user = new User();
         user.setEmail("testemail@gmail.com");
-        user.setPasswordSalt("salt");
         user.setPasswordHash("hash");
         user.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         user.setIsVerified(false);

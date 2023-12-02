@@ -26,9 +26,6 @@ public class User {
     @Column(name = "email", length = 320, nullable = false, unique = true)
     private String email; // User email
 
-    @Column(name = "user_password_salt", nullable = false)
-    private String passwordSalt; // Password salt
-
     @Column(name = "user_password_hash", nullable = false)
     private String passwordHash; // Password hash
 

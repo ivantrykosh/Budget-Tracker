@@ -47,7 +47,6 @@ class AccountUsersServiceTest {
         // First user
         User newUser = new User();
         newUser.setEmail("testemail@gmail.com");
-        newUser.setPasswordSalt("salt");
         newUser.setPasswordHash("hash");
         newUser.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         newUser.setIsVerified(false);
@@ -56,7 +55,6 @@ class AccountUsersServiceTest {
         // Second user
         User newUser2 = new User();
         newUser2.setEmail("testemail2@gmail.com");
-        newUser2.setPasswordSalt("salt");
         newUser2.setPasswordHash("hash");
         newUser2.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         newUser2.setIsVerified(false);
@@ -255,6 +253,40 @@ class AccountUsersServiceTest {
         AccountUsers savedAccountUsers = accountUsersService.saveAccountUsers(accountUsers);
 
         assertNull(accountUsersService.getAccountUsersById(Long.MAX_VALUE), "Account users is deleted!");
+    }
+
+    /**
+     * Test deleting user IDs in AccountUsers
+     */
+    @Test
+    void deleteUserIdFromAccountUsers() {
+        AccountUsers accountUsers = createNewValidAccountUsers();
+
+        // Save account users
+        AccountUsers savedAccountUsers = accountUsersService.saveAccountUsers(accountUsers);
+
+        // Delete user IDs from account users
+        List<AccountUsers> retrievedAccountUsers = accountUsersService.deleteUserIdFromAccountUsers(user2.getUserId());
+
+        // Print saved and retrieved account users
+        System.out.println(savedAccountUsers + "\n" + retrievedAccountUsers);
+
+        // Assert parameters are equals
+        assertNull(retrievedAccountUsers.get(0).getUser2Id(), "User2Id is not null!");
+        assertEquals(0, accountUsersService.getAccountsUsersByUserId(user2.getUserId()).size(), "User IDs are not deleted!");
+    }
+
+    /**
+     * Test deleting invalid user IDs in AccountUsers
+     */
+    @Test
+    void deleteInvalidUserIdFromAccountUsers() {
+        AccountUsers accountUsers = createNewValidAccountUsers();
+
+        // Save account users
+        AccountUsers savedAccountUsers = accountUsersService.saveAccountUsers(accountUsers);
+
+        assertEquals(0, accountUsersService.deleteUserIdFromAccountUsers(Long.MAX_VALUE).size(), "List is not empty!");
     }
 
     /**

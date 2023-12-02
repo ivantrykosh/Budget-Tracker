@@ -29,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userService.getUserByEmail(username);
         if (user == null) {
-            throw new UsernameNotFoundException("Could not found user!");
+            throw new UsernameNotFoundException("Could not find user with email " + username +  "!");
         }
         return new CustomUserDetails(user);
     }

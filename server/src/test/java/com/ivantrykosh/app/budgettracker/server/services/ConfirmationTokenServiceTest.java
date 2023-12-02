@@ -40,7 +40,6 @@ class ConfirmationTokenServiceTest {
     public void saveUser() {
         User newUser = new User();
         newUser.setEmail("testemail@gmail.com");
-        newUser.setPasswordSalt("salt");
         newUser.setPasswordHash("hash");
         newUser.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         newUser.setIsVerified(false);
@@ -111,6 +110,39 @@ class ConfirmationTokenServiceTest {
     }
 
     /**
+     * Test getting ConfirmationToken by confirmation token
+     */
+    @Test
+    void getConfirmationTokenByConfirmationToken() {
+        ConfirmationToken confirmationToken = createNewValidConfirmationToken();
+
+        // Save token
+        ConfirmationToken savedConfirmationToken = confirmationTokenService.saveConfirmationToken(confirmationToken);
+
+        // Get token by confirmation token
+        ConfirmationToken retrievedConfirmationToken = confirmationTokenService.getConfirmationTokenByConfirmationToken(savedConfirmationToken.getConfirmationToken());
+
+        // Print token, saved token and retrieved token
+        System.out.println(confirmationToken + "\n" + savedConfirmationToken + "\n" + retrievedConfirmationToken);
+
+        // Assert parameters are equals
+        assertEquals(savedConfirmationToken.getConfirmationTokenId(), retrievedConfirmationToken.getConfirmationTokenId(), "IDs are not equals!");
+    }
+
+    /**
+     * Test getting ConfirmationToken with invalid confirmation token
+     */
+    @Test
+    void getConfirmationTokenByInvalidConfirmationToken() {
+        ConfirmationToken confirmationToken = createNewValidConfirmationToken();
+
+        // Save token
+        ConfirmationToken savedConfirmationToken = confirmationTokenService.saveConfirmationToken(confirmationToken);
+
+        assertNull(confirmationTokenService.getConfirmationTokenByConfirmationToken(""), "Token is not null!");
+    }
+
+    /**
      * Test getting confirmation tokens by user ID
      */
     @Test
@@ -125,7 +157,7 @@ class ConfirmationTokenServiceTest {
         ConfirmationToken savedConfirmationToken2 = confirmationTokenService.saveConfirmationToken(confirmationToken2);
 
         // Get confirmation tokens
-        List<ConfirmationToken> retrievedConfirmationTokens = confirmationTokenService.getConfirmationTokenByUserId(user.getUserId());
+        List<ConfirmationToken> retrievedConfirmationTokens = confirmationTokenService.getConfirmationTokensByUserId(user.getUserId());
 
         // Print saved and retrieved confirmation tokens
         System.out.println(savedConfirmationToken1 + "\n" + savedConfirmationToken2 + "\n" + retrievedConfirmationTokens);
@@ -146,7 +178,7 @@ class ConfirmationTokenServiceTest {
         // Save token
         ConfirmationToken savedConfirmationToken = confirmationTokenService.saveConfirmationToken(confirmationToken);
 
-        assertEquals(0, confirmationTokenService.getConfirmationTokenByUserId(Long.MAX_VALUE).size(), "List is not empty!");
+        assertEquals(0, confirmationTokenService.getConfirmationTokensByUserId(Long.MAX_VALUE).size(), "List is not empty!");
     }
 
     /**
@@ -205,7 +237,46 @@ class ConfirmationTokenServiceTest {
         ConfirmationToken savedConfirmationToken = confirmationTokenService.saveConfirmationToken(confirmationToken);
 
         assertNull(confirmationTokenService.getConfirmationTokenById(Long.MAX_VALUE), "Token is deleted!");
+    }
 
+    /**
+     * Test deleting confirmation tokens by user ID
+     */
+    @Test
+    void deleteConfirmationTokenByUserId() {
+        ConfirmationToken confirmationToken1 = createNewValidConfirmationToken();
+
+        ConfirmationToken confirmationToken2 = createNewValidConfirmationToken();
+        confirmationToken2.setConfirmedAt(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
+
+        // Save confirmation tokens
+        ConfirmationToken savedConfirmationToken1 = confirmationTokenService.saveConfirmationToken(confirmationToken1);
+        ConfirmationToken savedConfirmationToken2 = confirmationTokenService.saveConfirmationToken(confirmationToken2);
+
+        // Delete confirmation tokens
+        List<ConfirmationToken> retrievedConfirmationTokens = confirmationTokenService.deleteConfirmationTokensByUserId(user.getUserId());
+
+        // Print saved and retrieved confirmation tokens
+        System.out.println(savedConfirmationToken1 + "\n" + savedConfirmationToken2 + "\n" + retrievedConfirmationTokens);
+
+        // Assert parameters are equals
+        assertEquals(2, retrievedConfirmationTokens.size(), "Size of token's list is not 2!");
+        assertEquals(confirmationToken1.getConfirmationToken(), retrievedConfirmationTokens.get(0).getConfirmationToken(), "Tokens are not equals!");
+        assertEquals(confirmationToken2.getConfirmationToken(), retrievedConfirmationTokens.get(1).getConfirmationToken(), "Tokens are not equals!");
+        assertEquals(0, confirmationTokenService.getConfirmationTokensByUserId(user.getUserId()).size(), "Tokens are not deleted!");
+    }
+
+    /**
+     * Test deleting tokens by invalid user ID
+     */
+    @Test
+    void deleteConfirmationTokensByInvalidUserId() {
+        ConfirmationToken confirmationToken = createNewValidConfirmationToken();
+
+        // Save token
+        ConfirmationToken savedConfirmationToken = confirmationTokenService.saveConfirmationToken(confirmationToken);
+
+        assertEquals(0, confirmationTokenService.deleteConfirmationTokensByUserId(Long.MAX_VALUE).size(), "List is not empty!");
     }
 
     /**

@@ -77,6 +77,36 @@ public class AccountUsersService {
     }
 
     /**
+     * Deletes user ID from every account users.
+     *
+     * @param userId The user ID to delete.
+     * @return The updated account users.
+     */
+    public List<AccountUsers> deleteUserIdFromAccountUsers(Long userId) {
+        List<AccountUsers> updatedList = Stream.of(
+                        accountUsersRepository.findAllByUser2Id(userId),
+                        accountUsersRepository.findAllByUser3Id(userId),
+                        accountUsersRepository.findAllByUser4Id(userId)
+                )
+                .flatMap(List::stream)
+                .map(accountUsers -> {
+                    if (userId.equals(accountUsers.getUser2Id())) {
+                        accountUsers.setUser2Id(null);
+                    }
+                    if (userId.equals(accountUsers.getUser3Id())) {
+                        accountUsers.setUser3Id(null);
+                    }
+                    if (userId.equals(accountUsers.getUser4Id())) {
+                        accountUsers.setUser4Id(null);
+                    }
+                    return accountUsers;
+                })
+                .collect(Collectors.toList());
+
+        return accountUsersRepository.saveAll(updatedList);
+    }
+
+    /**
      * Deletes account users by their ID.
      *
      * @param accountUsersId The ID of the account users to delete.

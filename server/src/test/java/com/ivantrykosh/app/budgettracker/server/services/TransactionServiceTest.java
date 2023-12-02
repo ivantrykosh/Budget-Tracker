@@ -48,7 +48,6 @@ class TransactionServiceTest {
         // First user
         User newUser = new User();
         newUser.setEmail("testemail@gmail.com");
-        newUser.setPasswordSalt("salt");
         newUser.setPasswordHash("hash");
         newUser.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         newUser.setIsVerified(false);
@@ -172,7 +171,7 @@ class TransactionServiceTest {
     @Test
     void getTransactionsByAccountIds() {
         Transaction transaction1 = createNewValidTransaction(100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), account1);
-        Transaction transaction2 = createNewValidTransaction(-100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), account2);
+        Transaction transaction2 = createNewValidTransaction(-100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1)), account2);
 
         // Save transactions
         Transaction savedTransaction1 = transactionService.saveTransaction(transaction1);
@@ -186,8 +185,8 @@ class TransactionServiceTest {
 
         // Assert parameters are equals
         assertEquals(2, retrievedTransactions.size(), "Size of list is not 2!");
-        assertEquals(savedTransaction1.getValue(), retrievedTransactions.get(0).getValue(), "Transaction's values are not equals!");
-        assertEquals(savedTransaction2.getValue(), retrievedTransactions.get(1).getValue(), "Transaction's values are not equals!");
+        assertEquals(savedTransaction1.getValue(), retrievedTransactions.get(1).getValue(), "Transaction's values are not equals!");
+        assertEquals(savedTransaction2.getValue(), retrievedTransactions.get(0).getValue(), "Transaction's values are not equals!");
     }
 
     /**
@@ -379,7 +378,7 @@ class TransactionServiceTest {
      * Test deleting Transaction
      */
     @Test
-    void deleteAccountById() {
+    void deleteTransactionById() {
         Transaction transaction = createNewValidTransaction(100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), account1);
 
         // Save transaction
@@ -407,6 +406,43 @@ class TransactionServiceTest {
         Transaction savedTransaction = transactionService.saveTransaction(transaction);
 
         assertNull(transactionService.getTransactionById(Long.MAX_VALUE), "Transaction is deleted!");
+    }
+
+    /**
+     * Test deleting Transaction by AccountId
+     */
+    @Test
+    void deleteTransactionsByAccountId() {
+        Transaction transaction1 = createNewValidTransaction(100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), account1);
+        Transaction transaction2 = createNewValidTransaction(-100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), account2);
+
+        // Save transactions
+        Transaction savedTransaction1 = transactionService.saveTransaction(transaction1);
+        Transaction savedTransaction2 = transactionService.saveTransaction(transaction2);
+
+        // Delete transactions by AccountId
+        List<Transaction> retrievedTransactions = transactionService.deleteTransactionsByAccountId(savedTransaction1.getAccount().getAccountId());
+
+        // Print saved and retrieved account users
+        System.out.println(savedTransaction1 + "\n" + retrievedTransactions);
+
+        // Assert parameters are equals
+        assertEquals(1, retrievedTransactions.size(), "Size of list is not 1!");
+        assertEquals(savedTransaction1.getValue(), retrievedTransactions.get(0).getValue(), "Transaction's values are not equals!");
+        assertEquals(0, transactionService.getTransactionsByAccountId(savedTransaction1.getAccount().getAccountId()).size(), "Transactions are not deleted!");
+    }
+
+    /**
+     * Test deleting Transaction by invalid AccountID
+     */
+    @Test
+    void deleteTransactionsByInvalidAccountId() {
+        Transaction transaction = createNewValidTransaction(100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), account1);
+
+        // Save transaction
+        Transaction savedTransaction = transactionService.saveTransaction(transaction);
+
+        assertEquals(0, transactionService.deleteTransactionsByAccountId(Long.MAX_VALUE).size(), "List of transaction is not empty!");
     }
 
     /**

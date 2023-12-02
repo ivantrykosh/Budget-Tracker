@@ -69,4 +69,16 @@ public class AccountService {
         accountRepository.deleteById(accountId);
         return account.orElse(null);
     }
+
+    /**
+     * Deletes accounts by their user ID.
+     *
+     * @param userId The user ID by which accounts are deleted.
+     * @return The deleted accounts.
+     */
+    public List<Account> deleteAccountsByUserId(Long userId) {
+        List<Account> accounts = getAccountsByUserId(userId);
+        accountRepository.deleteAll(accounts);
+        return accounts;
+    }
 }

@@ -10,10 +10,11 @@ import java.util.Collection;
 /**
  * Custom implementation of UserDetails that extends the model's User class.
  */
-public class CustomUserDetails extends User implements UserDetails {
+public class CustomUserDetails implements UserDetails {
     private String username; // Username (email)
     private String password; // Password
     Collection<? extends GrantedAuthority> authorities; // Authorities (always empty)
+    private Boolean enabled; // Is user enabled (has verified email)
 
     /**
      * Constructs a CustomUserDetails object based on a User entity.
@@ -24,6 +25,7 @@ public class CustomUserDetails extends User implements UserDetails {
         this.username = user.getEmail();
         this.password= user.getPasswordHash();
         this.authorities = new ArrayList<>();
+        this.enabled = user.getIsVerified();
     }
 
     /**
@@ -93,6 +95,6 @@ public class CustomUserDetails extends User implements UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }

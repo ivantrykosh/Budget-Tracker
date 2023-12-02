@@ -139,4 +139,16 @@ public class TransactionService {
         transactionRepository.deleteById(transactionId);
         return transaction.orElse(null);
     }
+
+    /**
+     * Deletes transaction by their account ID.
+     *
+     * @param accountId The account ID by which transaction is deleted.
+     * @return The deleted transactions
+     */
+    public List<Transaction> deleteTransactionsByAccountId(Long accountId) {
+        List<Transaction> transactions = getTransactionsByAccountId(accountId);
+        transactionRepository.deleteAll(transactions);
+        return transactions;
+    }
 }

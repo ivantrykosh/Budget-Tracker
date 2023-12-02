@@ -22,7 +22,6 @@ public class UserMapper implements Mapper<User, UserDto> {
         UserDto userDto = new UserDto();
         userDto.setUserId(user.getUserId());
         userDto.setEmail(user.getEmail());
-        userDto.setPasswordSalt(user.getPasswordSalt());
         userDto.setPasswordHash(user.getPasswordHash());
         userDto.setRegistrationDate(user.getRegistrationDate());
         userDto.setIsVerified(user.getIsVerified());
@@ -43,7 +42,6 @@ public class UserMapper implements Mapper<User, UserDto> {
         User user = new User();
         user.setUserId(userDto.getUserId());
         user.setEmail(userDto.getEmail());
-        user.setPasswordSalt(userDto.getPasswordSalt());
         user.setPasswordHash(userDto.getPasswordHash());
         user.setRegistrationDate(userDto.getRegistrationDate());
         user.setIsVerified(userDto.getIsVerified());
