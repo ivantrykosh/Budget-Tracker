@@ -3,10 +3,12 @@ package com.ivantrykosh.app.budgettracker.server.mappers;
 import com.ivantrykosh.app.budgettracker.server.dtos.TransactionDto;
 import com.ivantrykosh.app.budgettracker.server.model.Account;
 import com.ivantrykosh.app.budgettracker.server.model.Transaction;
+import org.springframework.stereotype.Component;
 
 /**
  * Mapper for Transaction
  */
+@Component
 public class TransactionMapper implements Mapper<Transaction, TransactionDto> {
 
     /**

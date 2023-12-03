@@ -4,10 +4,12 @@ import com.ivantrykosh.app.budgettracker.server.dtos.AccountDto;
 import com.ivantrykosh.app.budgettracker.server.model.Account;
 import com.ivantrykosh.app.budgettracker.server.model.User;
 import com.ivantrykosh.app.budgettracker.server.services.TransactionService;
+import org.springframework.stereotype.Component;
 
 /**
  * Mapper for Account
  */
+@Component
 public class AccountMapper implements Mapper<Account, AccountDto> {
 
     private TransactionService transactionService;

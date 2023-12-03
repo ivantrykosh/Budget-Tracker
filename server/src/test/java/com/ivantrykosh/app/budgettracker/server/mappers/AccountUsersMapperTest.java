@@ -3,9 +3,16 @@ package com.ivantrykosh.app.budgettracker.server.mappers;
 import com.ivantrykosh.app.budgettracker.server.dtos.AccountUsersDto;
 import com.ivantrykosh.app.budgettracker.server.model.Account;
 import com.ivantrykosh.app.budgettracker.server.model.AccountUsers;
+import com.ivantrykosh.app.budgettracker.server.model.User;
+import com.ivantrykosh.app.budgettracker.server.services.UserService;
+import jakarta.annotation.PostConstruct;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test AccountUsersMapper
@@ -17,18 +24,27 @@ class AccountUsersMapperTest {
      */
     @Test
     void convertValidAccountUsersToAccountUsersDto() {
+        // Arrange
+        UserService userService = mock(UserService.class);
+        when(userService.getUserById(2L)).thenReturn(createUser(2L, "test2@gmail.com"));
+        when(userService.getUserById(3L)).thenReturn(createUser(3L, "test3@gmail.com"));
+        when(userService.getUserById(4L)).thenReturn(createUser(4L, "test4@gmail.com"));
+        when(userService.getUserByEmail("test2@gmail.com")).thenReturn(createUser(2L, "test2@gmail.com"));
+        when(userService.getUserByEmail("test3@gmail.com")).thenReturn(createUser(3L, "test3@gmail.com"));
+        when(userService.getUserByEmail("test4@gmail.com")).thenReturn(createUser(4L, "test4@gmail.com"));
+
         AccountUsers accountUsers = createAccountUsers();
 
-        Mapper<AccountUsers, AccountUsersDto> mapper = new AccountUsersMapper();
+        Mapper<AccountUsers, AccountUsersDto> mapper = new AccountUsersMapper(userService);
 
         // Convert to DTO
         AccountUsersDto accountUsersDto = mapper.convertToDto(accountUsers);
 
         // Assertions
         assertEquals(accountUsers.getAccountUsersId(), accountUsersDto.getAccountUsersId(), "AccountUsers IDs are not equals!");
-        assertEquals(accountUsers.getUser2Id(), accountUsersDto.getUser2Id(), "AccountUsers User2ID are not equals!");
-        assertEquals(accountUsers.getUser3Id(), accountUsersDto.getUser3Id(), "AccountUsers User3ID are not equals!");
-        assertEquals(accountUsers.getUser4Id(), accountUsersDto.getUser4Id(), "AccountUsers User4ID are not equals!");
+        assertEquals(accountUsers.getUser2Id(), userService.getUserByEmail(accountUsersDto.getEmail2()).getUserId(), "AccountUsers User2ID are not equals!");
+        assertEquals(accountUsers.getUser3Id(), userService.getUserByEmail(accountUsersDto.getEmail3()).getUserId(), "AccountUsers User3ID are not equals!");
+        assertEquals(accountUsers.getUser4Id(), userService.getUserByEmail(accountUsersDto.getEmail4()).getUserId(), "AccountUsers User4ID are not equals!");
         assertEquals(accountUsers.getAccount().getAccountId(), accountUsersDto.getAccountId(), "Account IDs are not equals!");
     }
 
@@ -37,9 +53,18 @@ class AccountUsersMapperTest {
      */
     @Test
     void convertNullAccountUsersToAccountUsersDto() {
+        // Arrange
+        UserService userService = mock(UserService.class);
+        when(userService.getUserById(2L)).thenReturn(createUser(2L, "test2@gmail.com"));
+        when(userService.getUserById(3L)).thenReturn(createUser(3L, "test3@gmail.com"));
+        when(userService.getUserById(4L)).thenReturn(createUser(4L, "test4@gmail.com"));
+        when(userService.getUserByEmail("test2@gmail.com")).thenReturn(createUser(2L, "test2@gmail.com"));
+        when(userService.getUserByEmail("test3@gmail.com")).thenReturn(createUser(3L, "test3@gmail.com"));
+        when(userService.getUserByEmail("test4@gmail.com")).thenReturn(createUser(4L, "test4@gmail.com"));
+
         AccountUsers accountUsers = null;
 
-        Mapper<AccountUsers, AccountUsersDto> mapper = new AccountUsersMapper();
+        Mapper<AccountUsers, AccountUsersDto> mapper = new AccountUsersMapper(userService);
 
         // Convert to DTO
         AccountUsersDto accountUsersDto = mapper.convertToDto(accountUsers);
@@ -53,18 +78,27 @@ class AccountUsersMapperTest {
      */
     @Test
     void convertValidAccountUsersDtoToAccountUsers() {
+        // Arrange
+        UserService userService = mock(UserService.class);
+        when(userService.getUserById(2L)).thenReturn(createUser(2L, "test2@gmail.com"));
+        when(userService.getUserById(3L)).thenReturn(createUser(3L, "test3@gmail.com"));
+        when(userService.getUserById(4L)).thenReturn(createUser(4L, "test4@gmail.com"));
+        when(userService.getUserByEmail("test2@gmail.com")).thenReturn(createUser(2L, "test2@gmail.com"));
+        when(userService.getUserByEmail("test3@gmail.com")).thenReturn(createUser(3L, "test3@gmail.com"));
+        when(userService.getUserByEmail("test4@gmail.com")).thenReturn(createUser(4L, "test4@gmail.com"));
+
         AccountUsersDto accountUsersDto = createAccountUsersDto();
 
-        Mapper<AccountUsers, AccountUsersDto> mapper = new AccountUsersMapper();
+        Mapper<AccountUsers, AccountUsersDto> mapper = new AccountUsersMapper(userService);
 
         // Convert to entity
         AccountUsers accountUsers = mapper.convertToEntity(accountUsersDto);
 
         // Assertions
         assertEquals(accountUsersDto.getAccountUsersId(), accountUsers.getAccountUsersId(), "AccountUsers IDs are not equals!");
-        assertEquals(accountUsersDto.getUser2Id(), accountUsers.getUser2Id(), "AccountUsers User2ID are not equals!");
-        assertEquals(accountUsersDto.getUser3Id(), accountUsers.getUser3Id(), "AccountUsers User3ID are not equals!");
-        assertEquals(accountUsersDto.getUser4Id(), accountUsers.getUser4Id(), "AccountUsers User4ID are not equals!");
+        assertEquals(accountUsers.getUser2Id(), userService.getUserByEmail(accountUsersDto.getEmail2()).getUserId(), "AccountUsers User2ID are not equals!");
+        assertEquals(accountUsers.getUser3Id(), userService.getUserByEmail(accountUsersDto.getEmail3()).getUserId(), "AccountUsers User3ID are not equals!");
+        assertEquals(accountUsers.getUser4Id(), userService.getUserByEmail(accountUsersDto.getEmail4()).getUserId(), "AccountUsers User4ID are not equals!");
         assertEquals(accountUsersDto.getAccountId(), accountUsers.getAccount().getAccountId(), "Account IDs are not equals!");
     }
 
@@ -73,15 +107,39 @@ class AccountUsersMapperTest {
      */
     @Test
     void convertNullAccountUsersDtoToAccountUsers() {
+        // Arrange
+        UserService userService = mock(UserService.class);
+        when(userService.getUserById(2L)).thenReturn(createUser(2L, "test2@gmail.com"));
+        when(userService.getUserById(3L)).thenReturn(createUser(3L, "test3@gmail.com"));
+        when(userService.getUserById(4L)).thenReturn(createUser(4L, "test4@gmail.com"));
+        when(userService.getUserByEmail("test2@gmail.com")).thenReturn(createUser(2L, "test2@gmail.com"));
+        when(userService.getUserByEmail("test3@gmail.com")).thenReturn(createUser(3L, "test3@gmail.com"));
+        when(userService.getUserByEmail("test4@gmail.com")).thenReturn(createUser(4L, "test4@gmail.com"));
+
         AccountUsersDto accountUsersDto = null;
 
-        Mapper<AccountUsers, AccountUsersDto> mapper = new AccountUsersMapper();
+        Mapper<AccountUsers, AccountUsersDto> mapper = new AccountUsersMapper(userService);
 
         // Convert to entity
         AccountUsers accountUsers = mapper.convertToEntity(accountUsersDto);
 
         // Assertions
         assertNull(accountUsers, "AccountUsers is not null!");
+    }
+
+    /**
+     * Create new valid User
+     * @param userId User Id
+     * @param userEmail User email
+     * @return new valid User
+     */
+    private User createUser(Long userId, String userEmail) {
+        // User data
+        User user = new User();
+        user.setUserId(userId);
+        user.setEmail(userEmail);
+
+        return user;
     }
 
     /**
@@ -112,9 +170,9 @@ class AccountUsersMapperTest {
         // AccountUsersDto data
         AccountUsersDto accountUsersDto = new AccountUsersDto();
         accountUsersDto.setAccountUsersId(1L);
-        accountUsersDto.setUser2Id(2L);
-        accountUsersDto.setUser3Id(3L);
-        accountUsersDto.setUser4Id(4L);
+        accountUsersDto.setEmail2("test2@gmail.com");
+        accountUsersDto.setEmail3("test3@gmail.com");
+        accountUsersDto.setEmail4("test4@gmail.com");
         accountUsersDto.setAccountId(1L);
 
         return accountUsersDto;

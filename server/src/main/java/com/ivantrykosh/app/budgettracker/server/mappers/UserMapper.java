@@ -2,10 +2,12 @@ package com.ivantrykosh.app.budgettracker.server.mappers;
 
 import com.ivantrykosh.app.budgettracker.server.dtos.UserDto;
 import com.ivantrykosh.app.budgettracker.server.model.User;
+import org.springframework.stereotype.Component;
 
 /**
  * Mapper for User
  */
+@Component
 public class UserMapper implements Mapper<User, UserDto> {
 
     /**

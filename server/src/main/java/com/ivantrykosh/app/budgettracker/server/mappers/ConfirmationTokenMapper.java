@@ -3,10 +3,12 @@ package com.ivantrykosh.app.budgettracker.server.mappers;
 import com.ivantrykosh.app.budgettracker.server.dtos.ConfirmationTokenDto;
 import com.ivantrykosh.app.budgettracker.server.model.ConfirmationToken;
 import com.ivantrykosh.app.budgettracker.server.model.User;
+import org.springframework.stereotype.Component;
 
 /**
  * Mapper for Confirmation Token
  */
+@Component
 public class ConfirmationTokenMapper implements Mapper<ConfirmationToken, ConfirmationTokenDto> {
 
     /**

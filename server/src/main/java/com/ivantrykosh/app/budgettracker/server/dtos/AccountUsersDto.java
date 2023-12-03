@@ -17,9 +17,9 @@ public class AccountUsersDto {
 
     private Long accountId; // ID of account to which users belong
 
-    private Long user2Id; // Second user id
+    private String email2; // Second user email
 
-    private Long user3Id; // Third user id
+    private String email3; // Third user email
 
-    private Long user4Id; // Fourth user id
+    private String email4; // Fourth user email
 }

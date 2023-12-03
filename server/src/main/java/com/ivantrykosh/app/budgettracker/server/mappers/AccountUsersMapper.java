@@ -3,11 +3,27 @@ package com.ivantrykosh.app.budgettracker.server.mappers;
 import com.ivantrykosh.app.budgettracker.server.dtos.AccountUsersDto;
 import com.ivantrykosh.app.budgettracker.server.model.Account;
 import com.ivantrykosh.app.budgettracker.server.model.AccountUsers;
+import com.ivantrykosh.app.budgettracker.server.model.User;
+import com.ivantrykosh.app.budgettracker.server.services.TransactionService;
+import com.ivantrykosh.app.budgettracker.server.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Mapper for AccountUsers
  */
+@Component
 public class AccountUsersMapper implements Mapper<AccountUsers, AccountUsersDto> {
+
+    private UserService userService;
+
+    /**
+     * Create an instance of AccountUsersMapper with the specified UserService
+     * @param userService UserService to be used by the AccountMapper.
+     */
+    public AccountUsersMapper(UserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * Convert from AccountUsers to AccountUsersDto
@@ -27,9 +43,24 @@ public class AccountUsersMapper implements Mapper<AccountUsers, AccountUsersDto>
 
         AccountUsersDto accountUsersDto = new AccountUsersDto();
         accountUsersDto.setAccountUsersId(accountUsers.getAccountUsersId());
-        accountUsersDto.setUser2Id(accountUsers.getUser2Id());
-        accountUsersDto.setUser3Id(accountUsers.getUser3Id());
-        accountUsersDto.setUser4Id(accountUsers.getUser4Id());
+        User user = accountUsers.getUser2Id() != null ? userService.getUserById(accountUsers.getUser2Id()) : null;
+        if (user == null) {
+            accountUsersDto.setEmail2(null);
+        } else {
+            accountUsersDto.setEmail2(user.getEmail());
+        }
+        user = accountUsers.getUser3Id() != null ? userService.getUserById(accountUsers.getUser3Id()) : null;
+        if (user == null) {
+            accountUsersDto.setEmail3(null);
+        } else {
+            accountUsersDto.setEmail3(user.getEmail());
+        }
+        user = accountUsers.getUser4Id() != null ? userService.getUserById(accountUsers.getUser4Id()) : null;
+        if (user == null) {
+            accountUsersDto.setEmail4(null);
+        } else {
+            accountUsersDto.setEmail4(user.getEmail());
+        }
         accountUsersDto.setAccountId(accountId);
         return accountUsersDto;
     }
@@ -53,9 +84,25 @@ public class AccountUsersMapper implements Mapper<AccountUsers, AccountUsersDto>
 
         AccountUsers accountUsers = new AccountUsers();
         accountUsers.setAccountUsersId(accountUsersDto.getAccountUsersId());
-        accountUsers.setUser2Id(accountUsersDto.getUser2Id());
-        accountUsers.setUser3Id(accountUsersDto.getUser3Id());
-        accountUsers.setUser4Id(accountUsersDto.getUser4Id());
+
+        User user = userService.getUserByEmail(accountUsersDto.getEmail2());
+        if (user == null) {
+            accountUsers.setUser2Id(null);
+        } else {
+            accountUsers.setUser2Id(user.getUserId());
+        }
+        user = userService.getUserByEmail(accountUsersDto.getEmail3());
+        if (user == null) {
+            accountUsers.setUser3Id(null);
+        } else {
+            accountUsers.setUser3Id(user.getUserId());
+        }
+        user = userService.getUserByEmail(accountUsersDto.getEmail4());
+        if (user == null) {
+            accountUsers.setUser4Id(null);
+        } else {
+            accountUsers.setUser4Id(user.getUserId());
+        }
         accountUsers.setAccount(account);
         return accountUsers;
     }
