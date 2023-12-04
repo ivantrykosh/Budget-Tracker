@@ -11,6 +11,7 @@ import com.ivantrykosh.app.budgettracker.server.services.AccountService;
 import com.ivantrykosh.app.budgettracker.server.services.AccountUsersService;
 import com.ivantrykosh.app.budgettracker.server.services.TransactionService;
 import com.ivantrykosh.app.budgettracker.server.services.UserService;
+import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
 import com.ivantrykosh.app.budgettracker.server.validators.TransactionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -49,6 +50,11 @@ public class TransactionController {
      */
     @PostMapping("/create")
     public ResponseEntity<String> createTransaction(@RequestBody TransactionDto transactionDto) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
 
@@ -100,6 +106,11 @@ public class TransactionController {
      */
     @GetMapping("/get")
     public ResponseEntity<?> getTransactionById(@RequestParam String id) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         long transactionId;
         try {
             transactionId = Long.parseLong(id);
@@ -111,7 +122,6 @@ public class TransactionController {
         if (transaction == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No transaction with given id!");
         }
-
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
 
@@ -141,6 +151,11 @@ public class TransactionController {
      */
     @GetMapping("/get-all-by-account")
     public ResponseEntity<?> getTransactionsByAccountId(@RequestParam String id) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         long accountId;
         try {
             accountId = Long.parseLong(id);
@@ -181,6 +196,11 @@ public class TransactionController {
      */
     @GetMapping("/get-all")
     public ResponseEntity<?> getTransactionByAllAccountIds(@RequestParam List<Long> accountIds) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         if (accountIds == null || accountIds.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid accountIds!");
         }
@@ -231,6 +251,11 @@ public class TransactionController {
     public ResponseEntity<?> getTransactionByAllAccountIdsAndDateBetween(@RequestParam List<Long> accountIds,
                                                                          @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
                                                                          @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         if (accountIds == null || accountIds.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid accountIds!");
         }
@@ -286,6 +311,11 @@ public class TransactionController {
      */
     @PutMapping("/update")
     public ResponseEntity<String> updateTransaction(@RequestBody TransactionDto transactionDto) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
 
@@ -339,6 +369,11 @@ public class TransactionController {
      */
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteTransaction(@RequestParam String id) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         long transactionId;
         try {
             transactionId = Long.parseLong(id);

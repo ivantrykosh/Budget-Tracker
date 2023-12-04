@@ -52,7 +52,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v*/auth/login", "/api/v*/auth/register", "/api/v*/auth/confirm").permitAll()
+                        .requestMatchers("/api/v*/auth/login", "/api/v*/auth/register", "/api/v*/auth/confirm", "/api/v*/auth/send-confirmation-email").anonymous()
+                        .requestMatchers("/api/v*/users/reset-password").permitAll()
                         .requestMatchers("/api/v*/**").authenticated()
                         .anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

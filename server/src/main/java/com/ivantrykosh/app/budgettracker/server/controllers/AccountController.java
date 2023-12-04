@@ -14,10 +14,10 @@ import com.ivantrykosh.app.budgettracker.server.services.AccountService;
 import com.ivantrykosh.app.budgettracker.server.services.AccountUsersService;
 import com.ivantrykosh.app.budgettracker.server.services.TransactionService;
 import com.ivantrykosh.app.budgettracker.server.services.UserService;
+import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
 import com.ivantrykosh.app.budgettracker.server.validators.AccountValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,6 +56,11 @@ public class AccountController {
     @PostMapping("/create")
     @Transactional
     public ResponseEntity<?> createAccount(@RequestBody CreateAndChangeAccountRequest createAndChangeAccountRequest) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
 
@@ -89,8 +94,8 @@ public class AccountController {
         }
         if (createAndChangeAccountRequest.getEmail4() != null) {
             if (!accountValidator.checkEmail(createAndChangeAccountRequest.getEmail4(), account)
-                    || createAndChangeAccountRequest.getEmail3().equals(createAndChangeAccountRequest.getEmail2())
-                    || createAndChangeAccountRequest.getEmail3().equals(createAndChangeAccountRequest.getEmail4())) {
+                    || createAndChangeAccountRequest.getEmail4().equals(createAndChangeAccountRequest.getEmail2())
+                    || createAndChangeAccountRequest.getEmail4().equals(createAndChangeAccountRequest.getEmail3())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email " + createAndChangeAccountRequest.getEmail4() + "!");
             }
         }
@@ -129,6 +134,11 @@ public class AccountController {
      */
     @GetMapping("/get")
     public ResponseEntity<?> getAccount(@RequestParam String id) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         long accountId;
         try {
             accountId = Long.parseLong(id);
@@ -168,7 +178,12 @@ public class AccountController {
      * @return ResponseEntity with the result of the accounts retrieval process and HttpStatus indicating the result.
      */
     @GetMapping("/get-all")
-    public ResponseEntity<List<AccountDto>> getAllAccounts() {
+    public ResponseEntity<?> getAllAccounts() {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
 
@@ -198,6 +213,11 @@ public class AccountController {
     @PatchMapping("/update")
     @Transactional
     public ResponseEntity<?> updateAccount(@RequestParam String id, @RequestBody CreateAndChangeAccountRequest createAndChangeAccountRequest) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         long accountId;
         try {
             accountId = Long.parseLong(id);
@@ -240,8 +260,8 @@ public class AccountController {
         }
         if (createAndChangeAccountRequest.getEmail4() != null) {
             if (!accountValidator.checkEmail(createAndChangeAccountRequest.getEmail4(), account)
-                    || createAndChangeAccountRequest.getEmail3().equals(createAndChangeAccountRequest.getEmail2())
-                    || createAndChangeAccountRequest.getEmail3().equals(createAndChangeAccountRequest.getEmail4())) {
+                    || createAndChangeAccountRequest.getEmail4().equals(createAndChangeAccountRequest.getEmail2())
+                    || createAndChangeAccountRequest.getEmail4().equals(createAndChangeAccountRequest.getEmail3())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email " + createAndChangeAccountRequest.getEmail4() + "!");
             }
         }
@@ -288,6 +308,11 @@ public class AccountController {
     @DeleteMapping("/delete")
     @Transactional
     public ResponseEntity<String> deleteAccount(@RequestParam String id) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+
         long accountId;
         try {
             accountId = Long.parseLong(id);
