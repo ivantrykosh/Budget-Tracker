@@ -14,6 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -212,10 +213,10 @@ class TransactionServiceTest {
     }
 
     /**
-     * Test getting Transaction by AccountIDs and month
+     * Test getting Transaction by AccountIDs and date between
      */
     @Test
-    void getTransactionsByAccountIdsAndMonth() {
+    void getTransactionsByAccountIdsAndDateBetween() {
         Transaction transaction1 = createNewValidTransaction(100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), account1);
         Transaction transaction2 = createNewValidTransaction(-100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).minusMonths(2)), account2);
 
@@ -223,8 +224,11 @@ class TransactionServiceTest {
         Transaction savedTransaction1 = transactionService.saveTransaction(transaction1);
         Transaction savedTransaction2 = transactionService.saveTransaction(transaction2);
 
+        Date startDate = Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).minusMonths(1));
+        Date endDate = Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).plusMonths(1));
+
         // Get transactions by AccountIds and month
-        List<Transaction> retrievedTransactions = transactionService.getTransactionsByAccountIdsAndMonth(List.of(account1.getAccountId(), account2.getAccountId()), Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
+        List<Transaction> retrievedTransactions = transactionService.getTransactionsByAccountIdsAndDateBetween(List.of(account1.getAccountId(), account2.getAccountId()), startDate, endDate);
 
         // Print saved and retrieved account users
         System.out.println(savedTransaction1 + "\n" + savedTransaction2 + "\n" + retrievedTransactions);
@@ -235,10 +239,10 @@ class TransactionServiceTest {
     }
 
     /**
-     * Test getting Transaction by AccountIDs and invalid month
+     * Test getting Transaction by AccountIDs and invalid date between
      */
     @Test
-    void getTransactionsByAccountIdsAndInvalidMonth() {
+    void getTransactionsByAccountIdsAndInvalidDateBetween() {
         Transaction transaction1 = createNewValidTransaction(100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)), account1);
         Transaction transaction2 = createNewValidTransaction(-100.0, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).minusMonths(2)), account2);
 
@@ -246,8 +250,11 @@ class TransactionServiceTest {
         Transaction savedTransaction1 = transactionService.saveTransaction(transaction1);
         Transaction savedTransaction2 = transactionService.saveTransaction(transaction2);
 
+        Date startDate = Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).minusMonths(4));
+        Date endDate = Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).minusMonths(3));
+
         // Get transactions by AccountIds and month
-        List<Transaction> retrievedTransactions = transactionService.getTransactionsByAccountIdsAndMonth(List.of(account1.getAccountId(), account2.getAccountId()), Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).minusMonths(10)));
+        List<Transaction> retrievedTransactions = transactionService.getTransactionsByAccountIdsAndDateBetween(List.of(account1.getAccountId(), account2.getAccountId()), startDate, endDate);
 
         // Print saved and retrieved account users
         System.out.println(savedTransaction1 + "\n" + savedTransaction2 + "\n" + retrievedTransactions);

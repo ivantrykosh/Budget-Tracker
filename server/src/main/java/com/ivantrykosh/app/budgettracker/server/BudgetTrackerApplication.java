@@ -3,6 +3,9 @@ package com.ivantrykosh.app.budgettracker.server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * The entry point of the app
+ */
 @SpringBootApplication
 public class BudgetTrackerApplication {
 

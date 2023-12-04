@@ -65,19 +65,11 @@ public class TransactionService {
      * Retrieves list of transactions by accountIds and month.
      *
      * @param accountIds The IDs of the accounts to retrieve transactions.
-     * @param month The month to retrieve transactions.
+     * @param startDate The start date to retrieve transactions.
+     * @param endDate The end date to retrieve transactions.
      * @return The list of transactions.
      */
-    public List<Transaction> getTransactionsByAccountIdsAndMonth(List<Long> accountIds, Date month) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(month);
-
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        Date startDate = calendar.getTime();
-
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        Date endDate = calendar.getTime();
-
+    public List<Transaction> getTransactionsByAccountIdsAndDateBetween(List<Long> accountIds, Date startDate, Date endDate) {
         return transactionRepository.findAllByAccountAccountIdInAndDateBetweenOrderByDateDesc(accountIds, startDate, endDate);
     }
 
@@ -115,7 +107,8 @@ public class TransactionService {
      * @return The sum of transactions
      */
     public Double getSumOfTransactionsWithAccountIdAndSpecifiedType(Long accountId, boolean isIncome) {
-        return transactionRepository.calculateSumByAccountIdAndType(accountId, isIncome);
+        Double sum = transactionRepository.calculateSumByAccountIdAndType(accountId, isIncome);
+        return sum == null ? 0.0 : sum;
     }
 
     /**
