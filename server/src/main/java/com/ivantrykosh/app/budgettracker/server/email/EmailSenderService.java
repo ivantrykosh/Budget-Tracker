@@ -2,6 +2,8 @@ package com.ivantrykosh.app.budgettracker.server.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,6 +21,8 @@ public class EmailSenderService {
 
     @Value("${spring.mail.username}")
     private String from; // From email
+
+    Logger logger = LoggerFactory.getLogger(EmailSenderService.class); // Logger
 
     /**
      * Asynchronously sends an email.
@@ -40,8 +44,9 @@ public class EmailSenderService {
 
             mailSender.send(mimeMessage);
 
-            System.out.println("Mail sent successfully!");
+            logger.info("Email with subject " + subject + " was sent to " + to);
         } catch (MessagingException e) {
+            logger.error("Failed to send email with subject " + subject + " to " + to);
             throw new IllegalArgumentException("Failed to send email!");
         }
     }

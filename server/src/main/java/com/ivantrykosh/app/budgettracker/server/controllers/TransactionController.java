@@ -13,6 +13,8 @@ import com.ivantrykosh.app.budgettracker.server.services.TransactionService;
 import com.ivantrykosh.app.budgettracker.server.services.UserService;
 import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
 import com.ivantrykosh.app.budgettracker.server.validators.TransactionValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -41,6 +43,7 @@ public class TransactionController {
     private Mapper<Transaction, TransactionDto> mapper = new TransactionMapper();
     @Autowired
     private TransactionValidator transactionValidator;
+    Logger logger = LoggerFactory.getLogger(TransactionController.class); // Logger
 
     /**
      * Endpoint to create a new transaction based on the provided TransactionDto.
@@ -52,6 +55,7 @@ public class TransactionController {
     public ResponseEntity<String> createTransaction(@RequestBody TransactionDto transactionDto) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
 
@@ -59,26 +63,33 @@ public class TransactionController {
         User user = userService.getUserByEmail(email);
 
         if (!transactionValidator.checkAccountId(transactionDto.getAccountId())) {
+            logger.error("Invalid account ID: " + transactionDto.getAccountId());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid accountId!");
         }
         if (!transactionValidator.checkCategory(transactionDto.getCategory())) {
+            logger.error("Invalid category: " + transactionDto.getCategory());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid category!");
         }
         if (!transactionValidator.checkValue(transactionDto.getValue())) {
+            logger.error("Invalid value: " + transactionDto.getValue());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid value!");
         }
         if (!transactionValidator.checkDate(transactionDto.getDate())) {
+            logger.error("Invalid date: " + transactionDto.getDate());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date!");
         }
         if (!transactionValidator.checkToFromWhom(transactionDto.getToFromWhom())) {
+            logger.error("Invalid toFromWhom: " + transactionDto.getToFromWhom());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid toFromWhom!");
         }
         if (!transactionValidator.checkNote(transactionDto.getNote())) {
+            logger.error("Invalid note: " + transactionDto.getNote());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid note!");
         }
 
         Account account = accountService.getAccountById(transactionDto.getAccountId());
         if (account == null) {
+            logger.error("No account with ID " + transactionDto.getAccountId());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No account with given id!");
         }
         if (account.getUser().getUserId() != user.getUserId()) {
@@ -86,14 +97,17 @@ public class TransactionController {
             if (accountUsers.getUser2Id() != user.getUserId()
                     && accountUsers.getUser3Id() != user.getUserId()
                     && accountUsers.getUser4Id() != user.getUserId()) {
+                logger.error("User with email " + user.getEmail() + " does not have permission to get account with ID " + account.getAccountId());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission!");
             }
         }
 
         transactionDto.setTransactionId(null);
-        transactionService.saveTransaction(
+        Transaction savedTransaction = transactionService.saveTransaction(
                 mapper.convertToEntity(transactionDto)
         );
+
+        logger.info("Transaction was saved with ID " + savedTransaction);
 
         return ResponseEntity.status(HttpStatus.OK).body("Transaction was saved!");
     }
@@ -108,6 +122,7 @@ public class TransactionController {
     public ResponseEntity<?> getTransactionById(@RequestParam String id) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
 
@@ -115,11 +130,13 @@ public class TransactionController {
         try {
             transactionId = Long.parseLong(id);
         } catch (NumberFormatException e) {
+            logger.error("Invalid ID " + id + " of transaction");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id of transaction!");
         }
 
         Transaction transaction = transactionService.getTransactionById(transactionId);
         if (transaction == null) {
+            logger.error("No transaction with ID " + transactionId);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No transaction with given id!");
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -127,16 +144,20 @@ public class TransactionController {
 
         Account account = accountService.getAccountById(transaction.getAccount().getAccountId());
         if (account == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No account with given id!");
+            logger.error("No account with ID " + transaction.getAccount().getAccountId());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No account with given id!");
         }
         if (account.getUser().getUserId() != user.getUserId()) {
             AccountUsers accountUsers = accountUsersService.getAccountUsersByAccountId(account.getAccountId());
             if (accountUsers.getUser2Id() != user.getUserId()
                     && accountUsers.getUser3Id() != user.getUserId()
                     && accountUsers.getUser4Id() != user.getUserId()) {
+                logger.error("User with email " + user.getEmail() + " does not have permission to get account with ID " + account.getAccountId());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission!");
             }
         }
+
+        logger.info("Transaction with ID " + transaction.getTransactionId() + " was got");
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 mapper.convertToDto(transaction)
@@ -153,6 +174,7 @@ public class TransactionController {
     public ResponseEntity<?> getTransactionsByAccountId(@RequestParam String id) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
 
@@ -160,6 +182,7 @@ public class TransactionController {
         try {
             accountId = Long.parseLong(id);
         } catch (NumberFormatException e) {
+            logger.error("Invalid ID " + id + " of account");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id of account!");
         }
 
@@ -168,6 +191,7 @@ public class TransactionController {
 
         Account account = accountService.getAccountById(accountId);
         if (account == null) {
+            logger.error("No account with ID " + accountId);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No account with given id!");
         }
         if (account.getUser().getUserId() != user.getUserId()) {
@@ -175,11 +199,14 @@ public class TransactionController {
             if (accountUsers.getUser2Id() != user.getUserId()
                     && accountUsers.getUser3Id() != user.getUserId()
                     && accountUsers.getUser4Id() != user.getUserId()) {
+                logger.error("User with email " + user.getEmail() + " does not have permission to get account with ID " + account.getAccountId());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission!");
             }
         }
 
         List<Transaction> transactions = transactionService.getTransactionsByAccountId(account.getAccountId());
+
+        logger.info("All transactions of account with ID " + account.getAccountId() + " were got");
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 transactions.stream()
@@ -198,14 +225,17 @@ public class TransactionController {
     public ResponseEntity<?> getTransactionByAllAccountIds(@RequestParam List<Long> accountIds) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
 
         if (accountIds == null || accountIds.isEmpty()) {
+            logger.error("Invalid accountIDs " + accountIds);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid accountIds!");
         }
         for (Long accountId : accountIds) {
             if (accountId == null) {
+                logger.error("Invalid accountIDs " + accountIds);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid accountIds!");
             }
         }
@@ -218,6 +248,7 @@ public class TransactionController {
         for (Long accountId : accountIds) {
             Account account = accountService.getAccountById(accountId);
             if (account == null) {
+                logger.error("No account with ID " + accountId);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No account with given id!");
             }
             if (account.getUser().getUserId() != user.getUserId()) {
@@ -225,12 +256,15 @@ public class TransactionController {
                 if (accountUsers.getUser2Id() != user.getUserId()
                         && accountUsers.getUser3Id() != user.getUserId()
                         && accountUsers.getUser4Id() != user.getUserId()) {
+                    logger.error("User with email " + user.getEmail() + " does not have permission to get account with ID " + account.getAccountId());
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission!");
                 }
             }
         }
 
         List<Transaction> transactions = transactionService.getTransactionsByAccountIds(accountIds);
+
+        logger.info("All transaction for account IDs " + accountIds + " were got");
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 transactions.stream()
@@ -253,24 +287,30 @@ public class TransactionController {
                                                                          @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
 
         if (accountIds == null || accountIds.isEmpty()) {
+            logger.error("Invalid accountIDs " + accountIds);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid accountIds!");
         }
         for (Long accountId : accountIds) {
             if (accountId == null) {
+                logger.error("Invalid accountIDs " + accountIds);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid accountIds!");
             }
         }
         if (startDate == null) {
+            logger.error("Invalid startDate");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid startDate!");
         }
         if (endDate == null) {
+            logger.error("Invalid endDate");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid endDate!");
         }
         if (startDate.after(endDate)) {
+            logger.error("startDate is after endDate");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid startDate. It can't be after endDate!");
         }
 
@@ -282,6 +322,7 @@ public class TransactionController {
         for (Long accountId : accountIds) {
             Account account = accountService.getAccountById(accountId);
             if (account == null) {
+                logger.error("No account with ID " + accountId);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No account with given id!");
             }
             if (account.getUser().getUserId() != user.getUserId()) {
@@ -289,12 +330,14 @@ public class TransactionController {
                 if (accountUsers.getUser2Id() != user.getUserId()
                         && accountUsers.getUser3Id() != user.getUserId()
                         && accountUsers.getUser4Id() != user.getUserId()) {
+                    logger.error("User with email " + user.getEmail() + " does not have permission to get account with ID " + account.getAccountId());
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission!");
                 }
             }
         }
 
         List<Transaction> transactions = transactionService.getTransactionsByAccountIdsAndDateBetween(accountIds, startDate, endDate);
+        logger.info("All transactions for accountIDs " + accountIds + " and between dates " + startDate + " and " + endDate);
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 transactions.stream()
@@ -313,6 +356,7 @@ public class TransactionController {
     public ResponseEntity<String> updateTransaction(@RequestBody TransactionDto transactionDto) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
 
@@ -320,29 +364,37 @@ public class TransactionController {
         User user = userService.getUserByEmail(email);
 
         if (!transactionValidator.checkTransactionId(transactionDto.getTransactionId())) {
+            logger.error("Invalid transaction ID: " + transactionDto.getTransactionId());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid transactionId!");
         }
         if (!transactionValidator.checkAccountId(transactionDto.getAccountId())) {
+            logger.error("Invalid account ID: " + transactionDto.getAccountId());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid accountId!");
         }
         if (!transactionValidator.checkCategory(transactionDto.getCategory())) {
+            logger.error("Invalid category: " + transactionDto.getCategory());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid category!");
         }
         if (!transactionValidator.checkValue(transactionDto.getValue())) {
+            logger.error("Invalid value: " + transactionDto.getValue());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid value!");
         }
         if (!transactionValidator.checkDate(transactionDto.getDate())) {
+            logger.error("Invalid date: " + transactionDto.getDate());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date!");
         }
         if (!transactionValidator.checkToFromWhom(transactionDto.getToFromWhom())) {
+            logger.error("Invalid toFromWhom: " + transactionDto.getToFromWhom());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid toFromWhom!");
         }
         if (!transactionValidator.checkNote(transactionDto.getNote())) {
+            logger.error("Invalid note: " + transactionDto.getNote());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid note!");
         }
 
         Account account = accountService.getAccountById(transactionDto.getAccountId());
         if (account == null) {
+            logger.error("No account with ID " + transactionDto.getTransactionId());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No account with given id!");
         }
         if (account.getUser().getUserId() != user.getUserId()) {
@@ -350,6 +402,7 @@ public class TransactionController {
             if (accountUsers.getUser2Id() != user.getUserId()
                     && accountUsers.getUser3Id() != user.getUserId()
                     && accountUsers.getUser4Id() != user.getUserId()) {
+                logger.error("User with email " + user.getEmail() + " does not have permission to get account with ID " + account.getAccountId());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission!");
             }
         }
@@ -357,6 +410,8 @@ public class TransactionController {
         transactionService.updateTransaction(
                 mapper.convertToEntity(transactionDto)
         );
+
+        logger.info("Transaction with ID " + transactionDto.getTransactionId() + " was updated");
 
         return ResponseEntity.status(HttpStatus.OK).body("Transaction was updated!");
     }
@@ -371,6 +426,7 @@ public class TransactionController {
     public ResponseEntity<String> deleteTransaction(@RequestParam String id) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
 
@@ -378,10 +434,12 @@ public class TransactionController {
         try {
             transactionId = Long.parseLong(id);
         } catch (NumberFormatException e) {
+            logger.error("Invalid ID " + id + " of transaction");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id of transaction!");
         }
 
         if (!transactionValidator.checkTransactionId(transactionId)) {
+            logger.error("Invalid transaction ID " + transactionId);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid transactionId!");
         }
 
@@ -392,18 +450,22 @@ public class TransactionController {
 
         Account account = accountService.getAccountById(transaction.getAccount().getAccountId());
         if (account == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No account with given id!");
+            logger.error("No account with ID " + transaction.getAccount().getAccountId());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No account with given id!");
         }
         if (account.getUser().getUserId() != user.getUserId()) {
             AccountUsers accountUsers = accountUsersService.getAccountUsersByAccountId(account.getAccountId());
             if (accountUsers.getUser2Id() != user.getUserId()
                     && accountUsers.getUser3Id() != user.getUserId()
                     && accountUsers.getUser4Id() != user.getUserId()) {
+                logger.error("User with email " + user.getEmail() + " does not have permission to get account with ID " + account.getAccountId());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission!");
             }
         }
 
         transactionService.deleteTransactionById(transaction.getTransactionId());
+
+        logger.info("Transaction with ID " + transactionId + " was deleted");
 
         return ResponseEntity.status(HttpStatus.OK).body("Transaction was deleted!");
     }

@@ -3,6 +3,8 @@ package com.ivantrykosh.app.budgettracker.server.util;
 import com.ivantrykosh.app.budgettracker.server.model.User;
 import com.ivantrykosh.app.budgettracker.server.services.UserService;
 import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +19,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private UserService userService;
+    Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class); // Logger
 
     /**
      * Loads user details by username from the database.
@@ -29,6 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userService.getUserByEmail(username);
         if (user == null) {
+            logger.error("Could not find user with email " + username +  "!");
             throw new UsernameNotFoundException("Could not find user with email " + username +  "!");
         }
         return new CustomUserDetails(user);

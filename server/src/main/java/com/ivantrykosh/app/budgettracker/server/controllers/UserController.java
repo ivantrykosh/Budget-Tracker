@@ -13,6 +13,8 @@ import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
 import com.ivantrykosh.app.budgettracker.server.util.PasswordGenerator;
 import com.ivantrykosh.app.budgettracker.server.validators.UserValidator;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +47,7 @@ public class UserController {
     private final UserValidator userValidator = new UserValidator();
     private final Mapper<User, UserDto> mapper = new UserMapper();
     private final String SUBJECT = "New password"; // Email subject
+    Logger logger = LoggerFactory.getLogger(UserController.class); // Logger
 
     /**
      * Endpoint to retrieve information about the currently authenticated user.
@@ -55,11 +58,13 @@ public class UserController {
     public ResponseEntity<?> getUser() {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
         UserDto userDto = mapper.convertToDto(user);
+        logger.info("User data for email" + userDto.getEmail() + " was got successfully");
         return ResponseEntity.status(HttpStatus.OK).body(userDto);
     }
 
@@ -74,26 +79,33 @@ public class UserController {
     public ResponseEntity<String> deleteUser() {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
 
         confirmationTokenService.deleteConfirmationTokensByUserId(user.getUserId());
+        logger.info("Confirmation tokens for user " + user.getEmail() + " were deleted");
 
         List<Account> accounts = accountService.getAccountsByUserId(user.getUserId());
         for (Account account : accounts) {
             transactionService.deleteTransactionsByAccountId(account.getAccountId());
+            logger.info("Transactions of user " + user.getEmail() + " and account with ID " + account.getAccountId() + " were deleted");
 
             AccountUsers accountUsers = accountUsersService.getAccountUsersByAccountId(account.getAccountId());
             accountUsersService.deleteAccountUsersById(accountUsers.getAccountUsersId());
+            logger.info("AccountUsers with ID " + accountUsers.getAccountUsersId() + " of user " + user.getEmail() + " were deleted");
         }
 
         accountUsersService.deleteUserIdFromAccountUsers(user.getUserId());
+        logger.info("User with email " + user.getEmail() + " was deleted from AccountUsers");
 
         accountService.deleteAccountsByUserId(user.getUserId());
+        logger.info("Accounts of user with email " + user.getEmail() + " were deleted");
 
         userService.deleteUserById(user.getUserId());
+        logger.info("User with email " + user.getEmail() + " was deleted");
 
         return ResponseEntity.status(HttpStatus.OK).body("User is deleted!");
     }
@@ -108,6 +120,7 @@ public class UserController {
     public ResponseEntity<String> changeUserPassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -116,6 +129,7 @@ public class UserController {
                 passwordEncoder.encode(changePasswordRequest.getNewPassword())
         );
         userService.updateUser(user);
+        logger.error("Password was changed for email " + user.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body("Password was changed.");
     }
 
@@ -128,13 +142,16 @@ public class UserController {
     @PatchMapping("/reset-password")
     public ResponseEntity<String> resetUserPassword(@RequestParam String email) {
         if (!userValidator.checkEmail(email)) {
+            logger.error("Invalid email format for email" + email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email format!");
         }
         User user = userService.getUserByEmail(email);
         if (user == null) {
+            logger.error("No user with email " + email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No user with this email!");
         }
         if (!user.getIsVerified()) {
+            logger.error("Email " + user.getEmail() + " is not verified");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User email is not verified!");
         }
 
@@ -145,9 +162,11 @@ public class UserController {
         );
         userService.updateUser(user);
 
+        logger.info("User password for email " + user.getEmail() + " was reset");
+
         emailSenderService.sendEmail(user.getEmail(), SUBJECT, buildPasswordEmail(generatedPassword));
 
-        return ResponseEntity.status(HttpStatus.OK).body("Password is changed Check your email!");
+        return ResponseEntity.status(HttpStatus.OK).body("Password is changed. Check your email!");
     }
 
     /**
