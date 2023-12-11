@@ -1,10 +1,9 @@
 package com.ivantrykosh.app.budgettracker.client
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ivantrykosh.app.budgettracker.client.adapter.OperationItemAdapter
 import com.ivantrykosh.app.budgettracker.client.data.Datasource
@@ -74,5 +73,14 @@ class MainActivity : AppCompatActivity() {
         val myDatasetExpenses = Datasource().loadOperations()
         binding.lastExpensesRecyclerView.adapter = OperationItemAdapter(this, myDatasetExpenses, 2)
         binding.lastExpensesRecyclerView.setHasFixedSize(true)
+
+        // Set on click listener for "Add income" FAB
+        binding.mainFabAddIncome.setOnClickListener {
+            val intent = Intent(this, AddIncomeActivity::class.java)
+            startActivity(intent)
+        }
+
     }
+
+
 }

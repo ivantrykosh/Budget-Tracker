@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.auth.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_confirmEmail"
+            app:destination="@id/confirmEmail" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.auth.SignUpFragment"
+        android:label="fragment_signup"
+        tools:layout="@layout/fragment_signup" >
+        <action
+            android:id="@+id/action_signUpFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_signUpFragment_to_confirmEmail"
+            app:destination="@id/confirmEmail" />
+    </fragment>
+    <fragment
+        android:id="@+id/confirmEmail"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.auth.ConfirmEmail"
+        android:label="fragment_confirm_email"
+        tools:layout="@layout/fragment_confirm_email" />
+</navigation>
