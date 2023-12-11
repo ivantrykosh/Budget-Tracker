@@ -32,4 +32,16 @@
     <string name="forgot_password">Forgot password?</string>
     <string name="ok">OK</string>
     <string name="confirm_email_title">Confirm email</string>
+    <string name="reset_password_title">Password was reset</string>
+    <string name="reset_password_message">Your password was reset. New password was sent to your email</string>
+    <string name="reset_password_question_title">Reset your password?</string>
+    <string name="reset_password_question_message">Do you want to reset your password?</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="invalid_email">Invalid email</string>
+    <string name="invalid_password"><![CDATA[Invalid password. It must contain 8–32 characters: a–z, A–Z, 0–9, and one of @$!%*#?& symbols]]></string>
+    <string name="connection_failed">Connection failed</string>
+    <string name="connection_failed_message">Cannot connect to the server. Check your Internet connection</string>
+    <string name="email_is_used">Email is already used</string>
+    <string name="incorrect_email_password">Incorrect email or password</string>
 </resources>

@@ -2,8 +2,11 @@ package com.ivantrykosh.app.budgettracker.client.di
 
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.data.remote.AuthApi
+import com.ivantrykosh.app.budgettracker.client.data.remote.UserApi
 import com.ivantrykosh.app.budgettracker.client.data.repository.AuthRepositoryImpl
+import com.ivantrykosh.app.budgettracker.client.data.repository.UserRepositoryImpl
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AuthRepository
+import com.ivantrykosh.app.budgettracker.client.domain.repository.UserRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,5 +43,22 @@ object AppModule {
     @Singleton
     fun provideAuthRepository(api: AuthApi): AuthRepository {
         return AuthRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserApi(): UserApi {
+        return Retrofit.Builder()
+            .baseUrl(Constants.BASE_URL + Constants.USER_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(UserApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(api: UserApi): UserRepository {
+        return UserRepositoryImpl(api)
     }
 }

@@ -2,16 +2,21 @@ package com.ivantrykosh.app.budgettracker.client.presentation.auth
 
 import android.os.Bundle
 import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.databinding.ActivityAuthBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AuthActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAuthBinding
     private lateinit var navController: NavController
+
+    private val viewModel by viewModels<AuthViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,15 +31,13 @@ class AuthActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this) {
             exitOnBackPressed()
         }
-
-//        setupActionBarWithNavController(navController)
     }
 
     private fun exitOnBackPressed() {
         val navHostFragment: NavHostFragment = supportFragmentManager.findFragmentById(
             R.id.nav_auth_fragment) as NavHostFragment
         val currentFragment = navHostFragment.childFragmentManager.fragments[0]
-        if (currentFragment is LoginFragment || currentFragment is ConfirmEmail) {
+        if (currentFragment is LoginFragment) {
             finishAffinity()
         } else {
             navController.popBackStack()
@@ -44,5 +47,10 @@ class AuthActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp()
                 || super.onSupportNavigateUp()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.setAuthDto(null)
     }
 }

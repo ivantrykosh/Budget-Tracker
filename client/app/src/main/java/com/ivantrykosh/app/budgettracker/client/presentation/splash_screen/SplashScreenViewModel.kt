@@ -22,7 +22,7 @@ class SplashScreenViewModel @Inject constructor(
     private val _state = mutableStateOf<RefreshTokenState>(RefreshTokenState())
     val state: State<RefreshTokenState> = _state
 
-    private val _isLoading = MutableLiveData<Boolean>(true)
+    private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     init {

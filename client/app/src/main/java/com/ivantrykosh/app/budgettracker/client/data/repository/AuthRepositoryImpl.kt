@@ -13,7 +13,7 @@ class AuthRepositoryImpl @Inject constructor(
         return api.signUp(request)
     }
 
-    override suspend fun login(request: AuthDto) {
+    override suspend fun login(request: AuthDto): TokenDto {
         return api.login(request)
     }
 

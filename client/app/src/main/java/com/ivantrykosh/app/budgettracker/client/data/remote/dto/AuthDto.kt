@@ -5,5 +5,5 @@ package com.ivantrykosh.app.budgettracker.client.data.remote.dto
  */
 data class AuthDto(
     val email: String, // User email
-    val password: String // User password
+    val passwordHash: String // User password
 )

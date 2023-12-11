@@ -4,10 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.fragment.NavHostFragment
 import com.ivantrykosh.app.budgettracker.client.adapter.OperationItemAdapter
 import com.ivantrykosh.app.budgettracker.client.data.Datasource
 import com.ivantrykosh.app.budgettracker.client.databinding.ActivityMainBinding
+import com.ivantrykosh.app.budgettracker.client.presentation.auth.LoginFragment
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Currency
@@ -80,7 +83,23 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+
+
+
+        onBackPressedDispatcher.addCallback(this) {
+            exitOnBackPressed()
+        }
     }
 
+    private fun exitOnBackPressed() {
+//        val navHostFragment: NavHostFragment = supportFragmentManager.findFragmentById(
+//            R.id.nav_auth_fragment) as NavHostFragment
+//        val currentFragment = navHostFragment.childFragmentManager.fragments[0]
+//        if (currentFragment is LoginFragment) {
+//            finishAffinity()
+//        } else {
+//            navController.popBackStack()
+//        }
+    }
 
 }

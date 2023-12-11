@@ -13,7 +13,7 @@ interface AuthApi {
     suspend fun signUp(@Body request: AuthDto)
 
     @POST("login")
-    suspend fun login(@Body request: AuthDto)
+    suspend fun login(@Body request: AuthDto): TokenDto
 
     @GET("refresh")
     suspend fun refreshToken(@Header("Authorization") token: String): TokenDto

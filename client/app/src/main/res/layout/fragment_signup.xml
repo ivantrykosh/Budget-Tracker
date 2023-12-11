@@ -8,6 +8,20 @@
     android:padding="16dp"
     tools:context=".presentation.auth.SignUpFragment">
 
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/signup_circular_progress_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.08"
+        app:showAnimationBehavior="inward"
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/signup_app_name"
         android:layout_width="wrap_content"
@@ -19,10 +33,10 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/login_text_input_email"
+        android:id="@+id/signup_text_input_email"
         android:layout_width="0dp"
-        android:layout_height="75dp"
-        app:layout_constraintBottom_toTopOf="@id/login_text_input_password"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/signup_text_input_password"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:hint="@string/email"
@@ -31,7 +45,7 @@
         app:errorEnabled="true" >
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/login_edit_text_input_email"
+            android:id="@+id/signup_edit_text_input_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress" />
@@ -39,9 +53,9 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/login_text_input_password"
+        android:id="@+id/signup_text_input_password"
         android:layout_width="0dp"
-        android:layout_height="75dp"
+        android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/signup_button_signup"
@@ -49,10 +63,11 @@
         android:layout_margin="20dp"
         app:endIconMode="password_toggle"
         app:errorEnabled="true"
+        app:errorIconDrawable="@null"
         app:startIconDrawable="@drawable/outline_password_24" >
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/login_edit_text_input_password"
+            android:id="@+id/signup_edit_text_input_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword" />

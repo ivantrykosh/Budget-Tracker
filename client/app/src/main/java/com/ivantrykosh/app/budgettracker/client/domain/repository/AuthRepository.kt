@@ -7,7 +7,7 @@ interface AuthRepository {
 
     suspend fun signUp(request: AuthDto)
 
-    suspend fun login(request: AuthDto)
+    suspend fun login(request: AuthDto): TokenDto
 
     suspend fun refreshToken(token: String): TokenDto
 

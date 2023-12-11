@@ -15,8 +15,8 @@ class LoginUseCase @Inject constructor(
     operator fun invoke(request: AuthDto): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.login(request)
-            emit(Resource.Success("Success"))
+            val result = repository.login(request)
+            emit(Resource.Success(result.token))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))
         } catch (e: IOException) {

@@ -12,9 +12,6 @@
         <action
             android:id="@+id/action_loginFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
-        <action
-            android:id="@+id/action_loginFragment_to_confirmEmail"
-            app:destination="@id/confirmEmail" />
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
@@ -26,13 +23,5 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/loginFragment"
             app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_signUpFragment_to_confirmEmail"
-            app:destination="@id/confirmEmail" />
     </fragment>
-    <fragment
-        android:id="@+id/confirmEmail"
-        android:name="com.ivantrykosh.app.budgettracker.client.presentation.auth.ConfirmEmail"
-        android:label="fragment_confirm_email"
-        tools:layout="@layout/fragment_confirm_email" />
 </navigation>

@@ -8,19 +8,16 @@ import androidx.core.content.edit
 object AppPreferences {
     private var sharedPreferences: SharedPreferences? = null
 
-    // TODO step 1: call `AppPreferences.setup(applicationContext)` in your MainActivity's `onCreate` method
     fun setup(context: Context) {
-        // TODO step 2: set your app name here
         sharedPreferences = context.getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE)
     }
 
-    // TODO step 4: replace these example attributes with your stored values
     var jwtToken: String?
         get() = Key.JWT_TOKEN.getString()
         set(value) = Key.JWT_TOKEN.setString(value)
 
     private enum class Key {
-        JWT_TOKEN; // TODO step 3: replace these cases with your stored values keys
+        JWT_TOKEN;
 
         fun getBoolean(): Boolean? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getBoolean(name, false) else null
         fun getFloat(): Float? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getFloat(name, 0f) else null
