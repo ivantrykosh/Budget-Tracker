@@ -153,7 +153,7 @@ public class UserController {
         }
         if (!user.getIsVerified()) {
             logger.error("Email " + user.getEmail() + " is not verified");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User email is not verified!");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User email is not verified!");
         }
 
         PasswordManager passwordManager = new PasswordManager();
