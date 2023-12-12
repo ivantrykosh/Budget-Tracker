@@ -4,6 +4,7 @@ import com.ivantrykosh.app.budgettracker.server.email.EmailSenderService;
 import com.ivantrykosh.app.budgettracker.server.model.ConfirmationToken;
 import com.ivantrykosh.app.budgettracker.server.model.User;
 import com.ivantrykosh.app.budgettracker.server.requests.RegisterAndLoginRequest;
+import com.ivantrykosh.app.budgettracker.server.responses.TokenResponse;
 import com.ivantrykosh.app.budgettracker.server.services.ConfirmationTokenService;
 import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
 import com.ivantrykosh.app.budgettracker.server.util.JwtUtil;
@@ -28,7 +29,9 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Auth REST controller
@@ -49,7 +52,7 @@ public class AuthController {
     @Autowired
     private EmailSenderService emailSenderService;
     private final UserValidator userValidator = new UserValidator();
-    private final String LINK = "http://localhost:8080/api/v1/auth/confirm?token="; // Confirmation link
+    private final String LINK = "http://192.168.1.7:8080/api/v1/auth/confirm?token="; // Confirmation link
     private final String SUBJECT = "Confirm your email address"; // Email subject
     Logger logger = LoggerFactory.getLogger(AuthController.class); // Logger
 
@@ -61,11 +64,16 @@ public class AuthController {
      * @return ResponseEntity with a success message and HttpStatus indicating the result.
      */
     @PostMapping("/register")
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public ResponseEntity<String> registerUser(@RequestBody RegisterAndLoginRequest registerRequest) {
         if (!userValidator.checkEmail(registerRequest.getEmail())) {
             logger.error("Invalid email format: " + registerRequest.getEmail());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email format!");
+        }
+
+        if (userService.getUserByEmail(registerRequest.getEmail()) != null) {
+            logger.error("Email " + registerRequest.getEmail() + " is already used");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already used!");
         }
 
         User user = new User();
@@ -92,7 +100,7 @@ public class AuthController {
 
         emailSenderService.sendEmail(savedUser.getEmail(), SUBJECT, buildConfirmationEmail(LINK + token));
 
-        return ResponseEntity.status(HttpStatus.OK).body("User was created! Please, confirm the user email!");
+        return ResponseEntity.status(HttpStatus.CREATED).body("User was created! Please, confirm the user email!");
     }
 
     /**
@@ -102,14 +110,16 @@ public class AuthController {
      * @return ResponseEntity with the JWT token in the body and HttpStatus indicating the result.
      */
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody RegisterAndLoginRequest loginRequest) {
+    public ResponseEntity<?> loginUser(@RequestBody RegisterAndLoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPasswordHash()));
 
             if (authentication.isAuthenticated()) {
                 logger.info("User with email " + loginRequest.getEmail() + " successfully logged in");
                 return ResponseEntity.status(HttpStatus.OK).body(
-                        jwtUtil.generateToken(loginRequest.getEmail())
+                        new TokenResponse(
+                                jwtUtil.generateToken(loginRequest.getEmail())
+                        )
                 );
             } else {
                 logger.error("Incorrect user data with email " + loginRequest.getEmail());
@@ -159,7 +169,7 @@ public class AuthController {
 
         logger.info("User email " + user.getEmail() + " is confirmed");
 
-        return ResponseEntity.status(HttpStatus.OK).body("User email is confirmed!");
+        return ResponseEntity.status(HttpStatus.OK).body("User email is confirmed. You can close this tab!");
     }
 
     /**
@@ -169,7 +179,7 @@ public class AuthController {
      * @return ResponseEntity with the new JWT token in the body and HttpStatus OK.
      */
     @GetMapping("/refresh")
-    public ResponseEntity<String> refreshToken() {
+    public ResponseEntity<?> refreshToken() {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!customUserDetails.isEnabled()) {
             logger.error("Email " + customUserDetails.getUsername() + " is not verified");
@@ -178,7 +188,9 @@ public class AuthController {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Token is refreshed for user email " + username);
         return ResponseEntity.status(HttpStatus.OK).body(
-                jwtUtil.generateToken(username)
+                new TokenResponse(
+                        jwtUtil.generateToken(username)
+                )
         );
     }
 
@@ -188,6 +200,7 @@ public class AuthController {
      * @return ResponseEntity with a confirmation message and HttpStatus indicating the result.
      */
     @PostMapping("/send-confirmation-email")
+    @Transactional
     public ResponseEntity<String> sendConfirmationEmail(@RequestBody RegisterAndLoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPasswordHash()));
@@ -201,6 +214,18 @@ public class AuthController {
             }
         } catch (DisabledException e) {
             User user = userService.getUserByEmail(loginRequest.getEmail());
+
+            List<ConfirmationToken> confirmationTokens = confirmationTokenService.getConfirmationTokensByUserId(user.getUserId());
+            List<ConfirmationToken> newConfirmationTokens = confirmationTokens.stream()
+                    .filter(token -> token.getCreatedAt()
+                            .after(
+                                    Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).minusMinutes(10))
+                            )
+                    ).collect(Collectors.toList());
+            if (!newConfirmationTokens.isEmpty()) {
+                logger.info("Confirmation token for " + loginRequest.getEmail() + " is already sent");
+                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Confirmation email is already sent!");
+            }
 
             String token = UUID.randomUUID().toString();
 
@@ -216,7 +241,7 @@ public class AuthController {
 
             emailSenderService.sendEmail(user.getEmail(), SUBJECT, buildConfirmationEmail(LINK + token));
 
-            return ResponseEntity.status(HttpStatus.OK).body("Email was sent. Confirm your email address!");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Email was sent. Confirm your email address!");
         }
         catch (AuthenticationException e) {
             logger.error("Authentication failed: " + e.getMessage());

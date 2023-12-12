@@ -109,7 +109,7 @@ public class TransactionController {
 
         logger.info("Transaction was saved with ID " + savedTransaction);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Transaction was saved!");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Transaction was saved!");
     }
 
     /**

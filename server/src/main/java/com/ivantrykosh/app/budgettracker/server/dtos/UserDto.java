@@ -19,8 +19,6 @@ public class UserDto {
 
     private String email; // User email
 
-    private String passwordHash; // Password hash
-
     private Date registrationDate; // Date of registration
 
     private Boolean isVerified; // Is user's email verified

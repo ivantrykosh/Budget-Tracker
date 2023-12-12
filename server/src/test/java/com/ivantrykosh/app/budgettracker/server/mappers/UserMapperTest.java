@@ -30,7 +30,6 @@ class UserMapperTest {
         // Assertions
         assertEquals(user.getUserId(), userDto.getUserId(), "User IDs are not equals!");
         assertEquals(user.getEmail(), userDto.getEmail(), "User emails are not equals!");
-        assertEquals(user.getPasswordHash(), userDto.getPasswordHash(), "User hashes are not equals!");
         assertEquals(user.getRegistrationDate(), userDto.getRegistrationDate(), "User registration dates are not equals!");
         assertEquals(user.getIsVerified(), userDto.getIsVerified(), "User IsVerifieds are not equals!");
     }
@@ -66,7 +65,6 @@ class UserMapperTest {
         // Assertions
         assertEquals(userDto.getUserId(), user.getUserId(), "User IDs are not equals!");
         assertEquals(userDto.getEmail(), user.getEmail(), "User emails are not equals!");
-        assertEquals(userDto.getPasswordHash(), user.getPasswordHash(), "User hashes are not equals!");
         assertEquals(userDto.getRegistrationDate(), user.getRegistrationDate(), "User registration dates are not equals!");
         assertEquals(userDto.getIsVerified(), user.getIsVerified(), "User IsVerifieds are not equals!");
     }
@@ -112,7 +110,6 @@ class UserMapperTest {
         UserDto userDto = new UserDto();
         userDto.setUserId(1L);
         userDto.setEmail("test@email.com");
-        userDto.setPasswordHash("hash");
         userDto.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         userDto.setIsVerified(false);
 

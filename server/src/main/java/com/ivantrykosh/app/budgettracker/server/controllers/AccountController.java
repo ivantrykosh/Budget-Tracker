@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -91,6 +92,7 @@ public class AccountController {
             if (!accountValidator.checkEmail(createAndChangeAccountRequest.getEmail2(), account)
                     || createAndChangeAccountRequest.getEmail2().equals(createAndChangeAccountRequest.getEmail3())
                     || createAndChangeAccountRequest.getEmail2().equals(createAndChangeAccountRequest.getEmail4())) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 logger.error("Invalid email2 " + createAndChangeAccountRequest.getEmail2() + " for AccountUsers with ID " + accountUsers.getAccountUsersId());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email " + createAndChangeAccountRequest.getEmail2() + "!");
             }
@@ -99,6 +101,7 @@ public class AccountController {
             if (!accountValidator.checkEmail(createAndChangeAccountRequest.getEmail3(), account)
                     || createAndChangeAccountRequest.getEmail3().equals(createAndChangeAccountRequest.getEmail2())
                     || createAndChangeAccountRequest.getEmail3().equals(createAndChangeAccountRequest.getEmail4())) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 logger.error("Invalid email3 " + createAndChangeAccountRequest.getEmail3() + " for AccountUsers with ID " + accountUsers.getAccountUsersId());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email " + createAndChangeAccountRequest.getEmail3() + "!");
             }
@@ -107,6 +110,7 @@ public class AccountController {
             if (!accountValidator.checkEmail(createAndChangeAccountRequest.getEmail4(), account)
                     || createAndChangeAccountRequest.getEmail4().equals(createAndChangeAccountRequest.getEmail2())
                     || createAndChangeAccountRequest.getEmail4().equals(createAndChangeAccountRequest.getEmail3())) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 logger.error("Invalid email4 " + createAndChangeAccountRequest.getEmail4() + " for AccountUsers with ID " + accountUsers.getAccountUsersId());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email " + createAndChangeAccountRequest.getEmail4() + "!");
             }
@@ -132,7 +136,7 @@ public class AccountController {
 
         logger.info("AccountUsers with ID " + account.getAccountId() + " of user " + user.getEmail() + " was updated");
 
-        return ResponseEntity.status(HttpStatus.OK).body(
+        return ResponseEntity.status(HttpStatus.CREATED).body(
                 new AccountResponse(
                         mapper.convertToDto(account),
                         mapperAccountUsers.convertToDto(updatedAccountUsers)

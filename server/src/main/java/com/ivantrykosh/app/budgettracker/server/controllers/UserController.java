@@ -10,7 +10,7 @@ import com.ivantrykosh.app.budgettracker.server.model.User;
 import com.ivantrykosh.app.budgettracker.server.requests.ChangePasswordRequest;
 import com.ivantrykosh.app.budgettracker.server.services.*;
 import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
-import com.ivantrykosh.app.budgettracker.server.util.PasswordGenerator;
+import com.ivantrykosh.app.budgettracker.server.util.PasswordManager;
 import com.ivantrykosh.app.budgettracker.server.validators.UserValidator;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -140,6 +140,7 @@ public class UserController {
      * @return ResponseEntity with a success message and HttpStatus indicating the result.
      */
     @PatchMapping("/reset-password")
+    @Transactional(rollbackOn = Exception.class)
     public ResponseEntity<String> resetUserPassword(@RequestParam String email) {
         if (!userValidator.checkEmail(email)) {
             logger.error("Invalid email format for email" + email);
@@ -155,10 +156,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User email is not verified!");
         }
 
-        String generatedPassword = new PasswordGenerator()
-                .generatePassword(10);
+        PasswordManager passwordManager = new PasswordManager();
+        String generatedPassword = passwordManager.generatePassword(10);
+        String hashedPassword = passwordManager.hashPassword(generatedPassword, user.getEmail());
         user.setPasswordHash(
-                passwordEncoder.encode(generatedPassword)
+                passwordEncoder.encode(hashedPassword)
         );
         userService.updateUser(user);
 
