@@ -37,6 +37,7 @@ class SignUpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.signupButtonSignup.setOnClickListener {
+            binding.signupNetworkError.root.visibility = View.GONE
             onSignUp()
         }
 
@@ -61,6 +62,10 @@ class SignUpFragment : Fragment() {
                 val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(binding.signupTextInputPassword.windowToken, 0)
             }
+        }
+
+        binding.signupNetworkError.networkErrorOk.setOnClickListener {
+            binding.signupNetworkError.root.visibility = View.GONE
         }
     }
 
@@ -103,11 +108,7 @@ class SignUpFragment : Fragment() {
                     } else if (sharedAuthViewModel.signUpState.value.error.startsWith("409")) {
                         binding.signupTextInputEmail.error = resources.getString(R.string.email_is_used)
                     } else if (!sharedAuthViewModel.signUpState.value.error.startsWith("400")) {
-                        showDialog(
-                            resources.getString(R.string.connection_failed),
-                            resources.getString(R.string.connection_failed_message),
-                            resources.getString(R.string.ok)
-                        )
+                        binding.signupNetworkError.root.visibility = View.VISIBLE
                     }
                 }
             }

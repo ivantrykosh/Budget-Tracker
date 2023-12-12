@@ -3,6 +3,8 @@ package com.ivantrykosh.app.budgettracker.client.presentation.splash_screen
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
@@ -21,6 +23,7 @@ class SplashScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         AppPreferences.setup(applicationContext)
 
+//        AppPreferences.jwtToken = null
 //        AppPreferences.jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2YW55dHJ5a29jaDc4OUBnbWFpbC5jb20iLCJpYXQiOjE3MDE3MTQwNDcsImV4cCI6MTcwMjMxODg0N30.w6SWeKYH2L5lrJU1BZCK0kLwY3FYDINSthc3a92EeDw"
         installSplashScreen().apply {
             setKeepOnScreenCondition {
@@ -53,14 +56,29 @@ class SplashScreenActivity : AppCompatActivity() {
     private fun setContent() {
         binding = ActivitySplashScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.splashscreenNetworkError.networkErrorOk.setOnClickListener {
+            binding.splashscreenNetworkError.root.visibility = View.GONE
+        }
+
+        binding.splashscreenNetworkError.root.visibility = View.VISIBLE
+
         binding.root.setOnRefreshListener {
+            binding.splashscreenNetworkError.root.visibility = View.GONE
+            this.window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+
             viewModel.refreshToken()
 
             viewModel.isLoading.observe(this@SplashScreenActivity) { isLoading ->
                 if (!isLoading) {
-                    checkToken()?.let {
-                        it.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        this@SplashScreenActivity.startActivity(it)
+                    this.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                    val intent = checkToken()
+                    if (intent == null) {
+                        binding.splashscreenNetworkError.root.visibility = View.VISIBLE
+                    } else {
+                        binding.splashscreenNetworkError.root.visibility = View.GONE
+                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        this@SplashScreenActivity.startActivity(intent)
                     }
                     binding.root.isRefreshing = false
                 }

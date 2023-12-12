@@ -41,30 +41,18 @@ class LoginFragment : Fragment() {
         binding.loginEditTextInputPassword.setText(sharedAuthViewModel.getAuthDto()?.passwordHash)
 
         binding.loginButtonSignup.setOnClickListener {
+            binding.loginNetworkError.root.visibility = View.GONE
             findNavController().navigate(R.id.action_loginFragment_to_signUpFragment)
         }
 
         binding.loginButtonLogin.setOnClickListener {
+            binding.loginNetworkError.root.visibility = View.GONE
             onLogin()
         }
 
         binding.loginTextForgotPassword.setOnClickListener {
-            // todo add error checks and shows
-            sharedAuthViewModel.setAuthDto(
-                AuthDto(
-                    (binding.loginEditTextInputEmail.text ?: "").toString(),
-                    ""
-                )
-            )
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(resources.getString(R.string.reset_password_question_title))
-                .setMessage(resources.getString(R.string.reset_password_question_message))
-                .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-//                                sharedAuthViewModel.resetPassword()
-                    showDefaultDialog(resources.getString(R.string.reset_password_title), resources.getString(R.string.reset_password_message), resources.getString(R.string.ok))
-                }
-                .setNegativeButton(resources.getString(R.string.no)) { _, _ -> }
-                .show()
+            binding.loginNetworkError.root.visibility = View.GONE
+            onForgotPassword()
         }
 
         binding.loginEditTextInputEmail.setOnFocusChangeListener { _, hasFocus ->
@@ -88,6 +76,10 @@ class LoginFragment : Fragment() {
                 val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(binding.loginTextInputPassword.windowToken, 0)
             }
+        }
+
+        binding.loginNetworkError.networkErrorOk.setOnClickListener {
+            binding.loginNetworkError.root.visibility = View.GONE
         }
     }
 
@@ -124,7 +116,108 @@ class LoginFragment : Fragment() {
                             Intent(requireActivity(), MainActivity::class.java)
                         )
                     } else if (sharedAuthViewModel.loginState.value.error.startsWith("403")) {
-                        sharedAuthViewModel.sendConfirmationEmail()
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(resources.getString(R.string.confirm_email_error_title))
+                            .setMessage(resources.getString(R.string.confirm_email_error_message_with_question))
+                            .setPositiveButton(resources.getString(R.string.ok)) { _, _ ->
+                                sendConfirmationEmail()
+                            }
+                            .setNegativeButton(resources.getString(R.string.no)) { _, _ -> }
+                            .show()
+
+                    } else if (sharedAuthViewModel.loginState.value.error.startsWith("401")) {
+                        binding.loginTextInputEmail.error = resources.getString(R.string.incorrect_email_password)
+                        binding.loginButtonLogin.error = resources.getString(R.string.incorrect_email_password)
+                    } else {
+                        binding.loginNetworkError.root.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+        }
+    }
+
+    private fun onForgotPassword() {
+        binding.loginTextInputEmail.clearFocus()
+
+        // todo add error checks and shows
+        val email = binding.loginEditTextInputEmail.text?.toString() ?: ""
+        if (!sharedAuthViewModel.checkEmail(email)) {
+            binding.loginTextInputEmail.error = resources.getString(R.string.invalid_email)
+        } else {
+            binding.loginTextInputEmail.error = null
+            binding.loginButtonLogin.error = null
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(resources.getString(R.string.reset_password_question_title))
+                .setMessage(resources.getString(R.string.reset_password_question_message))
+                .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                    resetPassword()
+                }
+                .setNegativeButton(resources.getString(R.string.no)) { _, _ -> }
+                .show()
+        }
+    }
+
+    private fun resetPassword() {
+        // todo add error checks and shows
+        binding.loginCircularProgressIndicator.visibility = View.VISIBLE
+
+        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+
+        sharedAuthViewModel.setAuthDto(AuthDto(binding.loginEditTextInputEmail.text?.toString() ?: "",""))
+        sharedAuthViewModel.resetPassword()
+        sharedAuthViewModel.isResetPasswordLoading.observe(requireActivity()) { isLoading ->
+            if (!isLoading) {
+                binding.loginCircularProgressIndicator.visibility = View.GONE
+
+                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+
+                if (sharedAuthViewModel.resetPasswordState.value.error.isBlank()) {
+                    showDefaultDialog(
+                        resources.getString(R.string.reset_password_title),
+                        resources.getString(R.string.reset_password_message),
+                        resources.getString(R.string.ok)
+                    )
+                } else if (sharedAuthViewModel.loginState.value.error.startsWith("403")) {
+                    showDefaultDialog(
+                        resources.getString(R.string.confirm_email_error_message_with_question),
+                        resources.getString(R.string.confirm_email_message),
+                        resources.getString(R.string.ok)
+                    )
+                } else if (sharedAuthViewModel.loginState.value.error.startsWith("401")) {
+                    binding.loginTextInputEmail.error = resources.getString(R.string.invalid_email)
+                } else {
+                    binding.loginNetworkError.root.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+
+    private fun sendConfirmationEmail() {
+        binding.loginTextInputEmail.clearFocus()
+
+        // todo add error checks and shows
+        val email = binding.loginEditTextInputEmail.text?.toString() ?: ""
+        if (!sharedAuthViewModel.checkEmail(email)) {
+            binding.loginTextInputEmail.error = resources.getString(R.string.invalid_email)
+        } else {
+            binding.loginTextInputEmail.error = null
+            binding.loginButtonLogin.error = null
+
+            binding.loginCircularProgressIndicator.visibility = View.VISIBLE
+
+            requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+
+            sharedAuthViewModel.setAuthDto(AuthDto(email, ""))
+            sharedAuthViewModel.sendConfirmationEmail()
+            sharedAuthViewModel.isConfirmationEmailLoading.observe(requireActivity()) { isLoading ->
+                if (!isLoading) {
+                    binding.loginCircularProgressIndicator.visibility = View.GONE
+
+                    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+
+                    if (sharedAuthViewModel.confirmationEmailState.value.error.isBlank()) {
                         showDefaultDialog(
                             resources.getString(R.string.confirm_email_title),
                             resources.getString(R.string.confirm_email_message),
@@ -133,16 +226,17 @@ class LoginFragment : Fragment() {
                     } else if (sharedAuthViewModel.loginState.value.error.startsWith("401")) {
                         binding.loginTextInputEmail.error = resources.getString(R.string.incorrect_email_password)
                         binding.loginButtonLogin.error = resources.getString(R.string.incorrect_email_password)
-                    } else {
+                    } else if (sharedAuthViewModel.loginState.value.error.startsWith("400")) {
                         showDefaultDialog(
-                            resources.getString(R.string.connection_failed),
-                            resources.getString(R.string.connection_failed_message),
+                            resources.getString(R.string.email_confirmed_title),
+                            resources.getString(R.string.email_confirmed_message),
                             resources.getString(R.string.ok)
                         )
+                    } else {
+                        binding.loginNetworkError.root.visibility = View.VISIBLE
                     }
                 }
             }
-
         }
     }
 

@@ -12,6 +12,7 @@ import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.auth.confirm_email.SendConfirmationEmailUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.auth.login.LoginUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.auth.sign_up.SignUpUseCase
+import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.reset_password.ResetPasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -24,6 +25,7 @@ class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val signUpUseCase: SignUpUseCase,
     private val confirmationEmailUseCase: SendConfirmationEmailUseCase,
+    private val resetPasswordUseCase: ResetPasswordUseCase
 ) : ViewModel() {
 
     companion object {
@@ -48,6 +50,11 @@ class AuthViewModel @Inject constructor(
     private val _isConfirmationEmailLoading = MutableLiveData<Boolean>(false)
     val isConfirmationEmailLoading: LiveData<Boolean> = _isConfirmationEmailLoading
 
+    private val _resetPasswordState = mutableStateOf<ResetPasswordState>(ResetPasswordState())
+    val resetPasswordState = _resetPasswordState
+    private val _isResetPasswordLoading = MutableLiveData<Boolean>(false)
+    val isResetPasswordLoading: LiveData<Boolean> = _isResetPasswordLoading
+
     private var authDto: AuthDto? = null
 
 
@@ -71,10 +78,13 @@ class AuthViewModel @Inject constructor(
         _isLoginLoading.value = true
         if (authDto == null) {
             _loginState.value = LoginState(error = "No auth dto")
+            _isLoginLoading.value = false
         } else if (!checkEmail(authDto!!.email)) {
             _loginState.value = LoginState(error = "Invalid email")
+            _isLoginLoading.value = false
         } else if (!checkPassword(authDto!!.passwordHash)) {
             _loginState.value = LoginState(error = "Invalid password")
+            _isLoginLoading.value = false
         } else {
 
             val passwordHash = hashPassword(authDto!!.passwordHash, authDto!!.email)
@@ -109,10 +119,13 @@ class AuthViewModel @Inject constructor(
         _isSingUpLoading.value = true
         if (authDto == null) {
             _signUpState.value = SignUpState(error = "No auth dto")
+            _isSingUpLoading.value = false
         } else if (!checkEmail(authDto!!.email)) {
             _signUpState.value = SignUpState(error = "Invalid email")
+            _isSingUpLoading.value = false
         } else if (!checkPassword(authDto!!.passwordHash)) {
             _signUpState.value = SignUpState(error = "Invalid password")
+            _isSingUpLoading.value = false
         } else {
 
             val passwordHash = hashPassword(authDto!!.passwordHash, authDto!!.email)
@@ -146,10 +159,13 @@ class AuthViewModel @Inject constructor(
         _isConfirmationEmailLoading.value = true
         if (authDto == null) {
             _confirmationEmailState.value = ConfirmationEmailState(error = "No auth dto")
+            _isConfirmationEmailLoading.value = false
         } else if (!checkEmail(authDto!!.email)) {
             _confirmationEmailState.value = ConfirmationEmailState(error = "Invalid email")
+            _isConfirmationEmailLoading.value = false
         } else if (!checkPassword(authDto!!.passwordHash)) {
             _confirmationEmailState.value = ConfirmationEmailState(error = "Invalid password")
+            _isConfirmationEmailLoading.value = false
         } else {
 
             val passwordHash = hashPassword(authDto!!.passwordHash, authDto!!.email)
@@ -179,36 +195,35 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-//   fun resetPassword() {
-//      if (authDto == null) {
-//         _confirmationEmailState.value = ConfirmationEmailState(error = "No auth dto")
-//      } else if (checkEmail(authDto!!.email)) {
-//         _confirmationEmailState.value = ConfirmationEmailState(error = "Invalid email")
-//      } else {
-//
-//         val passwordHash = hashPassword(authDto!!.password, authDto!!.email.toByteArray())
-//         val newAuthDto = AuthDto(
-//            authDto!!.email,
-//            passwordHash
-//         )
-//
-//         confirmationEmailUseCase(newAuthDto).onEach { result ->
-//            when (result) {
-//               is Resource.Success -> {
-//                  _confirmationEmailState.value = ConfirmationEmailState(token = result.data ?: "")
-//               }
-//
-//               is Resource.Error -> {
-//                  _confirmationEmailState.value = ConfirmationEmailState(error = result.message ?: "An unexpected error occurred")
-//               }
-//
-//               is Resource.Loading -> {
-//                  _confirmationEmailState.value = ConfirmationEmailState(isLoading = true)
-//               }
-//            }
-//         }.launchIn(viewModelScope)
-//      }
-//   }
+    fun resetPassword() {
+        _isResetPasswordLoading.value = true
+        if (authDto == null) {
+            _resetPasswordState.value = ResetPasswordState(error = "No auth dto")
+            _isResetPasswordLoading.value = false
+        } else if (checkEmail(authDto!!.email)) {
+            _resetPasswordState.value = ResetPasswordState(error = "Invalid email")
+            _isResetPasswordLoading.value = false
+        } else {
+            resetPasswordUseCase(authDto!!).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _resetPasswordState.value = ResetPasswordState()
+                        _isResetPasswordLoading.value = false
+                    }
+
+                    is Resource.Error -> {
+                        _resetPasswordState.value = ResetPasswordState(error = result.message ?: "An unexpected error occurred")
+                        _isResetPasswordLoading.value = false
+                    }
+
+                    is Resource.Loading -> {
+                        _resetPasswordState.value = ResetPasswordState(isLoading = true)
+                        _isResetPasswordLoading.value = true
+                    }
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
 
     private fun hashPassword(password: String, salt: String): String {
         val md = MessageDigest.getInstance("SHA-256")
