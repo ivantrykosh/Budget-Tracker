@@ -2,8 +2,10 @@ package com.ivantrykosh.app.budgettracker.client.presentation.auth
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
@@ -200,7 +202,7 @@ class AuthViewModel @Inject constructor(
         if (authDto == null) {
             _resetPasswordState.value = ResetPasswordState(error = "No auth dto")
             _isResetPasswordLoading.value = false
-        } else if (checkEmail(authDto!!.email)) {
+        } else if (!checkEmail(authDto!!.email)) {
             _resetPasswordState.value = ResetPasswordState(error = "Invalid email")
             _isResetPasswordLoading.value = false
         } else {

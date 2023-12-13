@@ -9,16 +9,16 @@ import javax.inject.Inject
 class UserRepositoryImpl @Inject constructor(
     private val api: UserApi
 ) : UserRepository {
-    override suspend fun getUser(): UserDto {
-        return api.getUser()
+    override suspend fun getUser(token: String): UserDto {
+        return api.getUser(token)
     }
 
-    override suspend fun deleteUser() {
-        return api.deleteUser()
+    override suspend fun deleteUser(token: String) {
+        return api.deleteUser(token)
     }
 
-    override suspend fun changeUserPassword(request: ChangePasswordDto) {
-        return api.changeUserPassword(request)
+    override suspend fun changeUserPassword(token: String, request: ChangePasswordDto) {
+        return api.changeUserPassword(token, request)
     }
 
     override suspend fun resetUserPassword(email: String) {

@@ -5,6 +5,7 @@
     <string name="main_expenses_text">Expenses:</string>
     <string name="main_total_text">Total:</string>
     <string name="last_incomes">Last incomes</string>
+    <string name="last_expenses">Last expenses</string>
     <string name="add_expense">Add expense</string>
     <string name="add_income">Add income</string>
     <string name="overview">Overview</string>

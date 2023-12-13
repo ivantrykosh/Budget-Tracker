@@ -8,7 +8,7 @@ import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
-import com.ivantrykosh.app.budgettracker.client.MainActivity
+import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.databinding.ActivitySplashScreenBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,7 +47,7 @@ class SplashScreenActivity : AppCompatActivity() {
         if (viewModel.state.value.token.isNotBlank()) {
             return Intent(this@SplashScreenActivity, MainActivity::class.java)
         }
-        if (viewModel.state.value.error.startsWith("403") || viewModel.state.value.error == "Token is not found") {
+        if (viewModel.state.value.error.startsWith("403") || viewModel.state.value.error.startsWith("401") || viewModel.state.value.error == "Token is not found") {
             return Intent(this@SplashScreenActivity, AuthActivity::class.java)
         }
         return null

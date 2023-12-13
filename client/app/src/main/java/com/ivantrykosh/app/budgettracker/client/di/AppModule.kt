@@ -1,11 +1,17 @@
 package com.ivantrykosh.app.budgettracker.client.di
 
 import com.ivantrykosh.app.budgettracker.client.common.Constants
+import com.ivantrykosh.app.budgettracker.client.data.remote.AccountApi
 import com.ivantrykosh.app.budgettracker.client.data.remote.AuthApi
+import com.ivantrykosh.app.budgettracker.client.data.remote.TransactionApi
 import com.ivantrykosh.app.budgettracker.client.data.remote.UserApi
+import com.ivantrykosh.app.budgettracker.client.data.repository.AccountRepositoryImpl
 import com.ivantrykosh.app.budgettracker.client.data.repository.AuthRepositoryImpl
+import com.ivantrykosh.app.budgettracker.client.data.repository.TransactionRepositoryImpl
 import com.ivantrykosh.app.budgettracker.client.data.repository.UserRepositoryImpl
+import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountRepository
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AuthRepository
+import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRepository
 import com.ivantrykosh.app.budgettracker.client.domain.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -60,5 +66,39 @@ object AppModule {
     @Singleton
     fun provideUserRepository(api: UserApi): UserRepository {
         return UserRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountApi(): AccountApi {
+        return Retrofit.Builder()
+            .baseUrl(Constants.BASE_URL + Constants.ACCOUNT_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AccountApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountRepository(api: AccountApi): AccountRepository {
+        return AccountRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTransactionApi(): TransactionApi {
+        return Retrofit.Builder()
+            .baseUrl(Constants.BASE_URL + Constants.TRANSACTION_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(TransactionApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTransactionRepository(api: TransactionApi): TransactionRepository {
+        return TransactionRepositoryImpl(api)
     }
 }

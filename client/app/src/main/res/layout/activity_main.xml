@@ -9,231 +9,27 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/main_top_app_bar"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/nav_main_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/top_app_bar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/baseline_menu_24"
-                app:title="@string/overview" />
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_balance_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/main_top_app_bar">
-
-            <TextView
-                android:id="@+id/text_view_balance_for"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Balance for Oct 2023" />
-
-            <TextView
-                android:id="@+id/main_incomes_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_incomes_text"
-                android:textAlignment="textStart"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text_view_balance_for" />
-
-            <TextView
-                android:id="@+id/main_incomes_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/text_view_balance_for"
-                tools:text="$200" />
-
-            <TextView
-                android:id="@+id/main_expenses_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_expenses_text"
-                android:textAlignment="textStart"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/main_incomes_text" />
-
-            <TextView
-                android:id="@+id/main_expenses_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/main_incomes_value"
-                tools:text="-$120" />
-
-            <TextView
-                android:id="@+id/main_total_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_total_text"
-                android:textAlignment="textStart"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/main_expenses_text" />
-
-            <TextView
-                android:id="@+id/main_total_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/main_expenses_value"
-                tools:text="$80" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_incomes_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/main_balance_layout">
-
-            <TextView
-                android:id="@+id/text_view_last_incomes"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/last_incomes"
-                android:textAlignment="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/last_incomes_recycler_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text_view_last_incomes" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_expenses_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/main_incomes_layout">
-
-            <TextView
-                android:id="@+id/text_view_last_expenses"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/last_incomes"
-                android:textAlignment="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/last_expenses_recycler_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text_view_last_expenses" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            app:defaultNavHost="true"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:navGraph="@navigation/nav_graph_main" />
 
-            <GridLayout
-                android:id="@+id/main_dial"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|center_horizontal"
-                android:orientation="vertical"
-                android:visibility="invisible"
-                app:layout_anchor="@id/main_floating_action_button"
-                app:layout_anchorGravity="top|center_horizontal"
-                app:layout_behavior="com.google.android.material.transformation.FabTransformationScrimBehavior"
-                tools:visibility="visible">
-
-                <TextView
-                    android:id="@+id/text_hint_add_income"
-                    android:layout_width="match_parent"
-                    android:layout_row="0"
-                    android:layout_column="0"
-                    android:layout_gravity="center"
-                    android:background="@color/black"
-                    android:text="@string/add_income"
-                    android:textAlignment="center"
-                    android:textColor="@color/white" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/main_fab_add_income"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_row="0"
-                    android:layout_column="1"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="0dp"
-                    app:shapeAppearance="@style/Widget.Material3.CircularProgressIndicator"
-                    app:srcCompat="@drawable/baseline_add_24" />
-
-                <TextView
-                    android:id="@+id/text_hint_add_expense"
-                    android:layout_width="match_parent"
-                    android:layout_row="1"
-                    android:layout_column="0"
-                    android:layout_gravity="center"
-                    android:background="@color/black"
-                    android:text="@string/add_expense"
-                    android:textAlignment="center"
-                    android:textColor="@color/white" />
-
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/main_fab_add_outcome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_row="1"
-                    android:layout_column="1"
-                    android:layout_margin="16dp"
-                    app:shapeAppearance="@style/Widget.Material3.CircularProgressIndicator"
-                    app:srcCompat="@drawable/baseline_remove_24" />
-            </GridLayout>
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/main_floating_action_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="16dp"
-                app:shapeAppearance="@style/Widget.Material3.CircularProgressIndicator"
-                app:srcCompat="@drawable/baseline_add_24" />
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:padding="16dp"
         app:menu="@menu/nav_menu"/>
+
 </androidx.drawerlayout.widget.DrawerLayout>

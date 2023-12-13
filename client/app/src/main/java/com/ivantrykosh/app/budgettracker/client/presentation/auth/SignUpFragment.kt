@@ -110,6 +110,8 @@ class SignUpFragment : Fragment() {
                     } else if (!sharedAuthViewModel.signUpState.value.error.startsWith("400")) {
                         binding.signupNetworkError.root.visibility = View.VISIBLE
                     }
+
+                    sharedAuthViewModel.isSingUpLoading.removeObservers(requireActivity())
                 }
             }
         }

@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.ivantrykosh.app.budgettracker.client.MainActivity
+import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentLoginBinding
@@ -126,11 +126,15 @@ class LoginFragment : Fragment() {
                             .show()
 
                     } else if (sharedAuthViewModel.loginState.value.error.startsWith("401")) {
-                        binding.loginTextInputEmail.error = resources.getString(R.string.incorrect_email_password)
-                        binding.loginButtonLogin.error = resources.getString(R.string.incorrect_email_password)
+                        binding.loginTextInputEmail.error =
+                            resources.getString(R.string.incorrect_email_password)
+                        binding.loginTextInputPassword.error =
+                            resources.getString(R.string.incorrect_email_password)
                     } else {
                         binding.loginNetworkError.root.visibility = View.VISIBLE
                     }
+
+                    sharedAuthViewModel.isLoginLoading.removeObservers(requireActivity())
                 }
             }
 
@@ -139,6 +143,8 @@ class LoginFragment : Fragment() {
 
     private fun onForgotPassword() {
         binding.loginTextInputEmail.clearFocus()
+        binding.loginEditTextInputPassword.text = null
+        binding.loginTextInputPassword.error = null
 
         // todo add error checks and shows
         val email = binding.loginEditTextInputEmail.text?.toString() ?: ""
@@ -190,6 +196,8 @@ class LoginFragment : Fragment() {
                 } else {
                     binding.loginNetworkError.root.visibility = View.VISIBLE
                 }
+
+                sharedAuthViewModel.isResetPasswordLoading.removeObservers(requireActivity())
             }
         }
     }
@@ -199,8 +207,12 @@ class LoginFragment : Fragment() {
 
         // todo add error checks and shows
         val email = binding.loginEditTextInputEmail.text?.toString() ?: ""
+        val password = binding.loginEditTextInputPassword.text?.toString() ?: ""
+
         if (!sharedAuthViewModel.checkEmail(email)) {
             binding.loginTextInputEmail.error = resources.getString(R.string.invalid_email)
+        } else if (!sharedAuthViewModel.checkPassword(password)) {
+            binding.loginTextInputPassword.error = resources.getString(R.string.invalid_password)
         } else {
             binding.loginTextInputEmail.error = null
             binding.loginButtonLogin.error = null
@@ -209,7 +221,7 @@ class LoginFragment : Fragment() {
 
             requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
 
-            sharedAuthViewModel.setAuthDto(AuthDto(email, ""))
+            sharedAuthViewModel.setAuthDto(AuthDto(email, password))
             sharedAuthViewModel.sendConfirmationEmail()
             sharedAuthViewModel.isConfirmationEmailLoading.observe(requireActivity()) { isLoading ->
                 if (!isLoading) {
@@ -235,6 +247,8 @@ class LoginFragment : Fragment() {
                     } else {
                         binding.loginNetworkError.root.visibility = View.VISIBLE
                     }
+
+                    sharedAuthViewModel.isConfirmationEmailLoading.removeObservers(requireActivity())
                 }
             }
         }
