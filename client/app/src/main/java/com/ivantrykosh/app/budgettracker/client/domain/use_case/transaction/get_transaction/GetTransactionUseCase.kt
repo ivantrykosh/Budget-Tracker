@@ -1,21 +1,20 @@
-package com.ivantrykosh.app.budgettracker.client.domain.use_case.user.get_user
+package com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transaction
 
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.toUser
-import com.ivantrykosh.app.budgettracker.client.domain.model.User
-import com.ivantrykosh.app.budgettracker.client.domain.repository.UserRepository
+import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
+import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import javax.inject.Inject
 
-class GetUserUseCase @Inject constructor(
-    private val repository: UserRepository
-){
-    operator fun invoke(token: String): Flow<Resource<User>> = flow {
+class GetTransactionUseCase @Inject constructor(
+    private val repository: TransactionRepository
+) {
+    operator fun invoke(token: String, id: String): Flow<Resource<TransactionDto>> = flow {
         try {
             emit(Resource.Loading())
-            val result = repository.getUser(token).toUser()
+            val result = repository.getTransaction(token, id)
             emit(Resource.Success(result))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

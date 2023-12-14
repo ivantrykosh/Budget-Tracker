@@ -1,5 +1,7 @@
 package com.ivantrykosh.app.budgettracker.client.data.remote.dto
 
+import com.ivantrykosh.app.budgettracker.client.domain.model.Account
+
 /**
  * Data class for account
  */
@@ -10,3 +12,12 @@ data class AccountDto(
     val incomesSum: Double,
     val expensesSum: Double
 )
+
+fun AccountDto.toAccount(): Account {
+    return Account(
+        accountId = accountId,
+        userId = userId,
+        name = name,
+        total = incomesSum + expensesSum
+    )
+}

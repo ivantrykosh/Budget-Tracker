@@ -1,5 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.data.remote.dto
 
+import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import java.util.Date
 
 /**
