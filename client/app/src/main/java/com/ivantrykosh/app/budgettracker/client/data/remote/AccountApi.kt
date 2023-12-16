@@ -1,5 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.data.remote
 
+import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AccountDto
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AccountWithAccountUsersDto
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
 import retrofit2.http.Body
@@ -19,7 +20,7 @@ interface AccountApi {
     suspend fun getAccount(@Header("Authorization") token: String, @Query("id") id: String): AccountWithAccountUsersDto
 
     @GET("get-all")
-    suspend fun getAllAccounts(@Header("Authorization") token: String): List<AccountWithAccountUsersDto>
+    suspend fun getAllAccounts(@Header("Authorization") token: String): List<AccountDto>
 
     @PATCH("update")
     suspend fun updateAccount(@Header("Authorization") token: String, @Query("id") id: String, @Body request: ChangeAccountDto)

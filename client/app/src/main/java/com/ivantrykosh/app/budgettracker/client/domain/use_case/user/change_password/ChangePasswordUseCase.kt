@@ -14,7 +14,7 @@ class ChangePasswordUseCase @Inject constructor(
     operator fun invoke(token: String, request: ChangePasswordDto): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.changeUserPassword(token, request)
+            repository.changeUserPassword("Bearer $token", request)
             emit(Resource.Success("Success"))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

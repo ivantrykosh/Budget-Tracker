@@ -21,12 +21,12 @@
         android:layout_height="0dp"
         android:layout_marginVertical="2dp"
         tools:background="@color/green"
-        app:layout_constraintBottom_toBottomOf="@+id/item_operation_note"
+        app:layout_constraintBottom_toBottomOf="@+id/item_operation_account"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/item_operation_category" />
 
     <TextView
-        android:id="@+id/item_operation_note"
+        android:id="@+id/item_operation_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"

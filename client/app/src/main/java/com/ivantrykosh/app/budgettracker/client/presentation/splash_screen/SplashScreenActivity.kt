@@ -7,6 +7,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
@@ -57,14 +58,16 @@ class SplashScreenActivity : AppCompatActivity() {
         binding = ActivitySplashScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.splashscreenNetworkError.networkErrorOk.setOnClickListener {
-            binding.splashscreenNetworkError.root.visibility = View.GONE
+        binding.splashscreenError.errorOk.setOnClickListener {
+            binding.splashscreenError.root.visibility = View.GONE
         }
 
-        binding.splashscreenNetworkError.root.visibility = View.VISIBLE
+        binding.splashscreenError.root.visibility = View.VISIBLE
+        binding.splashscreenError.errorTitle.text = resources.getString(R.string.network_error)
+        binding.splashscreenError.errorText.text = resources.getString(R.string.connection_failed_message)
 
         binding.root.setOnRefreshListener {
-            binding.splashscreenNetworkError.root.visibility = View.GONE
+            binding.splashscreenError.root.visibility = View.GONE
             this.window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
 
             viewModel.refreshToken()
@@ -74,9 +77,11 @@ class SplashScreenActivity : AppCompatActivity() {
                     this.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                     val intent = checkToken()
                     if (intent == null) {
-                        binding.splashscreenNetworkError.root.visibility = View.VISIBLE
+                        binding.splashscreenError.root.visibility = View.VISIBLE
+                        binding.splashscreenError.errorTitle.text = resources.getString(R.string.network_error)
+                        binding.splashscreenError.errorText.text = resources.getString(R.string.connection_failed_message)
                     } else {
-                        binding.splashscreenNetworkError.root.visibility = View.GONE
+                        binding.splashscreenError.root.visibility = View.GONE
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         this@SplashScreenActivity.startActivity(intent)
                     }

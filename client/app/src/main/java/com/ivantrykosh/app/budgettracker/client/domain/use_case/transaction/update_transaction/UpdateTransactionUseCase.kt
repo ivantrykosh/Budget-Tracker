@@ -14,7 +14,7 @@ class UpdateTransactionUseCase @Inject constructor(
     operator fun invoke(token: String, transactionDto: TransactionDto): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.updateTransaction(token, transactionDto)
+            repository.updateTransaction("Bearer $token", transactionDto)
             emit(Resource.Success("Success"))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

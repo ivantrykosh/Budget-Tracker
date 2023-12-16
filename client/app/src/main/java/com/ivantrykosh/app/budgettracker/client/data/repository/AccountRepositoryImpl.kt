@@ -1,6 +1,7 @@
 package com.ivantrykosh.app.budgettracker.client.data.repository
 
 import com.ivantrykosh.app.budgettracker.client.data.remote.AccountApi
+import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AccountDto
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AccountWithAccountUsersDto
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountRepository
@@ -17,7 +18,7 @@ class AccountRepositoryImpl @Inject constructor(
         return api.getAccount(token, id)
     }
 
-    override suspend fun getAllAccounts(token: String): List<AccountWithAccountUsersDto> {
+    override suspend fun getAllAccounts(token: String): List<AccountDto> {
         return api.getAllAccounts(token)
     }
 

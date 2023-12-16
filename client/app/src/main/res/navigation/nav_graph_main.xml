@@ -7,7 +7,22 @@
 
     <fragment
         android:id="@+id/overviewFragment"
-        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.OverviewFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.overview.OverviewFragment"
         android:label="fragment_overview"
-        tools:layout="@layout/fragment_overview" />
+        tools:layout="@layout/fragment_overview" >
+        <action
+            android:id="@+id/action_overviewFragment_to_addIncomeFragment"
+            app:destination="@id/addIncomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addIncomeFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.add_income.AddIncomeFragment"
+        android:label="fragment_add_income"
+        tools:layout="@layout/fragment_add_income" >
+        <action
+            android:id="@+id/action_addIncomeFragment_to_overviewFragment"
+            app:destination="@id/overviewFragment"
+            app:popUpTo="@id/overviewFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

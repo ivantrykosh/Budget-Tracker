@@ -14,7 +14,7 @@ class UpdateAccountUseCase @Inject constructor(
     operator fun invoke(token: String, id: String, changeAccountDto: ChangeAccountDto): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            val result = repository.updateAccount(token, id, changeAccountDto)
+            val result = repository.updateAccount("Bearer $token", id, changeAccountDto)
             emit(Resource.Success("Success"))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

@@ -1,4 +1,4 @@
-package com.ivantrykosh.app.budgettracker.client.presentation.auth
+package com.ivantrykosh.app.budgettracker.client.presentation.auth.signup
 
 import android.content.Context
 import android.os.Bundle
@@ -8,13 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentSignupBinding
+import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -64,7 +64,7 @@ class SignUpFragment : Fragment() {
             }
         }
 
-        binding.signupNetworkError.networkErrorOk.setOnClickListener {
+        binding.signupNetworkError.errorOk.setOnClickListener {
             binding.signupNetworkError.root.visibility = View.GONE
         }
     }
@@ -107,8 +107,14 @@ class SignUpFragment : Fragment() {
                             .navigate(R.id.action_signUpFragment_to_loginFragment)
                     } else if (sharedAuthViewModel.signUpState.value.error.startsWith("409")) {
                         binding.signupTextInputEmail.error = resources.getString(R.string.email_is_used)
-                    } else if (!sharedAuthViewModel.signUpState.value.error.startsWith("400")) {
+                    } else if (sharedAuthViewModel.signUpState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.signupNetworkError.root.visibility = View.VISIBLE
+                        binding.signupNetworkError.errorTitle.text = resources.getString(R.string.error)
+                        binding.signupNetworkError.errorText.text = sharedAuthViewModel.signUpState.value.error
+                    } else {
+                        binding.signupNetworkError.root.visibility = View.VISIBLE
+                        binding.signupNetworkError.errorTitle.text = resources.getString(R.string.network_error)
+                        binding.signupNetworkError.errorText.text = resources.getString(R.string.connection_failed_message)
                     }
 
                     sharedAuthViewModel.isSingUpLoading.removeObservers(requireActivity())

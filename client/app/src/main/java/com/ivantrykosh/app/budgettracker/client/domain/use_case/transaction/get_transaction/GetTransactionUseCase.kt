@@ -14,7 +14,7 @@ class GetTransactionUseCase @Inject constructor(
     operator fun invoke(token: String, id: String): Flow<Resource<TransactionDto>> = flow {
         try {
             emit(Resource.Loading())
-            val result = repository.getTransaction(token, id)
+            val result = repository.getTransaction("Bearer $token", id)
             emit(Resource.Success(result))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

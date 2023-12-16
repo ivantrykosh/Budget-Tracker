@@ -1,5 +1,7 @@
 package com.ivantrykosh.app.budgettracker.client.di
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.data.remote.AccountApi
 import com.ivantrykosh.app.budgettracker.client.data.remote.AuthApi
@@ -27,11 +29,15 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    val gson: Gson = GsonBuilder()
+        .setDateFormat("yyyy-MM-dd")
+        .create()
+
     val client = OkHttpClient.Builder()
         .retryOnConnectionFailure(true)
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(10, TimeUnit.SECONDS)
-        .writeTimeout(10, TimeUnit.SECONDS)
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(5, TimeUnit.SECONDS)
+        .writeTimeout(5, TimeUnit.SECONDS)
         .build()
 
     @Provides
@@ -40,7 +46,7 @@ object AppModule {
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL + Constants.AUTH_URL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(AuthApi::class.java)
     }
@@ -57,7 +63,7 @@ object AppModule {
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL + Constants.USER_URL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(UserApi::class.java)
     }
@@ -74,7 +80,7 @@ object AppModule {
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL + Constants.ACCOUNT_URL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(AccountApi::class.java)
     }
@@ -91,7 +97,7 @@ object AppModule {
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL + Constants.TRANSACTION_URL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(TransactionApi::class.java)
     }

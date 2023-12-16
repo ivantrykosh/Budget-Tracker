@@ -14,11 +14,12 @@ class CreateTransactionUseCase @Inject constructor(
     operator fun invoke(token: String, transactionDto: TransactionDto): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.createTransaction(token, transactionDto)
+            repository.createTransaction("Bearer $token", transactionDto)
             emit(Resource.Success("Success"))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))
         } catch (e: Exception) {
+            println(e)
             emit(Resource.Error("Couldn't reach server. Check your internet connection"))
         }
     }

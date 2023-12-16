@@ -1,4 +1,4 @@
-package com.ivantrykosh.app.budgettracker.client.presentation.auth
+package com.ivantrykosh.app.budgettracker.client.presentation.auth.login
 
 import android.content.Context
 import android.content.Intent
@@ -16,6 +16,7 @@ import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentLoginBinding
+import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -78,7 +79,7 @@ class LoginFragment : Fragment() {
             }
         }
 
-        binding.loginNetworkError.networkErrorOk.setOnClickListener {
+        binding.loginNetworkError.errorOk.setOnClickListener {
             binding.loginNetworkError.root.visibility = View.GONE
         }
     }
@@ -130,8 +131,14 @@ class LoginFragment : Fragment() {
                             resources.getString(R.string.incorrect_email_password)
                         binding.loginTextInputPassword.error =
                             resources.getString(R.string.incorrect_email_password)
+                    } else if (sharedAuthViewModel.loginState.value.error.contains("HTTP", ignoreCase = true)) {
+                        binding.loginNetworkError.root.visibility = View.VISIBLE
+                        binding.loginNetworkError.errorTitle.text = resources.getString(R.string.error)
+                        binding.loginNetworkError.errorText.text = sharedAuthViewModel.loginState.value.error
                     } else {
                         binding.loginNetworkError.root.visibility = View.VISIBLE
+                        binding.loginNetworkError.errorTitle.text = resources.getString(R.string.network_error)
+                        binding.loginNetworkError.errorText.text = resources.getString(R.string.connection_failed_message)
                     }
 
                     sharedAuthViewModel.isLoginLoading.removeObservers(requireActivity())
@@ -185,16 +192,22 @@ class LoginFragment : Fragment() {
                         resources.getString(R.string.reset_password_message),
                         resources.getString(R.string.ok)
                     )
-                } else if (sharedAuthViewModel.loginState.value.error.startsWith("403")) {
+                } else if (sharedAuthViewModel.resetPasswordState.value.error.startsWith("403")) {
                     showDefaultDialog(
                         resources.getString(R.string.confirm_email_error_message_with_question),
                         resources.getString(R.string.confirm_email_message),
                         resources.getString(R.string.ok)
                     )
-                } else if (sharedAuthViewModel.loginState.value.error.startsWith("401")) {
+                } else if (sharedAuthViewModel.resetPasswordState.value.error.startsWith("401")) {
                     binding.loginTextInputEmail.error = resources.getString(R.string.invalid_email)
+                } else if (sharedAuthViewModel.resetPasswordState.value.error.contains("HTTP", ignoreCase = true)) {
+                    binding.loginNetworkError.root.visibility = View.VISIBLE
+                    binding.loginNetworkError.errorTitle.text = resources.getString(R.string.error)
+                    binding.loginNetworkError.errorText.text = sharedAuthViewModel.resetPasswordState.value.error
                 } else {
                     binding.loginNetworkError.root.visibility = View.VISIBLE
+                    binding.loginNetworkError.errorTitle.text = resources.getString(R.string.network_error)
+                    binding.loginNetworkError.errorText.text = resources.getString(R.string.connection_failed_message)
                 }
 
                 sharedAuthViewModel.isResetPasswordLoading.removeObservers(requireActivity())
@@ -235,17 +248,23 @@ class LoginFragment : Fragment() {
                             resources.getString(R.string.confirm_email_message),
                             resources.getString(R.string.ok)
                         )
-                    } else if (sharedAuthViewModel.loginState.value.error.startsWith("401")) {
+                    } else if (sharedAuthViewModel.confirmationEmailState.value.error.startsWith("401")) {
                         binding.loginTextInputEmail.error = resources.getString(R.string.incorrect_email_password)
                         binding.loginButtonLogin.error = resources.getString(R.string.incorrect_email_password)
-                    } else if (sharedAuthViewModel.loginState.value.error.startsWith("400")) {
+                    } else if (sharedAuthViewModel.confirmationEmailState.value.error.startsWith("400")) {
                         showDefaultDialog(
                             resources.getString(R.string.email_confirmed_title),
                             resources.getString(R.string.email_confirmed_message),
                             resources.getString(R.string.ok)
                         )
+                    } else if (sharedAuthViewModel.confirmationEmailState.value.error.contains("HTTP", ignoreCase = true)) {
+                        binding.loginNetworkError.root.visibility = View.VISIBLE
+                        binding.loginNetworkError.errorTitle.text = resources.getString(R.string.error)
+                        binding.loginNetworkError.errorText.text = sharedAuthViewModel.confirmationEmailState.value.error
                     } else {
                         binding.loginNetworkError.root.visibility = View.VISIBLE
+                        binding.loginNetworkError.errorTitle.text = resources.getString(R.string.network_error)
+                        binding.loginNetworkError.errorText.text = resources.getString(R.string.connection_failed_message)
                     }
 
                     sharedAuthViewModel.isConfirmationEmailLoading.removeObservers(requireActivity())

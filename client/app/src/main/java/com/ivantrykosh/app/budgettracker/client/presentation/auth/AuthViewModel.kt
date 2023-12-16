@@ -2,10 +2,8 @@ package com.ivantrykosh.app.budgettracker.client.presentation.auth
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
@@ -15,6 +13,10 @@ import com.ivantrykosh.app.budgettracker.client.domain.use_case.auth.confirm_ema
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.auth.login.LoginUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.auth.sign_up.SignUpUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.reset_password.ResetPasswordUseCase
+import com.ivantrykosh.app.budgettracker.client.presentation.auth.confirmation_email.ConfirmationEmailState
+import com.ivantrykosh.app.budgettracker.client.presentation.auth.login.LoginState
+import com.ivantrykosh.app.budgettracker.client.presentation.auth.reset_password.ResetPasswordState
+import com.ivantrykosh.app.budgettracker.client.presentation.auth.signup.SignUpState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -47,7 +49,9 @@ class AuthViewModel @Inject constructor(
     private val _isSingUpLoading = MutableLiveData<Boolean>(false)
     val isSingUpLoading: LiveData<Boolean> = _isSingUpLoading
 
-    private val _confirmationEmailState = mutableStateOf<ConfirmationEmailState>(ConfirmationEmailState())
+    private val _confirmationEmailState = mutableStateOf<ConfirmationEmailState>(
+        ConfirmationEmailState()
+    )
     val confirmationEmailState = _confirmationEmailState
     private val _isConfirmationEmailLoading = MutableLiveData<Boolean>(false)
     val isConfirmationEmailLoading: LiveData<Boolean> = _isConfirmationEmailLoading

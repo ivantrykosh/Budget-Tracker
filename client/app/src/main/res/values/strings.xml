@@ -10,7 +10,7 @@
     <string name="add_income">Add income</string>
     <string name="overview">Overview</string>
     <string name="reports">Reports</string>
-    <string name="operations">Operations</string>
+    <string name="transactions">Operations</string>
     <string name="settings">Settings</string>
     <string name="new_income">New income</string>
     <string name="value">Value</string>
@@ -47,4 +47,49 @@
     <string name="confirm_email_error_message_with_question">Your email is not confirmed. Do you want to confirm it?</string>
     <string name="email_confirmed_title">Email already confirmed</string>
     <string name="email_confirmed_message">Your email is already confirmed</string>
+    <string name="no_last_incomes">No last incomes</string>
+    <string name="no_last_expenses">No last expenses</string>
+    <string name="error">Error</string>
+    <string name="my_profile">My profile</string>
+    <string name="log_out">Log out</string>
+    <string name="accounts">Accounts</string>
+    <string name="category_report">Category report</string>
+    <string name="time_report">Time report</string>
+    <string name="pdf_report">PDF report</string>
+    <string name="account">Account</string>
+    <string name="category">Category</string>
+    <string name="date">Date</string>
+    <string name="from">From</string>
+    <string name="from_optional">From (optional)</string>
+    <string name="note">Note</string>
+    <string name="note_optional">Note (optional)</string>
+    <string name="invalid_value">Value cannot be 0</string>
+    <string name="no_accounts">You don\'t have any accounts. You need to create one</string>
+    <string name="invalid_account">Account cannot be blank</string>
+    <string name="invalid_category">Category cannot be blank</string>
+    <string name="invalid_date">Date cannot be null</string>
+    <string name="transaction_is_added">Transaction is added</string>
+
+    <string-array name="income_categories">
+        <item>Financial income</item>
+        <item>Salary</item>
+        <item>Odd jobs</item>
+        <item>Pension</item>
+        <item>Personal savings</item>
+        <item>Other income</item>
+    </string-array>
+
+    <string-array name="expense_categories">
+        <item>Food/Drinks</item>
+        <item>Shopping</item>
+        <item>Transportation</item>
+        <item>Entertainment</item>
+        <item>Home</item>
+        <item>Family</item>
+        <item>Health/Sport</item>
+        <item>Pets</item>
+        <item>Travels</item>
+        <item>Other expenses</item>
+    </string-array>
+
 </resources>

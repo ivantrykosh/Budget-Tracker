@@ -13,7 +13,7 @@ class DeleteUserUseCase @Inject constructor(
     operator fun invoke(token: String): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.deleteUser(token)
+            repository.deleteUser("Bearer $token")
             emit(Resource.Success("Success"))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

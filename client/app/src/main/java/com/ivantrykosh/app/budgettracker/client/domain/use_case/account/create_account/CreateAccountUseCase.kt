@@ -14,7 +14,7 @@ class CreateAccountUseCase @Inject constructor(
     operator fun invoke(token: String, request: ChangeAccountDto): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.createAccount(token, request)
+            repository.createAccount("Bearer $token", request)
             emit(Resource.Success("Success"))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

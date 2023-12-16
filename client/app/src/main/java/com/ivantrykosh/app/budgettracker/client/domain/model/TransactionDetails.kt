@@ -8,6 +8,6 @@ data class TransactionDetails(
     val category: String,
     val value: Double,
     val date: Date,
-    val toFromWhom: String,
-    val note: String
+    val toFromWhom: String?,
+    val note: String?
 )

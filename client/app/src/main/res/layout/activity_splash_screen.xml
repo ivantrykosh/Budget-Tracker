@@ -34,8 +34,8 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
-            android:id="@+id/splashscreen_network_error"
-            layout="@layout/network_error"
+            android:id="@+id/splashscreen_error"
+            layout="@layout/error"
             android:visibility="gone"
             tools:visibility="visible" />
 

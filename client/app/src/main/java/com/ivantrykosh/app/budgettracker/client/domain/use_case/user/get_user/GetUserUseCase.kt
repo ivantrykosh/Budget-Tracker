@@ -15,7 +15,7 @@ class GetUserUseCase @Inject constructor(
     operator fun invoke(token: String): Flow<Resource<User>> = flow {
         try {
             emit(Resource.Loading())
-            val result = repository.getUser(token).toUser()
+            val result = repository.getUser("Bearer $token").toUser()
             emit(Resource.Success(result))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

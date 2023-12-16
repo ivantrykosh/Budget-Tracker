@@ -31,7 +31,7 @@
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.BudgetTracker" />
         <activity
-            android:name=".AddIncomeActivity"
+            android:name=".presentation.main.add_income.AddIncomeFragment"
             android:exported="false" />
         <activity
             android:name=".presentation.main.MainActivity"

@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
+
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.ivantrykosh.app.budgettracker.client.presentation.auth.LoginFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.auth.login.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -15,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
-        android:name="com.ivantrykosh.app.budgettracker.client.presentation.auth.SignUpFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.auth.signup.SignUpFragment"
         android:label="fragment_signup"
         tools:layout="@layout/fragment_signup" >
         <action

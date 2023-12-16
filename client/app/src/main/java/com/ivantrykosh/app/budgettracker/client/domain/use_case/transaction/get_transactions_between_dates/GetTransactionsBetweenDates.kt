@@ -12,10 +12,10 @@ import javax.inject.Inject
 class GetTransactionsBetweenDates @Inject constructor(
     private val repository: TransactionRepository
 ) {
-    operator fun invoke(token: String, accountIds: List<Long>, startDate: Date, endDate: Date): Flow<Resource<List<TransactionDto>>> = flow {
+    operator fun invoke(token: String, accountIds: List<Long>, startDate: String, endDate: String): Flow<Resource<List<TransactionDto>>> = flow {
         try {
             emit(Resource.Loading())
-            val result = repository.getTransactionByAllAccountAndDateBetween(token, accountIds, startDate, endDate)
+            val result = repository.getTransactionByAllAccountAndDateBetween("Bearer $token", accountIds, startDate, endDate)
             emit(Resource.Success(result))
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))

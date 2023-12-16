@@ -3,7 +3,6 @@ package com.ivantrykosh.app.budgettracker.client.data.repository
 import com.ivantrykosh.app.budgettracker.client.data.remote.TransactionApi
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
 import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRepository
-import java.util.Date
 import javax.inject.Inject
 
 class TransactionRepositoryImpl @Inject constructor(
@@ -34,8 +33,8 @@ class TransactionRepositoryImpl @Inject constructor(
     override suspend fun getTransactionByAllAccountAndDateBetween(
         token: String,
         accountIds: List<Long>,
-        startDate: Date,
-        endDate: Date
+        startDate: String,
+        endDate: String
     ): List<TransactionDto> {
         return api.getTransactionByAllAccountAndDateBetween(token, accountIds, startDate, endDate)
     }

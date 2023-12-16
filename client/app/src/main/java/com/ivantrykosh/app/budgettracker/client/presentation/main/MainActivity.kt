@@ -1,7 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main
 
 import android.os.Bundle
-import android.view.Gravity
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -10,6 +9,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.databinding.ActivityMainBinding
+import com.ivantrykosh.app.budgettracker.client.presentation.main.overview.OverviewFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun exitOnBackPressed() {
         val navHostFragment: NavHostFragment = supportFragmentManager.findFragmentById(
-            R.id.nav_auth_fragment) as NavHostFragment
+            R.id.nav_main_fragment) as NavHostFragment
         val currentFragment = navHostFragment.childFragmentManager.fragments[0]
         if (currentFragment is OverviewFragment) {
             finishAffinity()

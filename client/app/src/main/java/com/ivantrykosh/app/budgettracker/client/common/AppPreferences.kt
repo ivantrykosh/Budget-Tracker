@@ -16,8 +16,12 @@ object AppPreferences {
         get() = Key.JWT_TOKEN.getString()
         set(value) = Key.JWT_TOKEN.setString(value)
 
+    var currency: String?
+        get() = Key.CURRENCY.getString()
+        set(value) = Key.CURRENCY.setString(value)
+
     private enum class Key {
-        JWT_TOKEN;
+        JWT_TOKEN, CURRENCY;
 
         fun getBoolean(): Boolean? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getBoolean(name, false) else null
         fun getFloat(): Float? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getFloat(name, 0f) else null

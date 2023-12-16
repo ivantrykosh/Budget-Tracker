@@ -4,7 +4,16 @@
     tools:showIn="navigation_view">
 
     <group
-        android:id="@+id/menu_top"
+        android:id="@+id/menu_to"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_my_profile"
+            android:title="@string/my_profile" />
+    </group>
+
+    <group
+        android:id="@+id/menu_main"
         android:checkableBehavior="single">
 
         <item
@@ -12,12 +21,36 @@
             android:title="@string/overview" />
 
         <item
-            android:id="@+id/nav_reports"
-            android:title="@string/reports" />
+            android:id="@+id/nav_accounts"
+            android:title="@string/accounts" />
 
         <item
-            android:id="@+id/nav_Operations"
-            android:title="@string/operations" />
+            android:id="@+id/nav_transactions"
+            android:title="@string/transactions" />
+    </group>
+
+    <group
+        android:id="@+id/menu_reports"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/subtitle_reports"
+            android:title="@string/reports">
+
+            <menu>
+                <item
+                    android:id="@+id/nav_category_report"
+                    android:title="@string/category_report" />
+
+                <item
+                    android:id="@+id/nav_time_report"
+                    android:title="@string/time_report" />
+
+                <item
+                    android:id="@+id/nav_pdf_report"
+                    android:title="@string/pdf_report" />
+            </menu>
+        </item>
     </group>
 
     <group
@@ -27,5 +60,14 @@
         <item
             android:id="@+id/nav_settings"
             android:title="@string/settings" />
+    </group>
+
+    <group
+        android:id="@+id/menu_logout"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_logout"
+            android:title="@string/log_out" />
     </group>
 </menu>
