@@ -13,14 +13,28 @@
         <action
             android:id="@+id/action_overviewFragment_to_addIncomeFragment"
             app:destination="@id/addIncomeFragment" />
+        <action
+            android:id="@+id/action_overviewFragment_to_addExpenseFragment"
+            app:destination="@id/addExpenseFragment" />
     </fragment>
     <fragment
         android:id="@+id/addIncomeFragment"
-        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.add_income.AddIncomeFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction.add_income.AddIncomeFragment"
         android:label="fragment_add_income"
         tools:layout="@layout/fragment_add_income" >
         <action
             android:id="@+id/action_addIncomeFragment_to_overviewFragment"
+            app:destination="@id/overviewFragment"
+            app:popUpTo="@id/overviewFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/addExpenseFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction.add_expense.AddExpenseFragment"
+        android:label="AddExpenseFragment"
+        tools:layout="@layout/fragment_add_expense" >
+        <action
+            android:id="@+id/action_addExpenseFragment_to_overviewFragment"
             app:destination="@id/overviewFragment"
             app:popUpTo="@id/overviewFragment"
             app:popUpToInclusive="true" />

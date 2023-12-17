@@ -17,7 +17,8 @@ import java.util.Locale
 class TransactionItemAdapter(
     private val context: Context,
     private val dataset: List<Transaction>,
-    private val size: Int
+    private val size: Int,
+    private val maxSize: Int = size
 ) : RecyclerView.Adapter<TransactionItemAdapter.TransactionItemViewHolder>() {
 
     class TransactionItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
@@ -34,20 +35,18 @@ class TransactionItemAdapter(
         return TransactionItemViewHolder(adapterLayout)
     }
 
-    override fun getItemCount() = size
+    override fun getItemCount() = maxSize.coerceAtMost(size)
 
     override fun onBindViewHolder(holder: TransactionItemViewHolder, position: Int) {
         val format = NumberFormat.getCurrencyInstance()
         format.maximumFractionDigits = 2
-        format.currency = Currency.getInstance(
-            AppPreferences.currency ?: "USD"
-        )
+        format.currency = Currency.getInstance(AppPreferences.currency)
 
         val item = dataset[position]
         holder.category.text = item.category
         holder.value.text = format.format(item.value)
         holder.account.text = item.accountName
-        holder.date.text = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(item.date)
+        holder.date.text = SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(item.date)
         if (item.value > 0) {
             holder.color.setBackgroundResource(R.color.green)
         } else {

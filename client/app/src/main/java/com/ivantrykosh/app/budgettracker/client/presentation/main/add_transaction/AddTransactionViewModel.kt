@@ -1,4 +1,4 @@
-package com.ivantrykosh.app.budgettracker.client.presentation.main.add_income
+package com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -24,7 +24,7 @@ import java.util.NoSuchElementException
 import javax.inject.Inject
 
 @HiltViewModel
-class AddIncomeViewModel @Inject constructor(
+class AddTransactionViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
     private val createTransactionUseCase: CreateTransactionUseCase,
 ) : ViewModel() {
@@ -54,7 +54,7 @@ class AddIncomeViewModel @Inject constructor(
     }
 
     fun parseToCorrectDate(date: String): Date {
-        val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val inputFormat = SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault())
         return inputFormat.parse(date) ?: Date()
     }
 

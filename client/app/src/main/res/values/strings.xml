@@ -69,6 +69,8 @@
     <string name="invalid_category">Category cannot be blank</string>
     <string name="invalid_date">Date cannot be null</string>
     <string name="transaction_is_added">Transaction is added</string>
+    <string name="to">To</string>
+    <string name="to_optional">To (optional)</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>

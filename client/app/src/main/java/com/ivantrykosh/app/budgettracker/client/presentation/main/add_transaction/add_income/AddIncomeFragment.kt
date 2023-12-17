@@ -1,4 +1,4 @@
-package com.ivantrykosh.app.budgettracker.client.presentation.main.add_income
+package com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction.add_income
 
 import android.content.Context
 import android.content.Intent
@@ -20,6 +20,7 @@ import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentAddIncomeBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
+import com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction.AddTransactionViewModel
 import com.ivantrykosh.app.budgettracker.client.presentation.main.filter.DecimalDigitsInputFilter
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.NumberFormat
@@ -34,16 +35,7 @@ class AddIncomeFragment : Fragment() {
     private var _binding: FragmentAddIncomeBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: AddIncomeViewModel by viewModels()
-
-    private val format by lazy {
-        val format = NumberFormat.getCurrencyInstance()
-        format.maximumFractionDigits = 2
-        format.currency = Currency.getInstance(
-            AppPreferences.currency ?: "USD"
-        )
-        format
-    }
+    private val viewModel: AddTransactionViewModel by viewModels()
 
     private val datePicker =
         MaterialDatePicker.Builder.datePicker()
@@ -74,7 +66,7 @@ class AddIncomeFragment : Fragment() {
         }
 
         // todo add pref instead of usd
-        binding.addIncomeInputValue.prefixText = Currency.getInstance("USD").symbol
+        binding.addIncomeInputValue.prefixText = Currency.getInstance(AppPreferences.currency).symbol
         binding.addIncomeInputValueEditText.filters = arrayOf(InputFilter.LengthFilter(13), DecimalDigitsInputFilter(10, 2))
         binding.addIncomeInputValueEditText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
@@ -130,7 +122,7 @@ class AddIncomeFragment : Fragment() {
         }
         datePicker.addOnPositiveButtonClickListener {
             // todo retrieve date format
-            binding.addIncomeInputDateText.setText(SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(datePicker.selection!!)))
+            binding.addIncomeInputDateText.setText(SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(Date(datePicker.selection!!)))
         }
 
         binding.addIncomeInputFromEdit.setOnFocusChangeListener { _, hasFocus ->

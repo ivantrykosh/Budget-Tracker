@@ -44,9 +44,7 @@ class OverviewFragment : Fragment() {
     private val format by lazy {
         val format = NumberFormat.getCurrencyInstance()
         format.maximumFractionDigits = 2
-        format.currency = Currency.getInstance(
-            AppPreferences.currency ?: "USD"
-        )
+        format.currency = Currency.getInstance(AppPreferences.currency)
         format
     }
 
@@ -87,7 +85,7 @@ class OverviewFragment : Fragment() {
         }
 
         binding.overviewMainFabAddExpense.setOnClickListener {
-            // todo add navigate
+            findNavController().navigate(R.id.action_overviewFragment_to_addExpenseFragment)
 
         }
 
@@ -112,10 +110,10 @@ class OverviewFragment : Fragment() {
         binding.overviewMainExpensesValue.text = format.format(0.0)
         binding.mainTotalValue.text = format.format(0.0)
 
-        setIncomesVisible(true)
-        setExpensesVisible(true)
+        setIncomesVisible(false)
+        setExpensesVisible(false)
         binding.overviewError.root.visibility = View.GONE
-        binding.overviewCircularProgressIndicator.visibility = View.VISIBLE
+        binding.root.isRefreshing = true
 
         requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
 
@@ -149,7 +147,7 @@ class OverviewFragment : Fragment() {
                         binding.overviewError.errorText.text = resources.getString(R.string.connection_failed_message)
                     }
                 }
-                binding.overviewCircularProgressIndicator.visibility = View.GONE
+                binding.root.isRefreshing = false
                 viewModel.isLoadingGetAccounts.removeObservers(requireActivity())
             }
         }
@@ -199,15 +197,17 @@ class OverviewFragment : Fragment() {
 
                     if (viewModel.getIncomes().isNotEmpty()) {
                         val incomes = viewModel.getIncomes()
-                        binding.overviewLastIncomesRecyclerView.adapter = TransactionItemAdapter(requireContext(), incomes, incomes.size)
+                        binding.overviewLastIncomesRecyclerView.adapter = TransactionItemAdapter(requireContext(), incomes, incomes.size, 3)
                         binding.overviewLastIncomesRecyclerView.setHasFixedSize(true)
+                        setIncomesVisible(true)
                     } else {
                         setIncomesVisible(false)
                     }
                     if (viewModel.getExpenses().isNotEmpty()) {
                         val expenses = viewModel.getExpenses()
-                        binding.overviewLastExpensesRecyclerView.adapter = TransactionItemAdapter(requireContext(), expenses, expenses.size)
+                        binding.overviewLastExpensesRecyclerView.adapter = TransactionItemAdapter(requireContext(), expenses, expenses.size, 3)
                         binding.overviewLastExpensesRecyclerView.setHasFixedSize(true)
+                        setExpensesVisible(true)
                     } else {
                         setExpensesVisible(false)
                     }
