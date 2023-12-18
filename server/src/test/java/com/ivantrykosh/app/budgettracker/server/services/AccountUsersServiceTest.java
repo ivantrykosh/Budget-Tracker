@@ -1,8 +1,11 @@
 package com.ivantrykosh.app.budgettracker.server.services;
 
-import com.ivantrykosh.app.budgettracker.server.model.Account;
-import com.ivantrykosh.app.budgettracker.server.model.AccountUsers;
-import com.ivantrykosh.app.budgettracker.server.model.User;
+import com.ivantrykosh.app.budgettracker.server.application.services.AccountService;
+import com.ivantrykosh.app.budgettracker.server.application.services.AccountUsersService;
+import com.ivantrykosh.app.budgettracker.server.application.services.UserService;
+import com.ivantrykosh.app.budgettracker.server.domain.model.Account;
+import com.ivantrykosh.app.budgettracker.server.domain.model.AccountUsers;
+import com.ivantrykosh.app.budgettracker.server.domain.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

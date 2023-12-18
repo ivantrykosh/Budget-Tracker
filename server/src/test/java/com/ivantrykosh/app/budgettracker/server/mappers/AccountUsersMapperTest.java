@@ -1,14 +1,13 @@
 package com.ivantrykosh.app.budgettracker.server.mappers;
 
-import com.ivantrykosh.app.budgettracker.server.dtos.AccountUsersDto;
-import com.ivantrykosh.app.budgettracker.server.model.Account;
-import com.ivantrykosh.app.budgettracker.server.model.AccountUsers;
-import com.ivantrykosh.app.budgettracker.server.model.User;
-import com.ivantrykosh.app.budgettracker.server.services.UserService;
-import jakarta.annotation.PostConstruct;
-import org.junit.jupiter.api.BeforeEach;
+import com.ivantrykosh.app.budgettracker.server.application.dtos.AccountUsersDto;
+import com.ivantrykosh.app.budgettracker.server.application.mappers.AccountUsersMapper;
+import com.ivantrykosh.app.budgettracker.server.application.mappers.Mapper;
+import com.ivantrykosh.app.budgettracker.server.domain.model.Account;
+import com.ivantrykosh.app.budgettracker.server.domain.model.AccountUsers;
+import com.ivantrykosh.app.budgettracker.server.domain.model.User;
+import com.ivantrykosh.app.budgettracker.server.application.services.UserService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;

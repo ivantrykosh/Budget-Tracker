@@ -1,6 +1,6 @@
 package com.ivantrykosh.app.budgettracker.server.util;
 
-import com.ivantrykosh.app.budgettracker.server.model.User;
+import com.ivantrykosh.app.budgettracker.server.domain.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

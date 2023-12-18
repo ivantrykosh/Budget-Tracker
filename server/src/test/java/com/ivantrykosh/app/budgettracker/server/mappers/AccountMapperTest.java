@@ -1,9 +1,11 @@
 package com.ivantrykosh.app.budgettracker.server.mappers;
 
-import com.ivantrykosh.app.budgettracker.server.dtos.AccountDto;
-import com.ivantrykosh.app.budgettracker.server.model.Account;
-import com.ivantrykosh.app.budgettracker.server.model.User;
-import com.ivantrykosh.app.budgettracker.server.services.TransactionService;
+import com.ivantrykosh.app.budgettracker.server.application.dtos.AccountDto;
+import com.ivantrykosh.app.budgettracker.server.application.mappers.AccountMapper;
+import com.ivantrykosh.app.budgettracker.server.application.mappers.Mapper;
+import com.ivantrykosh.app.budgettracker.server.domain.model.Account;
+import com.ivantrykosh.app.budgettracker.server.domain.model.User;
+import com.ivantrykosh.app.budgettracker.server.application.services.TransactionService;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

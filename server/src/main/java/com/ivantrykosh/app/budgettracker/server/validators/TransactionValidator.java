@@ -1,8 +1,7 @@
 package com.ivantrykosh.app.budgettracker.server.validators;
 
-import com.ivantrykosh.app.budgettracker.server.dtos.TransactionDto;
-import com.ivantrykosh.app.budgettracker.server.services.AccountService;
-import com.ivantrykosh.app.budgettracker.server.services.TransactionService;
+import com.ivantrykosh.app.budgettracker.server.application.services.AccountService;
+import com.ivantrykosh.app.budgettracker.server.application.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

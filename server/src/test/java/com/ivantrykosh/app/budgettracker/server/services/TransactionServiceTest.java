@@ -1,8 +1,11 @@
 package com.ivantrykosh.app.budgettracker.server.services;
 
-import com.ivantrykosh.app.budgettracker.server.model.Account;
-import com.ivantrykosh.app.budgettracker.server.model.Transaction;
-import com.ivantrykosh.app.budgettracker.server.model.User;
+import com.ivantrykosh.app.budgettracker.server.application.services.AccountService;
+import com.ivantrykosh.app.budgettracker.server.application.services.TransactionService;
+import com.ivantrykosh.app.budgettracker.server.application.services.UserService;
+import com.ivantrykosh.app.budgettracker.server.domain.model.Account;
+import com.ivantrykosh.app.budgettracker.server.domain.model.Transaction;
+import com.ivantrykosh.app.budgettracker.server.domain.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +17,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 

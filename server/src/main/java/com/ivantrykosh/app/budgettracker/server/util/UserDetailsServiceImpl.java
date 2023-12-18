@@ -1,8 +1,7 @@
 package com.ivantrykosh.app.budgettracker.server.util;
 
-import com.ivantrykosh.app.budgettracker.server.model.User;
-import com.ivantrykosh.app.budgettracker.server.services.UserService;
-import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
+import com.ivantrykosh.app.budgettracker.server.domain.model.User;
+import com.ivantrykosh.app.budgettracker.server.application.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

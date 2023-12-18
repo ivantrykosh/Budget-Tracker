@@ -1,9 +1,8 @@
 package com.ivantrykosh.app.budgettracker.server.validators;
 
-import com.ivantrykosh.app.budgettracker.server.model.Account;
-import com.ivantrykosh.app.budgettracker.server.model.AccountUsers;
-import com.ivantrykosh.app.budgettracker.server.model.User;
-import com.ivantrykosh.app.budgettracker.server.services.UserService;
+import com.ivantrykosh.app.budgettracker.server.domain.model.Account;
+import com.ivantrykosh.app.budgettracker.server.domain.model.User;
+import com.ivantrykosh.app.budgettracker.server.application.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

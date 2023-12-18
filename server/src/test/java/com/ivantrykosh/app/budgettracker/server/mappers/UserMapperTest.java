@@ -1,7 +1,9 @@
 package com.ivantrykosh.app.budgettracker.server.mappers;
 
-import com.ivantrykosh.app.budgettracker.server.dtos.UserDto;
-import com.ivantrykosh.app.budgettracker.server.model.User;
+import com.ivantrykosh.app.budgettracker.server.application.dtos.UserDto;
+import com.ivantrykosh.app.budgettracker.server.application.mappers.Mapper;
+import com.ivantrykosh.app.budgettracker.server.application.mappers.UserMapper;
+import com.ivantrykosh.app.budgettracker.server.domain.model.User;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
