@@ -11,6 +11,7 @@ import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transactions_between_dates.GetTransactionsBetweenDates
+import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.delete_user.DeleteUserUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.get_user.GetUserUseCase
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.AccountsState
 import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.TransactionsState

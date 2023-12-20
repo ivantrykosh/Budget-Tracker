@@ -22,6 +22,8 @@ class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.setAuthDto(null)
+
         binding = ActivityAuthBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -32,6 +34,12 @@ class AuthActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this) {
             exitOnBackPressed()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.setAuthDto(null)
     }
 
     private fun exitOnBackPressed() {

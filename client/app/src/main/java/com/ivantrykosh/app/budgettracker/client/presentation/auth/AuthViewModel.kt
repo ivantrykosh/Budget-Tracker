@@ -49,9 +49,7 @@ class AuthViewModel @Inject constructor(
     private val _isSingUpLoading = MutableLiveData<Boolean>(false)
     val isSingUpLoading: LiveData<Boolean> = _isSingUpLoading
 
-    private val _confirmationEmailState = mutableStateOf<ConfirmationEmailState>(
-        ConfirmationEmailState()
-    )
+    private val _confirmationEmailState = mutableStateOf<ConfirmationEmailState>(ConfirmationEmailState())
     val confirmationEmailState = _confirmationEmailState
     private val _isConfirmationEmailLoading = MutableLiveData<Boolean>(false)
     val isConfirmationEmailLoading: LiveData<Boolean> = _isConfirmationEmailLoading

@@ -4,14 +4,14 @@ import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangePasswordDt
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.UserDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
-import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface UserApi {
 
-    @POST("get")
+    @GET("get")
     suspend fun getUser(@Header("Authorization") token: String): UserDto
 
     @DELETE("delete")

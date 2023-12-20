@@ -71,6 +71,18 @@
     <string name="transaction_is_added">Transaction is added</string>
     <string name="to">To</string>
     <string name="to_optional">To (optional)</string>
+    <string name="change_password">Change password</string>
+    <string name="reset_password">Reset password</string>
+    <string name="delete_all_data">Delete all data</string>
+    <string name="no_email">No email address found</string>
+    <string name="new_password">New password</string>
+    <string name="cancel">Cancel</string>
+    <string name="invalid_new_password"><![CDATA[Invalid new password. It must contain 8–32 characters: a–z, A–Z, 0–9, and one of @$!%*#?& symbols]]></string>
+    <string name="password_was_changed">Password was changed</string>
+    <string name="delete_all_data_question_title">Delete all data?</string>
+    <string name="delete_all_data_question_message">Do you really want to delete all data (accounts, transactions, profile)?</string>
+    <string name="data_was_deleted">Data was deleted</string>
+    <string name="incorrect_password">Incorrect password</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>
