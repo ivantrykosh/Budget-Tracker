@@ -7,7 +7,7 @@ data class AccountDetails(
     val incomesSum: Double,
     val expensesSum: Double,
     val total: Double,
-    val email2: String,
-    val email3: String,
-    val email4: String
+    val email2: String?,
+    val email3: String?,
+    val email4: String?
 )

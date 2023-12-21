@@ -32,7 +32,8 @@
             android:theme="@style/Theme.BudgetTracker" />
         <activity
             android:name=".presentation.main.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustNothing">
         </activity>
     </application>
 

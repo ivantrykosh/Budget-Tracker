@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_overviewFragment_to_myProfileFragment"
             app:destination="@id/myProfileFragment" />
+        <action
+            android:id="@+id/action_overviewFragment_to_accountsFragment"
+            app:destination="@id/accountsFragment" />
     </fragment>
     <fragment
         android:id="@+id/addIncomeFragment"
@@ -49,6 +52,17 @@
         tools:layout="@layout/fragment_my_profile">
         <action
             android:id="@+id/action_myProfileFragment_to_overviewFragment"
+            app:destination="@id/overviewFragment"
+            app:popUpTo="@id/overviewFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/accountsFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.AccountsFragment"
+        android:label="AccountsFragment"
+        tools:layout="@layout/fragment_accounts">
+        <action
+            android:id="@+id/action_accountsFragment_to_overviewFragment"
             app:destination="@id/overviewFragment"
             app:popUpTo="@id/overviewFragment"
             app:popUpToInclusive="true" />

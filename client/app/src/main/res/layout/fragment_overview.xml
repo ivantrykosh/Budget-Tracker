@@ -146,7 +146,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/overview_text_view_last_incomes"
                     tools:itemCount="3"
-                    tools:listitem="@layout/item_operation_details"
+                    tools:listitem="@layout/item_operation"
                     android:visibility="visible"/>
 
                 <TextView
@@ -193,7 +193,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/overview_text_view_last_expenses"
                     tools:itemCount="3"
-                    tools:listitem="@layout/item_operation_details"
+                    tools:listitem="@layout/item_operation"
                     android:visibility="visible" />
 
                 <TextView

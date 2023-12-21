@@ -20,6 +20,7 @@ class GetAccountUseCase @Inject constructor(
         } catch (e: HttpException) {
             emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))
         } catch (e: Exception) {
+            val error = e
             emit(Resource.Error("Couldn't reach server. Check your internet connection"))
         }
     }

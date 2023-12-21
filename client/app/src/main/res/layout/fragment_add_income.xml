@@ -232,8 +232,8 @@
                         android:id="@+id/add_income_input_from_edit"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLength="25"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:maxLength="25" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

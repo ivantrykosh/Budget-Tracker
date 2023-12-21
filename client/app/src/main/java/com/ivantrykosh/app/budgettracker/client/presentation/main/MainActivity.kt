@@ -38,6 +38,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         onBackPressedDispatcher.addCallback(this) {
             exitOnBackPressed()
         }
+
+        binding.mainNavView.menu.findItem(R.id.nav_overview).isChecked = true
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.overviewFragment -> binding.mainNavView.menu.findItem(R.id.nav_overview).isChecked = true
+            }
+        }
     }
 
     private fun exitOnBackPressed() {
@@ -69,6 +77,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_overview -> {
                 navController.navigateUp()
+            }
+            R.id.nav_accounts -> {
+                navController.navigateUp()
+                navController.navigate(R.id.action_overviewFragment_to_accountsFragment)
             }
             // todo add more buttons listeners
             R.id.nav_logout -> {

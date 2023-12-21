@@ -10,16 +10,12 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.ivantrykosh.app.budgettracker.client.R
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentMyProfileBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
-import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.TransactionItemAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -42,9 +38,11 @@ class MyProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.myProfileChangePasswordDialog.root.visibility = View.GONE
         getUser()
 
         binding.root.setOnRefreshListener {
+            binding.myProfileChangePasswordDialog.root.visibility = View.GONE
             getUser()
         }
 
@@ -104,7 +102,7 @@ class MyProfileFragment : Fragment() {
                 if (viewModel.getUserState.value.error.isBlank()) {
                     binding.myProfileEmailEmail.text = viewModel.getUserState.value.user?.email ?: resources.getString(R.string.no_email)
                 } else {
-                    if (viewModel.getUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getUserState.value.error.startsWith("401") || viewModel.resetPasswordState.value.error.contains("JWT", ignoreCase = true)) {
+                    if (viewModel.getUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getUserState.value.error.startsWith("401") || viewModel.getUserState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getUserState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.myProfileError.root.visibility = View.VISIBLE
@@ -204,7 +202,7 @@ class MyProfileFragment : Fragment() {
                         binding.myProfileError.root.visibility = View.VISIBLE
                         binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
                         binding.myProfileError.errorText.text = resources.getString(R.string.incorrect_password)
-                    } else if (viewModel.changePasswordState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.changePasswordState.value.error.startsWith("401") || viewModel.resetPasswordState.value.error.contains("JWT", ignoreCase = true)) {
+                    } else if (viewModel.changePasswordState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.changePasswordState.value.error.startsWith("401") || viewModel.changePasswordState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.changePasswordState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.myProfileError.root.visibility = View.VISIBLE
@@ -307,16 +305,16 @@ class MyProfileFragment : Fragment() {
                 requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 binding.root.isRefreshing = false
 
-                if (viewModel.getUserState.value.error.isBlank()) {
+                if (viewModel.deleteUserState.value.error.isBlank()) {
                     Toast.makeText(requireContext(), resources.getString(R.string.data_was_deleted), Toast.LENGTH_LONG).show()
                     startAuthActivity()
                 } else {
-                    if (viewModel.getUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getUserState.value.error.startsWith("401") || viewModel.resetPasswordState.value.error.contains("JWT", ignoreCase = true)) {
+                    if (viewModel.deleteUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.deleteUserState.value.error.startsWith("401") || viewModel.deleteUserState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
-                    } else if (viewModel.getUserState.value.error.contains("HTTP", ignoreCase = true)) {
+                    } else if (viewModel.deleteUserState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.myProfileError.root.visibility = View.VISIBLE
                         binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-                        binding.myProfileError.errorText.text = viewModel.getUserState.value.error
+                        binding.myProfileError.errorText.text = viewModel.deleteUserState.value.error
                     } else {
                         binding.myProfileError.root.visibility = View.VISIBLE
                         binding.myProfileError.errorTitle.text = resources.getString(R.string.network_error)
