@@ -20,7 +20,6 @@ import com.ivantrykosh.app.budgettracker.client.domain.model.Account
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.AccountItemAdapter
-import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.TransactionItemAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -307,7 +306,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                         binding.accountsError.errorText.text = resources.getString(R.string.invalid_account_id)
                     } else {
                         binding.accountsDialog.root.visibility = View.VISIBLE
-                        binding.accountsDialog.accountDetailsTitle.text = resources.getString(R.string.account_details)
                         binding.accountsDialog.accountDetailsIncomesValue.text = viewModel.getAccountState.value.account!!.incomesSum.toString()
                         binding.accountsDialog.accountDetailsExpensesValue.text = viewModel.getAccountState.value.account!!.expensesSum.toString()
                         binding.accountsDialog.accountDetailsTotalValue.text = (viewModel.getAccountState.value.account!!.incomesSum.plus(viewModel.getAccountState.value.account!!.expensesSum)).toString()
@@ -398,6 +396,10 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                             binding.accountsError.root.visibility = View.VISIBLE
                             binding.accountsError.errorTitle.text = resources.getString(R.string.error)
                             binding.accountsError.errorText.text = resources.getString(R.string.invalid_account_data)
+                        } else if (viewModel.createAccountState.value.error.startsWith("409")) {
+                            binding.accountsError.root.visibility = View.VISIBLE
+                            binding.accountsError.errorTitle.text = resources.getString(R.string.error)
+                            binding.accountsError.errorText.text = resources.getString(R.string.invalid_user_email)
                         } else if (viewModel.createAccountState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.accountsError.root.visibility = View.VISIBLE
                             binding.accountsError.errorTitle.text = resources.getString(R.string.error)
@@ -465,6 +467,14 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                                 ) || viewModel.updateAccountState.value.error.startsWith("401")
                             ) {
                                 startAuthActivity()
+                            } else if (viewModel.updateAccountState.value.error.startsWith("400")) {
+                                binding.accountsError.root.visibility = View.VISIBLE
+                                binding.accountsError.errorTitle.text = resources.getString(R.string.error)
+                                binding.accountsError.errorText.text = resources.getString(R.string.invalid_account_data)
+                            } else if (viewModel.updateAccountState.value.error.startsWith("409")) {
+                                binding.accountsError.root.visibility = View.VISIBLE
+                                binding.accountsError.errorTitle.text = resources.getString(R.string.error)
+                                binding.accountsError.errorText.text = resources.getString(R.string.invalid_user_email)
                             } else if (viewModel.updateAccountState.value.error.contains(
                                     "HTTP",
                                     ignoreCase = true

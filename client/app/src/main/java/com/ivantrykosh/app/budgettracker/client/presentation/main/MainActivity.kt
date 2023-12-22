@@ -43,8 +43,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.overviewFragment -> binding.mainNavView.menu.findItem(R.id.nav_overview).isChecked = true
+                R.id.overviewFragment -> setNavItemChecked(R.id.nav_overview)
+                R.id.myProfileFragment -> setNavItemChecked(R.id.nav_my_profile)
+                R.id.accountsFragment -> setNavItemChecked(R.id.nav_accounts)
+                R.id.transactionsFragment -> setNavItemChecked(R.id.nav_transactions)
+                // todo add more destinations
+                else -> setNavItemChecked(R.id.nav_logout)
             }
+        }
+    }
+
+    private fun setNavItemChecked(itemId: Int) {
+        val navItem = binding.mainNavView.menu.findItem(itemId)
+        if (!navItem.isChecked) {
+            binding.mainNavView.menu.findItem(R.id.nav_overview).isChecked = false
+            binding.mainNavView.menu.findItem(R.id.nav_my_profile).isChecked = false
+            binding.mainNavView.menu.findItem(R.id.nav_accounts).isChecked = false
+            binding.mainNavView.menu.findItem(R.id.nav_transactions).isChecked = false
+            // todo uncheck other items
+            navItem.isChecked = true
         }
     }
 
@@ -81,6 +98,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_accounts -> {
                 navController.navigateUp()
                 navController.navigate(R.id.action_overviewFragment_to_accountsFragment)
+            }
+            R.id.nav_transactions -> {
+                navController.navigateUp()
+                navController.navigate(R.id.action_overviewFragment_to_transactionsFragment)
             }
             // todo add more buttons listeners
             R.id.nav_logout -> {

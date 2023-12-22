@@ -126,6 +126,12 @@ public class UserController {
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
+
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPasswordHash())) {
+            logger.error("Incorrect password for email " + customUserDetails.getUsername());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect password!");
+        }
+
         user.setPasswordHash(
                 passwordEncoder.encode(changePasswordRequest.getNewPassword())
         );

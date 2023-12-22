@@ -215,12 +215,12 @@ class OverviewFragment : Fragment() {
                     setIncomesVisible(false)
                     setExpensesVisible(false)
                     binding.root.isRefreshing = false
-                    if (viewModel.getAccountsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
                         startAuthActivity()
-                    } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
+                    } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.overviewError.root.visibility = View.VISIBLE
                         binding.overviewError.errorTitle.text = resources.getString(R.string.error)
-                        binding.overviewError.errorText.text = viewModel.getAccountsState.value.error
+                        binding.overviewError.errorText.text = viewModel.getTransactionsState.value.error
                     } else {
                         binding.overviewError.root.visibility = View.VISIBLE
                         binding.overviewError.errorTitle.text = resources.getString(R.string.network_error)

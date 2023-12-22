@@ -2,13 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/item_operation"
+    android:id="@+id/item_transaction"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/item_operation_category"
+        android:id="@+id/item_transaction_category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -16,41 +16,41 @@
         tools:text="Financial income" />
 
     <View
-        android:id="@+id/item_operation_color"
+        android:id="@+id/item_transaction_color"
         android:layout_width="7dp"
         android:layout_height="0dp"
         android:layout_marginVertical="2dp"
         tools:background="@color/green"
-        app:layout_constraintBottom_toBottomOf="@+id/item_operation_account"
+        app:layout_constraintBottom_toBottomOf="@+id/item_transaction_account"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/item_operation_category" />
+        app:layout_constraintTop_toTopOf="@+id/item_transaction_category" />
 
     <TextView
-        android:id="@+id/item_operation_account"
+        android:id="@+id/item_transaction_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_operation_category"
+        app:layout_constraintTop_toBottomOf="@+id/item_transaction_category"
         tools:text="Personal account"/>
 
     <TextView
-        android:id="@+id/item_operation_value"
+        android:id="@+id/item_transaction_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
-        app:layout_constraintEnd_toStartOf="@+id/item_operation_color"
+        app:layout_constraintEnd_toStartOf="@+id/item_transaction_color"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="$100" />
 
     <TextView
-        android:id="@+id/item_operation_date"
+        android:id="@+id/item_transaction_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
-        app:layout_constraintEnd_toStartOf="@+id/item_operation_color"
-        app:layout_constraintTop_toBottomOf="@+id/item_operation_value"
+        app:layout_constraintEnd_toStartOf="@+id/item_transaction_color"
+        app:layout_constraintTop_toBottomOf="@+id/item_transaction_value"
         tools:text="16/10/2023" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

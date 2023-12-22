@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -336,7 +337,14 @@ public class TransactionController {
             }
         }
 
-        List<Transaction> transactions = transactionService.getTransactionsByAccountIdsAndDateBetween(accountIds, startDate, endDate);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(endDate);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+
+        List<Transaction> transactions = transactionService.getTransactionsByAccountIdsAndDateBetween(accountIds, startDate, calendar.getTime());
         logger.info("All transactions for accountIDs " + accountIds + " and between dates " + startDate + " and " + endDate);
 
         return ResponseEntity.status(HttpStatus.OK).body(

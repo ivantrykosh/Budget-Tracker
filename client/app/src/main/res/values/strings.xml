@@ -10,7 +10,7 @@
     <string name="add_income">Add income</string>
     <string name="overview">Overview</string>
     <string name="reports">Reports</string>
-    <string name="transactions">Operations</string>
+    <string name="transactions">Transactions</string>
     <string name="settings">Settings</string>
     <string name="new_income">New income</string>
     <string name="value">Value</string>
@@ -101,7 +101,16 @@
     <string name="account_was_deleted">Account was deleted</string>
     <string name="delete_account_question">Delete account?</string>
     <string name="delete_account_question_message">Do you want to delete this account and its transactions?</string>
-    <string name="invalid_account_data">Name of account must be unique and users with its emails must exist</string>
+    <string name="invalid_account_data">Name of account must be unique and users with theirs emails must exist</string>
+    <string name="transaction_details">Transaction details</string>
+    <string name="delete_transaction">Delete transaction</string>
+    <string name="no_transactions">No transactions</string>
+    <string name="invalid_transaction_id">Invalid transaction id</string>
+    <string name="delete_transaction_question">Delete transaction?</string>
+    <string name="delete_transaction_question_message">Do you want to delete this transaction?</string>
+    <string name="transaction_is_updated">Transaction is updated</string>
+    <string name="transaction_is_deleted">Transaction is deleted</string>
+    <string name="invalid_user_email">User already have account with this name</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>

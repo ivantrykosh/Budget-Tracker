@@ -241,7 +241,7 @@ class AddExpenseFragment : Fragment() {
                         if (viewModel.createTransactionState.value.error.isBlank()) {
                             Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_added), Toast.LENGTH_SHORT).show()
                             findNavController().navigate(R.id.action_addExpenseFragment_to_overviewFragment)
-                        } else if (viewModel.createTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
+                        } else if (viewModel.createTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.createTransactionState.value.error.startsWith("401")) {
                             startAuthActivity()
                         } else if (viewModel.createTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.addExpenseError.root.visibility = View.VISIBLE

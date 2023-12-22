@@ -117,18 +117,54 @@ public class AccountController {
         }
 
         if (createAndChangeAccountRequest.getEmail2() != null) {
+            User user2 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail2());
+            if (!user2.getIsVerified()) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid email2 " + createAndChangeAccountRequest.getEmail2() + " for AccountUsers with ID " + accountUsers.getAccountUsersId());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email " + createAndChangeAccountRequest.getEmail2() + "!");
+            }
+            List<Account> user2Accounts = accountService.getAccountsByUserId(user2.getUserId());
+            if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user2Accounts)) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Invalid name of account! User 2 already have account with this name");
+            }
             savedAccountUsers.setUser2Id(
-                    userService.getUserByEmail(createAndChangeAccountRequest.getEmail2()).getUserId()
+                    user2.getUserId()
             );
         }
         if (createAndChangeAccountRequest.getEmail3() != null) {
+            User user3 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail3());
+            if (!user3.getIsVerified()) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid email3 " + createAndChangeAccountRequest.getEmail3() + " for AccountUsers with ID " + accountUsers.getAccountUsersId());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email " + createAndChangeAccountRequest.getEmail3() + "!");
+            }
+            List<Account> user3Accounts = accountService.getAccountsByUserId(user3.getUserId());
+            if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user3Accounts)) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Invalid name of account! User 3 already have account with this name");
+            }
             savedAccountUsers.setUser3Id(
-                    userService.getUserByEmail(createAndChangeAccountRequest.getEmail3()).getUserId()
+                    user3.getUserId()
             );
         }
         if (createAndChangeAccountRequest.getEmail4() != null) {
+            User user4 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail4());
+            if (!user4.getIsVerified()) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid email4 " + createAndChangeAccountRequest.getEmail4() + " for AccountUsers with ID " + accountUsers.getAccountUsersId());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email " + createAndChangeAccountRequest.getEmail4() + "!");
+            }
+            List<Account> user4Accounts = accountService.getAccountsByUserId(user4.getUserId());
+            if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user4Accounts)) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Invalid name of account! User 4 already have account with this name");
+            }
             savedAccountUsers.setUser4Id(
-                    userService.getUserByEmail(createAndChangeAccountRequest.getEmail4()).getUserId()
+                    user4.getUserId()
             );
         }
 
@@ -303,22 +339,45 @@ public class AccountController {
         }
 
         if (createAndChangeAccountRequest.getEmail2() != null) {
+            User user2 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail2());
+            List<Account> user2Accounts = accountService.getAccountsByUserId(user.getUserId());
+            if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user2Accounts)) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Invalid name of account! User 2 already have account with this name");
+            }
             accountUsers.setUser2Id(
-                    userService.getUserByEmail(createAndChangeAccountRequest.getEmail2()).getUserId()
+                    user2.getUserId()
             );
         } else {
             accountUsers.setUser2Id(null);
         }
+
         if (createAndChangeAccountRequest.getEmail3() != null) {
+            User user3 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail3());
+            List<Account> user3Accounts = accountService.getAccountsByUserId(user.getUserId());
+            if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user3Accounts)) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Invalid name of account! User 3 already have account with this name");
+            }
             accountUsers.setUser3Id(
-                    userService.getUserByEmail(createAndChangeAccountRequest.getEmail3()).getUserId()
+                    user3.getUserId()
             );
         } else {
             accountUsers.setUser3Id(null);
         }
+
         if (createAndChangeAccountRequest.getEmail4() != null) {
+            User user4 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail4());
+            List<Account> user4Accounts = accountService.getAccountsByUserId(user.getUserId());
+            if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user4Accounts)) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Invalid name of account! User 4 already have account with this name");
+            }
             accountUsers.setUser4Id(
-                    userService.getUserByEmail(createAndChangeAccountRequest.getEmail4()).getUserId()
+                    user4.getUserId()
             );
         } else {
             accountUsers.setUser4Id(null);

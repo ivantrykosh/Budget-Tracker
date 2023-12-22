@@ -13,5 +13,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class ChangePasswordRequest {
+    private String oldPassword; // Old password
     private String newPassword; // New password
 }

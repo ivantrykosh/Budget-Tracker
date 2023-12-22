@@ -152,6 +152,7 @@
                 android:id="@+id/account_details_edit_text_input_email1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="320"
                 android:inputType="textEmailAddress" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -173,6 +174,7 @@
                 android:id="@+id/account_details_edit_text_input_email2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="320"
                 android:inputType="textEmailAddress" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -194,6 +196,7 @@
                 android:id="@+id/account_details_edit_text_input_email3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="320"
                 android:inputType="textEmailAddress" />
 
         </com.google.android.material.textfield.TextInputLayout>

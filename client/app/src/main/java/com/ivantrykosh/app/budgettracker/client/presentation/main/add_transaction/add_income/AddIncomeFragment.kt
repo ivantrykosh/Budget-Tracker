@@ -186,7 +186,6 @@ class AddIncomeFragment : Fragment() {
     }
 
     private fun setAccounts() {
-        // todo retrieve accounts
         val items = viewModel.getAccountsState.value.accounts.map { it.name }
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item_name_item, items)
         (binding.addIncomeInputAccount.editText as? AutoCompleteTextView)?.setAdapter(adapter)
@@ -238,7 +237,7 @@ class AddIncomeFragment : Fragment() {
                         if (viewModel.createTransactionState.value.error.isBlank()) {
                             Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_added), Toast.LENGTH_SHORT).show()
                             findNavController().navigate(R.id.action_addIncomeFragment_to_overviewFragment)
-                        } else if (viewModel.createTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
+                        } else if (viewModel.createTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.createTransactionState.value.error.startsWith("401")) {
                             startAuthActivity()
                         } else if (viewModel.createTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.addIncomeError.root.visibility = View.VISIBLE

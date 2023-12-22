@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.OnAccountClickListener
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.OnTransactionClickListener
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Currency
@@ -21,17 +23,22 @@ class TransactionItemAdapter(
     private val maxSize: Int = size
 ) : RecyclerView.Adapter<TransactionItemAdapter.TransactionItemViewHolder>() {
 
+    private var clickListener: OnTransactionClickListener? = null
+    fun setOnTransactionClickListener(listener: OnTransactionClickListener) {
+        this.clickListener = listener
+    }
+
     class TransactionItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-        val category: TextView = view.findViewById(R.id.item_operation_category)
-        val value: TextView = view.findViewById(R.id.item_operation_value)
-        val account: TextView = view.findViewById(R.id.item_operation_account)
-        val date: TextView = view.findViewById(R.id.item_operation_date)
-        val color: View = view.findViewById(R.id.item_operation_color)
+        val category: TextView = view.findViewById(R.id.item_transaction_category)
+        val value: TextView = view.findViewById(R.id.item_transaction_value)
+        val account: TextView = view.findViewById(R.id.item_transaction_account)
+        val date: TextView = view.findViewById(R.id.item_transaction_date)
+        val color: View = view.findViewById(R.id.item_transaction_color)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionItemViewHolder {
         val adapterLayout = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_operation, parent, false)
+            .inflate(R.layout.item_transaction, parent, false)
         return TransactionItemViewHolder(adapterLayout)
     }
 
@@ -51,6 +58,10 @@ class TransactionItemAdapter(
             holder.color.setBackgroundResource(R.color.green)
         } else {
             holder.color.setBackgroundResource(R.color.red)
+        }
+
+        holder.itemView.setOnClickListener {
+            clickListener?.onTransactionClick(item)
         }
     }
 }
