@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_overviewFragment_to_categoryReportFragment"
             app:destination="@id/categoryReportFragment" />
+        <action
+            android:id="@+id/action_overviewFragment_to_timeReportFragment"
+            app:destination="@id/timeReportFragment" />
     </fragment>
     <fragment
         android:id="@+id/addIncomeFragment"
@@ -108,5 +111,30 @@
             app:destination="@id/categoryReportFragment"
             app:popUpTo="@id/categoryReportFragment"
             app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/timeReportFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.report.time_report.TimeReportFragment"
+        android:label="TimeReportFragment"
+        tools:layout="@layout/fragment_time_report">
+        <action
+            android:id="@+id/action_timeReportFragment_to_overviewFragment"
+            app:destination="@id/overviewFragment"
+            app:popUpTo="@id/overviewFragment"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_timeReportFragment_to_createdTimeReportFragment"
+            app:destination="@id/createdTimeReportFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createdTimeReportFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.report.time_report.create.CreateTimeReportFragment"
+        android:label="CreatedTimeReportFragment"
+        tools:layout="@layout/fragment_created_time_report">
+        <action
+            android:id="@+id/action_createdTimeReportFragment_to_timeReportFragment"
+            app:destination="@id/timeReportFragment"
+            app:popUpTo="@id/timeReportFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

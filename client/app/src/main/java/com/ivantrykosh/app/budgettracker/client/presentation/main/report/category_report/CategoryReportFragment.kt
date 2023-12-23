@@ -119,6 +119,10 @@ class CategoryReportFragment : Fragment() {
         binding.categoryReportButtonShowReport.setOnClickListener {
             createReport()
         }
+
+        binding.categoryReportError.errorOk.setOnClickListener {
+            binding.categoryReportError.root.visibility = View.GONE
+        }
     }
 
     override fun onResume() {

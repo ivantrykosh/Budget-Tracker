@@ -120,6 +120,8 @@
     <string name="date_range">Date range</string>
     <string name="invalid_dates">Dates cannot be null</string>
     <string name="select_all">Select all</string>
+    <string name="period">Period</string>
+    <string name="invalid_period">Period cannot be blank</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>
@@ -147,6 +149,13 @@
         <item>All</item>
         <item>Incomes</item>
         <item>Expenses</item>
+    </string-array>
+
+    <string-array name="period_types">
+        <item>Days</item>
+        <item>Weeks</item>
+        <item>Months</item>
+        <item>Years</item>
     </string-array>
 
 </resources>
