@@ -275,7 +275,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                     binding.transactionsRecyclerView.visibility = View.GONE
                     binding.transactionsNoTransactionsText.visibility = View.VISIBLE
                     binding.root.isRefreshing = false
-                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401")) {
                         startAuthActivity()
                     } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.transactionsError.root.visibility = View.VISIBLE

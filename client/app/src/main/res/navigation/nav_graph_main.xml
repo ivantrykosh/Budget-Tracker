@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_overviewFragment_to_transactionsFragment"
             app:destination="@id/transactionsFragment" />
+        <action
+            android:id="@+id/action_overviewFragment_to_categoryReportFragment"
+            app:destination="@id/categoryReportFragment" />
     </fragment>
     <fragment
         android:id="@+id/addIncomeFragment"
@@ -80,5 +83,30 @@
             app:destination="@id/overviewFragment"
             app:popUpTo="@id/overviewFragment"
             app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/categoryReportFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.report.category_report.CategoryReportFragment"
+        android:label="CategoryReportFragment"
+        tools:layout="@layout/fragment_category_report">
+        <action
+            android:id="@+id/action_categoryReportFragment_to_overviewFragment"
+            app:destination="@id/overviewFragment"
+            app:popUpTo="@id/overviewFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_categoryReportFragment_to_createdCategoryReport"
+            app:destination="@id/createdCategoryReport" />
+    </fragment>
+    <fragment
+        android:id="@+id/createdCategoryReport"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.report.category_report.create.CreateCategoryReportFragment"
+        android:label="CreatedCategoryReport"
+        tools:layout="@layout/fragment_created_category_report">
+        <action
+            android:id="@+id/action_createdCategoryReport_to_categoryReportFragment"
+            app:destination="@id/categoryReportFragment"
+            app:popUpTo="@id/categoryReportFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 </navigation>

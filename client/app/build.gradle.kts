@@ -82,4 +82,7 @@ dependencies {
 
     // Swipe to refresh
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+
+    // Charts
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

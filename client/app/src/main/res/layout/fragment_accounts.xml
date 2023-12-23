@@ -69,13 +69,13 @@
                 android:id="@+id/accounts_dialog"
                 layout="@layout/dialog_account_details"
                 android:visibility="gone"
-                tools:visibility="visible" />
+                tools:visibility="gone" />
 
             <include
                 android:id="@+id/create_account_dialog"
                 layout="@layout/dialog_create_account"
                 android:visibility="gone"
-                tools:visibility="visible" />
+                tools:visibility="gone" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

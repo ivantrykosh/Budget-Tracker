@@ -111,6 +111,15 @@
     <string name="transaction_is_updated">Transaction is updated</string>
     <string name="transaction_is_deleted">Transaction is deleted</string>
     <string name="invalid_user_email">User already have account with this name</string>
+    <string name="type">Type</string>
+    <string name="from_date">From date</string>
+    <string name="to_date">To date</string>
+    <string name="show_report">Show report</string>
+    <string name="all">All</string>
+    <string name="invalid_transaction_type">Transaction type cannot be blank</string>
+    <string name="date_range">Date range</string>
+    <string name="invalid_dates">Dates cannot be null</string>
+    <string name="select_all">Select all</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>
@@ -132,6 +141,12 @@
         <item>Pets</item>
         <item>Travels</item>
         <item>Other expenses</item>
+    </string-array>
+    
+    <string-array name="transaction_types">
+        <item>All</item>
+        <item>Incomes</item>
+        <item>Expenses</item>
     </string-array>
 
 </resources>

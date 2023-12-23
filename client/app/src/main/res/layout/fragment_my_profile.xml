@@ -197,7 +197,7 @@
                 android:id="@+id/my_profile_change_password_dialog"
                 layout="@layout/dialog_change_password"
                 android:visibility="gone"
-                tools:visibility="visible" />
+                tools:visibility="gone" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

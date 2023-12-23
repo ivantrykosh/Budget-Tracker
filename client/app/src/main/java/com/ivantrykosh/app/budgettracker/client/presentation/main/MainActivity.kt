@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.myProfileFragment -> setNavItemChecked(R.id.nav_my_profile)
                 R.id.accountsFragment -> setNavItemChecked(R.id.nav_accounts)
                 R.id.transactionsFragment -> setNavItemChecked(R.id.nav_transactions)
+                R.id.categoryReportFragment -> setNavItemChecked(R.id.nav_category_report)
                 // todo add more destinations
                 else -> setNavItemChecked(R.id.nav_logout)
             }
@@ -60,7 +61,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             binding.mainNavView.menu.findItem(R.id.nav_my_profile).isChecked = false
             binding.mainNavView.menu.findItem(R.id.nav_accounts).isChecked = false
             binding.mainNavView.menu.findItem(R.id.nav_transactions).isChecked = false
+            binding.mainNavView.menu.findItem(R.id.nav_category_report).isChecked = false
             // todo uncheck other items
+            binding.mainNavView.menu.findItem(R.id.nav_logout).isChecked = false
             navItem.isChecked = true
         }
     }
@@ -102,6 +105,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_transactions -> {
                 navController.navigateUp()
                 navController.navigate(R.id.action_overviewFragment_to_transactionsFragment)
+            }
+            R.id.nav_category_report -> {
+                navController.navigateUp()
+                navController.navigate(R.id.action_overviewFragment_to_categoryReportFragment)
             }
             // todo add more buttons listeners
             R.id.nav_logout -> {
