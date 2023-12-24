@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="950px"
+    android:layout_height="1375px"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="25px"
+    android:id="@+id/pdf_layout">
+
+    <ImageView
+        android:id="@+id/pdf_layout_app_icon"
+        android:layout_width="75px"
+        android:layout_height="75px"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/pdf_layout_pdf_name"
+        android:layout_width="600px"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/pdf_layout_app_icon"
+        app:layout_constraintTop_toTopOf="@id/pdf_layout_app_icon"
+        app:layout_constraintBottom_toBottomOf="@id/pdf_layout_app_icon"
+        android:layout_marginStart="10px"
+        android:textSize="30px"
+        android:text="@string/report_for"
+        tools:text="Report for 01/12/2023 - 31/12/2023"/>
+
+    <TextView
+        android:id="@+id/pdf_layout_bar_chart_title"
+        android:layout_width="300px"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pdf_layout_app_icon"
+        android:textAlignment="center"
+        android:layout_marginTop="15px"
+        android:textSize="25px"
+        android:text="@string/transaction_type_by_categories"/>
+
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/pdf_layout_category_report_barchart"
+        android:layout_width="0px"
+        android:layout_height="535px"
+        android:layout_marginTop="10px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pdf_layout_bar_chart_title"/>
+
+    <TextView
+        android:id="@+id/pdf_layout_line_chart_title"
+        android:layout_width="250px"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pdf_layout_category_report_barchart"
+        android:textAlignment="center"
+        android:layout_marginTop="15px"
+        android:textSize="25px"
+        android:text="@string/transaction_type_by_date"/>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/pdf_layout_time_report_line_chart"
+        android:layout_width="0px"
+        android:layout_height="535px"
+        android:layout_marginTop="10px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pdf_layout_line_chart_title"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

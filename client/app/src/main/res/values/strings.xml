@@ -122,6 +122,15 @@
     <string name="select_all">Select all</string>
     <string name="period">Period</string>
     <string name="invalid_period">Period cannot be blank</string>
+    <string name="download_report">Download report</string>
+    <string name="report_for">Report for %s</string>
+    <string name="last_transactions">Last transactions</string>
+    <string name="report_name">Report_%s</string>
+    <string name="report_saved_successful">Report was saved to app folder</string>
+    <string name="report_saved_fail">Failed to save report</string>
+    <string name="transaction_type_by_categories">%s by categories</string>
+    <string name="transaction_type_by_date">%s by date</string>
+    <string name="pdf_report_file_name">Report_%s.pdf</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>

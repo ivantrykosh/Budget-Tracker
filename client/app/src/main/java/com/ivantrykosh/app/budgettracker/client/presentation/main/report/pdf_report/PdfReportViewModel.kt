@@ -1,5 +1,6 @@
-package com.ivantrykosh.app.budgettracker.client.presentation.main.report.time_report
+package com.ivantrykosh.app.budgettracker.client.presentation.main.report.pdf_report
 
+import android.graphics.Color
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -7,6 +8,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -29,11 +33,10 @@ import javax.inject.Inject
 import kotlin.math.absoluteValue
 
 @HiltViewModel
-class TimeReportViewModel @Inject constructor(
+class PdfReportViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
     private val getTransactionsBetweenDatesUseCase: GetTransactionsBetweenDates,
 ) : ViewModel() {
-
     enum class Period { DAY, WEEK, MONTH, YEAR }
 
     private val _getAccountsState = mutableStateOf(AccountsState())
@@ -61,9 +64,13 @@ class TimeReportViewModel @Inject constructor(
     val labels
         get() = _labels
 
+    private var _maxCategoryValue = 0f
+    val maxCategoryValue
+        get() = _maxCategoryValue * 1.15f
+
     private var _maxTimeValue = 0f
     val maxTimeValue
-        get() = _maxTimeValue * 1.1f
+        get() = _maxTimeValue * 1.15f
 
 
     fun setPeriod(period: Period) {
@@ -119,6 +126,10 @@ class TimeReportViewModel @Inject constructor(
 
     private fun reformatDate(date: Date): String {
         return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+    }
+
+    fun userFormatDate(date: Date): String {
+        return SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(date)
     }
 
     fun getAccountIdByName(accountName: String): Long? {
@@ -296,5 +307,31 @@ class TimeReportViewModel @Inject constructor(
         calendar.time = date
         calendar.set(Calendar.DAY_OF_YEAR, calendar.getActualMaximum(Calendar.DAY_OF_YEAR))
         return calendar.time
+    }
+
+    fun getBarDataByCategory(): BarData {
+        _maxCategoryValue = 0.0f
+        val transactions = _getTransactionsState.value.transactions
+
+        // Group transactions by category
+        val groupedByCategory = transactions.groupBy { it.category }
+
+        var index = 0
+
+        val barDataSets = groupedByCategory.map { (category, categoryTransactions) ->
+            val sumOfTransactions = categoryTransactions.sumOf { it.value }.toFloat()
+            _maxCategoryValue = _maxCategoryValue.coerceAtLeast(sumOfTransactions.absoluteValue)
+            val barEntry = listOf(BarEntry(index.toFloat(), sumOfTransactions))
+            index++
+            val barDataSet = BarDataSet(barEntry, category)
+            barDataSet.color = getRandomColor()
+            barDataSet
+        }
+
+        return BarData(barDataSets)
+    }
+
+    private fun getRandomColor(): Int {
+        return Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
     }
 }

@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.transactionsFragment -> setNavItemChecked(R.id.nav_transactions)
                 R.id.categoryReportFragment -> setNavItemChecked(R.id.nav_category_report)
                 R.id.timeReportFragment -> setNavItemChecked(R.id.nav_time_report)
+                R.id.pdfReportFragment -> setNavItemChecked(R.id.nav_pdf_report)
                 // todo add more destinations
                 else -> setNavItemChecked(R.id.nav_logout)
             }
@@ -64,6 +65,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             binding.mainNavView.menu.findItem(R.id.nav_transactions).isChecked = false
             binding.mainNavView.menu.findItem(R.id.nav_category_report).isChecked = false
             binding.mainNavView.menu.findItem(R.id.nav_time_report).isChecked = false
+            binding.mainNavView.menu.findItem(R.id.nav_pdf_report).isChecked = false
             // todo uncheck other items
             binding.mainNavView.menu.findItem(R.id.nav_logout).isChecked = false
             navItem.isChecked = true
@@ -115,6 +117,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_time_report -> {
                 navController.navigateUp()
                 navController.navigate(R.id.action_overviewFragment_to_timeReportFragment)
+            }
+            R.id.nav_pdf_report -> {
+                navController.navigateUp()
+                navController.navigate(R.id.action_overviewFragment_to_pdfReportFragment)
             }
             // todo add more buttons listeners
             R.id.nav_logout -> {

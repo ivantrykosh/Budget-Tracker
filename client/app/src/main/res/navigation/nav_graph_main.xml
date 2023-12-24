@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_overviewFragment_to_timeReportFragment"
             app:destination="@id/timeReportFragment" />
+        <action
+            android:id="@+id/action_overviewFragment_to_pdfReportFragment"
+            app:destination="@id/pdfReportFragment" />
     </fragment>
     <fragment
         android:id="@+id/addIncomeFragment"
@@ -136,5 +139,16 @@
             app:destination="@id/timeReportFragment"
             app:popUpTo="@id/timeReportFragment"
             app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/pdfReportFragment"
+        android:name="com.ivantrykosh.app.budgettracker.client.presentation.main.report.pdf_report.PdfReportFragment"
+        android:label="PdfReportFragment"
+        tools:layout="@layout/fragment_pdf_report" >
+        <action
+            android:id="@+id/action_pdfReportFragment_to_overviewFragment"
+            app:destination="@id/overviewFragment"
+            app:popUpTo="@id/overviewFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 </navigation>

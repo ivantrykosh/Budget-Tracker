@@ -85,4 +85,7 @@ dependencies {
 
     // Charts
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // PDF
+//    implementation("com.itextpdf:itextg:5.5.10")
 }
