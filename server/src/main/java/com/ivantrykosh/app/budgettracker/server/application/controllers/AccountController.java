@@ -445,4 +445,39 @@ public class AccountController {
 
         return ResponseEntity.status(HttpStatus.OK).body("Account was deleted!");
     }
+
+    /**
+     * Endpoint to delete all user accounts.
+     *
+     * @return ResponseEntity with a success message or an error message and HttpStatus indicating the result.
+     */
+    @DeleteMapping("/delete-all")
+    @Transactional
+    public ResponseEntity<String> deleteAllAccounts() {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!customUserDetails.isEnabled()) {
+            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
+        }
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.getUserByEmail(email);
+
+        List<Account> accounts = accountService.getAccountsByUserId(user.getUserId());
+        for (Account account : accounts) {
+            transactionService.deleteTransactionsByAccountId(account.getAccountId());
+            logger.info("Transactions of user " + user.getEmail() + " and account with ID " + account.getAccountId() + " were deleted");
+
+            AccountUsers accountUsers = accountUsersService.getAccountUsersByAccountId(account.getAccountId());
+            accountUsersService.deleteAccountUsersById(accountUsers.getAccountUsersId());
+            logger.info("AccountUsers with ID " + accountUsers.getAccountUsersId() + " of user " + user.getEmail() + " were deleted");
+        }
+
+        accountUsersService.deleteUserIdFromAccountUsers(user.getUserId());
+        logger.info("User with email " + user.getEmail() + " was deleted from AccountUsers");
+
+        accountService.deleteAccountsByUserId(user.getUserId());
+        logger.info("Accounts of user with email " + user.getEmail() + " were deleted");
+
+        return ResponseEntity.status(HttpStatus.OK).body("All user accounts is deleted!");
+    }
 }

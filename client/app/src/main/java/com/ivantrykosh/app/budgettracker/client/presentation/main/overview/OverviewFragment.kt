@@ -15,10 +15,12 @@ import androidx.navigation.fragment.findNavController
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.TransactionItemAdapter
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentOverviewBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Currency
@@ -41,11 +43,12 @@ class OverviewFragment : Fragment() {
         AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_anti_clock_wise)
     }
 
-    private val format by lazy {
-        val format = NumberFormat.getCurrencyInstance()
+    private fun getFormat(): DecimalFormat {
+        val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
+        val format = DecimalFormat(pattern)
         format.maximumFractionDigits = 2
-        format.currency = Currency.getInstance(AppPreferences.currency)
-        format
+//        format.currency = Currency.getInstance(AppPreferences.currency)
+        return format
     }
 
     override fun onCreateView(
@@ -106,9 +109,9 @@ class OverviewFragment : Fragment() {
         val stringDate = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date())
         binding.overviewTextViewBalanceFor.text = getString(R.string.balance_for, stringDate)
 
-        binding.overviewMainIncomesValue.text = format.format(0.0)
-        binding.overviewMainExpensesValue.text = format.format(0.0)
-        binding.mainTotalValue.text = format.format(0.0)
+        binding.overviewMainIncomesValue.text = getFormat().format(0.0)
+        binding.overviewMainExpensesValue.text = getFormat().format(0.0)
+        binding.mainTotalValue.text = getFormat().format(0.0)
 
         setIncomesVisible(false)
         setExpensesVisible(false)
@@ -191,9 +194,9 @@ class OverviewFragment : Fragment() {
 
                 if (viewModel.getTransactionsState.value.error.isBlank()) {
 
-                    binding.overviewMainIncomesValue.text = format.format(viewModel.getSumOfIncomes())
-                    binding.overviewMainExpensesValue.text = format.format(viewModel.getSumOfExpenses())
-                    binding.mainTotalValue.text = format.format(viewModel.getTotalSum())
+                    binding.overviewMainIncomesValue.text = getFormat().format(viewModel.getSumOfIncomes())
+                    binding.overviewMainExpensesValue.text = getFormat().format(viewModel.getSumOfExpenses())
+                    binding.mainTotalValue.text = getFormat().format(viewModel.getTotalSum())
 
                     if (viewModel.getIncomes().isNotEmpty()) {
                         val incomes = viewModel.getIncomes()

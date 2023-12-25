@@ -22,7 +22,6 @@ class SplashScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AppPreferences.setup(applicationContext)
 
 //        AppPreferences.jwtToken = null
 //        AppPreferences.jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2YW55dHJ5a29jaDc4OUBnbWFpbC5jb20iLCJpYXQiOjE3MDE3MTQwNDcsImV4cCI6MTcwMjMxODg0N30.w6SWeKYH2L5lrJU1BZCK0kLwY3FYDINSthc3a92EeDw"

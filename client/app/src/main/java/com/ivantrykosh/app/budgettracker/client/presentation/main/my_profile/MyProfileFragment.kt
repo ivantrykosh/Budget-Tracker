@@ -54,12 +54,18 @@ class MyProfileFragment : Fragment() {
         binding.myProfileChangePasswordMain.setOnClickListener {
             onChangePassword()
         }
+        binding.myProfileChangePasswordIcon.setOnClickListener {
+            onChangePassword()
+        }
         binding.myProfileChangePasswordText.setOnClickListener {
             onChangePassword()
         }
 
         // Reset password
         binding.myProfileResetPasswordMain.setOnClickListener {
+            onResetPassword()
+        }
+        binding.myProfileResetPasswordIcon.setOnClickListener {
             onResetPassword()
         }
         binding.myProfileResetPasswordText.setOnClickListener {
@@ -70,12 +76,18 @@ class MyProfileFragment : Fragment() {
         binding.myProfileDeleteAllDataMain.setOnClickListener {
             onDeleteAll()
         }
+        binding.myProfileDeleteAllDataIcon.setOnClickListener {
+            onDeleteAll()
+        }
         binding.myProfileDeleteAllDataText.setOnClickListener {
             onDeleteAll()
         }
 
         // Logout
         binding.myProfileLogOutMain.setOnClickListener {
+            (activity as MainActivity).logout()
+        }
+        binding.myProfileLogOutIcon.setOnClickListener {
             (activity as MainActivity).logout()
         }
         binding.myProfileLogOutText.setOnClickListener {
@@ -306,7 +318,7 @@ class MyProfileFragment : Fragment() {
                 binding.root.isRefreshing = false
 
                 if (viewModel.deleteUserState.value.error.isBlank()) {
-                    Toast.makeText(requireContext(), resources.getString(R.string.data_was_deleted), Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), resources.getString(R.string.all_data_was_deleted), Toast.LENGTH_LONG).show()
                     startAuthActivity()
                 } else {
                     if (viewModel.deleteUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.deleteUserState.value.error.startsWith("401") || viewModel.deleteUserState.value.error.contains("JWT", ignoreCase = true)) {

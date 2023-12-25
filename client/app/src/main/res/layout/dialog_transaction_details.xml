@@ -41,11 +41,21 @@
         android:id="@+id/transaction_details_value"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/transaction_details_background"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/transaction_details_value_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_attach_money_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/transaction_details_text_value"
+            app:layout_constraintBottom_toBottomOf="@id/transaction_details_text_value" />
 
         <TextView
             android:id="@+id/transaction_details_text_value"
@@ -53,8 +63,9 @@
             android:layout_height="wrap_content"
             android:text="@string/value"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/transaction_details_value_icon"
             android:layout_marginTop="13dp"
+            android:layout_marginStart="6dp"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -81,11 +92,21 @@
         android:id="@+id/transaction_details_account"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/transaction_details_value"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/transaction_details_account_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/outline_account_balance_wallet_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/transaction_details_text_account"
+            app:layout_constraintBottom_toBottomOf="@id/transaction_details_text_account" />
 
         <TextView
             android:id="@+id/transaction_details_text_account"
@@ -93,9 +114,10 @@
             android:layout_height="wrap_content"
             android:text="@string/account"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/transaction_details_account_icon"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="13dp"/>
+            android:layout_marginTop="13dp"
+            android:layout_marginStart="6dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/transaction_details_input_account"
@@ -121,11 +143,21 @@
         android:id="@+id/transaction_details_category"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/transaction_details_account"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/transaction_details_category_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_category_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/transaction_details_text_category"
+            app:layout_constraintBottom_toBottomOf="@id/transaction_details_text_category" />
 
         <TextView
             android:id="@+id/transaction_details_text_category"
@@ -133,9 +165,10 @@
             android:layout_height="wrap_content"
             android:text="@string/category"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/transaction_details_category_icon"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="13dp"/>
+            android:layout_marginTop="13dp"
+            android:layout_marginStart="6dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/transaction_details_input_category"
@@ -161,11 +194,21 @@
         android:id="@+id/transaction_details_date"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/transaction_details_category"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/transaction_details_date_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/outline_calendar_month_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/transaction_details_text_date"
+            app:layout_constraintBottom_toBottomOf="@id/transaction_details_text_date" />
 
         <TextView
             android:id="@+id/transaction_details_text_date"
@@ -173,9 +216,10 @@
             android:layout_height="wrap_content"
             android:text="@string/date"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/transaction_details_date_icon"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="13dp"/>
+            android:layout_marginTop="13dp"
+            android:layout_marginStart="6dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/transaction_details_input_date"
@@ -202,11 +246,23 @@
         android:id="@+id/transaction_details_from"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/transaction_details_date"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/transaction_details_from_to_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_arrow_outward_24"
+            tools:scaleX="-1"
+            tools:scaleY="-1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/transaction_details_text_from_to"
+            app:layout_constraintBottom_toBottomOf="@id/transaction_details_text_from_to" />
 
         <TextView
             android:id="@+id/transaction_details_text_from_to"
@@ -214,9 +270,10 @@
             android:layout_height="wrap_content"
             tools:text="@string/from"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/transaction_details_from_to_icon"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="6dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/transaction_details_input_from_to"
@@ -225,6 +282,7 @@
             android:layout_marginStart="16dp"
             tools:hint="@string/from_optional"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -242,11 +300,21 @@
         android:id="@+id/transaction_details_note"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/transaction_details_from"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/transaction_details_note_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/outline_edit_note_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/transaction_details_text_note"
+            app:layout_constraintBottom_toBottomOf="@id/transaction_details_text_note"/>
 
         <TextView
             android:id="@+id/transaction_details_text_note"
@@ -254,9 +322,10 @@
             android:layout_height="wrap_content"
             android:text="@string/note"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/transaction_details_note_icon"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="6dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/transaction_details_input_note"

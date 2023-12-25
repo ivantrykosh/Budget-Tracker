@@ -14,7 +14,7 @@ object AppPreferences {
         sharedPreferences = context.getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE)
 
         // Setup default values for currency and date format, if it doesn't present
-        currency = currency ?: Constants.CURRENCIES.elementAt(0)
+        currency = currency ?: Constants.CURRENCIES.entries.elementAt(0).key
         dateFormat = dateFormat ?: Constants.DATE_FORMATS.elementAt(0)
     }
 
@@ -30,8 +30,12 @@ object AppPreferences {
         get() = Key.DATE_FORMAT.getString()
         set(value) = Key.DATE_FORMAT.setString(value)
 
+    var reminderTime: String?
+        get() = Key.REMINDER_TIME.getString()
+        set(value) = Key.REMINDER_TIME.setString(value)
+
     private enum class Key {
-        JWT_TOKEN, CURRENCY, DATE_FORMAT;
+        JWT_TOKEN, CURRENCY, DATE_FORMAT, REMINDER_TIME;
 
         fun getBoolean(): Boolean? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getBoolean(name, false) else null
         fun getFloat(): Float? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getFloat(name, 0f) else null

@@ -9,6 +9,7 @@
 
         <item
             android:id="@+id/nav_my_profile"
+            android:icon="@drawable/outline_account_circle_24"
             android:title="@string/my_profile" />
     </group>
 
@@ -18,14 +19,17 @@
 
         <item
             android:id="@+id/nav_overview"
+            android:icon="@drawable/outline_newspaper_24"
             android:title="@string/overview" />
 
         <item
             android:id="@+id/nav_accounts"
+            android:icon="@drawable/outline_account_balance_wallet_24"
             android:title="@string/accounts" />
 
         <item
             android:id="@+id/nav_transactions"
+            android:icon="@drawable/baseline_attach_money_24"
             android:title="@string/transactions" />
     </group>
 
@@ -40,14 +44,17 @@
             <menu>
                 <item
                     android:id="@+id/nav_category_report"
+                    android:icon="@drawable/outline_bar_chart_24"
                     android:title="@string/category_report" />
 
                 <item
                     android:id="@+id/nav_time_report"
+                    android:icon="@drawable/outline_timeline_24"
                     android:title="@string/time_report" />
 
                 <item
                     android:id="@+id/nav_pdf_report"
+                    android:icon="@drawable/outline_picture_as_pdf_24"
                     android:title="@string/pdf_report" />
             </menu>
         </item>
@@ -59,6 +66,7 @@
 
         <item
             android:id="@+id/nav_settings"
+            android:icon="@drawable/outline_settings_24"
             android:title="@string/settings" />
     </group>
 
@@ -68,6 +76,7 @@
 
         <item
             android:id="@+id/nav_logout"
+            android:icon="@drawable/outline_logout_24"
             android:title="@string/log_out" />
     </group>
 </menu>

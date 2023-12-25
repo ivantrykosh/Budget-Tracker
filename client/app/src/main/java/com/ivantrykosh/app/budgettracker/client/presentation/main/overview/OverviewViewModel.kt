@@ -83,7 +83,7 @@ class OverviewViewModel @Inject constructor(
         AppPreferences.jwtToken?.let { token ->
             getTransactions(token, accountIds, startDate, endDate)
         } ?: run {
-            _getAccountsState.value = AccountsState(error = "No JWT token found")
+            _getTransactionsState.value = TransactionsState(error = "No JWT token found")
         }
     }
 

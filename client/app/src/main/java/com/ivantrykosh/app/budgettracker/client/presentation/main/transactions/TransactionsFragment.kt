@@ -23,6 +23,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentTransactionsBinding
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
@@ -317,9 +318,13 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         if (viewModel.getTransactionState.value.transaction!!.value > 0) {
                             binding.transactionsDialog.transactionDetailsTextFromTo.text = resources.getString(R.string.from)
                             binding.transactionsDialog.transactionDetailsInputFromTo.hint = resources.getString(R.string.from_optional)
+                            binding.transactionsDialog.transactionDetailsFromToIcon.scaleX = -1f
+                            binding.transactionsDialog.transactionDetailsFromToIcon.scaleY = -1f
                         } else {
                             binding.transactionsDialog.transactionDetailsTextFromTo.text = resources.getString(R.string.to)
                             binding.transactionsDialog.transactionDetailsInputFromTo.hint = resources.getString(R.string.to_optional)
+                            binding.transactionsDialog.transactionDetailsFromToIcon.scaleX = 1f
+                            binding.transactionsDialog.transactionDetailsFromToIcon.scaleY = 1f
                         }
 
                         val drawableBackground = binding.transactionsDialog.transactionDetailsBackground.background as GradientDrawable
@@ -334,7 +339,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                             viewModel.getTransactionState.value.transaction!!.value > 0 -> ""
                             else -> "-"
                         }
-                        binding.transactionsDialog.transactionDetailsInputValue.prefixText = sign + Currency.getInstance(AppPreferences.currency).symbol
+                        binding.transactionsDialog.transactionDetailsInputValue.prefixText = sign + Constants.CURRENCIES[AppPreferences.currency]
                         binding.transactionsDialog.transactionDetailsInputValueEditText.filters = arrayOf(InputFilter.LengthFilter(13), DecimalDigitsInputFilter(10, 2))
                         binding.transactionsDialog.transactionDetailsInputValueEditText.setText(viewModel.getTransactionState.value.transaction!!.value.absoluteValue.toString())
 

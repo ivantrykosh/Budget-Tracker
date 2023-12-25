@@ -14,6 +14,8 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
+import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentAccountsBinding
 import com.ivantrykosh.app.budgettracker.client.domain.model.Account
@@ -21,6 +23,7 @@ import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.AccountItemAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.DecimalFormat
 
 @AndroidEntryPoint
 class AccountsFragment : Fragment(), OnAccountClickListener {
@@ -28,6 +31,14 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
     private val binding get() = _binding!!
 
     private val viewModel: AccountsViewModel by viewModels()
+
+    private fun getFormat(): DecimalFormat {
+        val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
+        val format = DecimalFormat(pattern)
+        format.maximumFractionDigits = 2
+//        format.currency = Currency.getInstance(AppPreferences.currency)
+        return format
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -306,9 +317,9 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                         binding.accountsError.errorText.text = resources.getString(R.string.invalid_account_id)
                     } else {
                         binding.accountsDialog.root.visibility = View.VISIBLE
-                        binding.accountsDialog.accountDetailsIncomesValue.text = viewModel.getAccountState.value.account!!.incomesSum.toString()
-                        binding.accountsDialog.accountDetailsExpensesValue.text = viewModel.getAccountState.value.account!!.expensesSum.toString()
-                        binding.accountsDialog.accountDetailsTotalValue.text = (viewModel.getAccountState.value.account!!.incomesSum.plus(viewModel.getAccountState.value.account!!.expensesSum)).toString()
+                        binding.accountsDialog.accountDetailsIncomesValue.text = getFormat().format(viewModel.getAccountState.value.account!!.incomesSum)
+                        binding.accountsDialog.accountDetailsExpensesValue.text = getFormat().format(viewModel.getAccountState.value.account!!.expensesSum)
+                        binding.accountsDialog.accountDetailsTotalValue.text = getFormat().format(viewModel.getAccountState.value.account!!.incomesSum.plus(viewModel.getAccountState.value.account!!.expensesSum))
                         binding.accountsDialog.accountDetailsInputNameEditText.setText(viewModel.getAccountState.value.account!!.name)
                         binding.accountsDialog.accountDetailsEmailsLayout.visibility = View.GONE
                         binding.accountsDialog.accountDetailsDeleteAccount.visibility = View.GONE

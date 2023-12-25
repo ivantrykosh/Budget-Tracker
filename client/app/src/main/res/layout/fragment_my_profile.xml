@@ -95,13 +95,24 @@
                 android:background="@color/light_gray"
                 android:clickable="true">
 
+                <ImageView
+                    android:id="@+id/my_profile_change_password_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/outline_cached_24"
+                    android:clickable="true"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/my_profile_change_password_text"
+                    app:layout_constraintBottom_toBottomOf="@id/my_profile_change_password_text"/>
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/my_profile_change_password_text"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/my_profile_change_password_icon"
                     android:clickable="true"
+                    android:layout_marginStart="8dp"
                     android:text="@string/change_password" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -118,13 +129,24 @@
                 android:background="@color/light_gray"
                 android:clickable="true">
 
+                <ImageView
+                    android:id="@+id/my_profile_reset_password_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/outline_restore_24"
+                    android:clickable="true"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/my_profile_reset_password_text"
+                    app:layout_constraintBottom_toBottomOf="@id/my_profile_reset_password_text"/>
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/my_profile_reset_password_text"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/my_profile_reset_password_icon"
                     android:clickable="true"
+                    android:layout_marginStart="8dp"
                     android:text="@string/reset_password" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -151,14 +173,25 @@
                 android:background="@color/light_gray"
                 android:clickable="true">
 
+                <ImageView
+                    android:id="@+id/my_profile_delete_all_data_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/outline_delete_24"
+                    android:clickable="true"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/my_profile_delete_all_data_text"
+                    app:layout_constraintBottom_toBottomOf="@id/my_profile_delete_all_data_text"/>
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/my_profile_delete_all_data_text"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/my_profile_delete_all_data_icon"
                     android:clickable="true"
-                    android:text="@string/delete_all_data" />
+                    android:text="@string/delete_all_data"
+                    android:layout_marginStart="8dp"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <View
@@ -183,14 +216,25 @@
                 android:background="@color/light_gray"
                 android:clickable="true">
 
+                <ImageView
+                    android:id="@+id/my_profile_log_out_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/outline_logout_24"
+                    android:clickable="true"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/my_profile_log_out_text"
+                    app:layout_constraintBottom_toBottomOf="@id/my_profile_log_out_text"/>
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/my_profile_log_out_text"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/my_profile_log_out_icon"
                     android:clickable="true"
-                    android:text="@string/log_out" />
+                    android:text="@string/log_out"
+                    android:layout_marginStart="8dp"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <include

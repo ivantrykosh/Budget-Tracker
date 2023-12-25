@@ -157,7 +157,7 @@ class TransactionsViewModel @Inject constructor(
         AppPreferences.jwtToken?.let { token ->
             getTransactions(token, accountIds, startDate, endDate)
         } ?: run {
-            _getAccountsState.value = AccountsState(error = "No JWT token found")
+            _getTransactionsState.value = TransactionsState(error = "No JWT token found")
         }
     }
 
@@ -165,7 +165,7 @@ class TransactionsViewModel @Inject constructor(
         AppPreferences.jwtToken?.let { token ->
             getTransaction(token, id)
         } ?: run {
-            _getAccountsState.value = AccountsState(error = "No JWT token found")
+            _getTransactionState.value = GetTransactionState(error = "No JWT token found")
         }
     }
 
@@ -181,7 +181,7 @@ class TransactionsViewModel @Inject constructor(
         AppPreferences.jwtToken?.let { token ->
             deleteTransaction(token, id)
         } ?: run {
-            _getAccountsState.value = AccountsState(error = "No JWT token found")
+            _deleteTransactionState.value = DeleteTransactionState(error = "No JWT token found")
         }
     }
 

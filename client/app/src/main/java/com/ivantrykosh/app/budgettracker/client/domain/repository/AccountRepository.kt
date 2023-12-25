@@ -15,4 +15,6 @@ interface AccountRepository {
     suspend fun updateAccount(token: String, id: String, request: ChangeAccountDto)
 
     suspend fun deleteAccount(token: String, id: String)
+
+    suspend fun deleteAllAccounts(token: String)
 }

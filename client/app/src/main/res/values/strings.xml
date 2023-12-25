@@ -131,6 +131,21 @@
     <string name="transaction_type_by_categories">%s by categories</string>
     <string name="transaction_type_by_date">%s by date</string>
     <string name="pdf_report_file_name">Report_%s.pdf</string>
+    <string name="currency">Currency</string>
+    <string name="date_format">Date format</string>
+    <string name="daily_reminder">Daily reminder</string>
+    <string name="set_time">Set time</string>
+    <string name="delete_reminder">Delete reminder</string>
+    <string name="delete_data">Delete data</string>
+    <string name="support_and_feedback">Support and feedback</string>
+    <string name="daily_reminder_title">Add new transactions</string>
+    <string name="daily_reminder_message">Don\'t forget to add new transactions today</string>
+    <string name="invalid_currency">Currency cannot be blank</string>
+    <string name="invalid_date_format">Date format cannot be blank</string>
+    <string name="support_and_feedback_message">For support and feedback write to this email: trykoshivan4@gmail.com</string>
+    <string name="delete_data_question_title">Delete data?</string>
+    <string name="delete_data_question_message">Do you really want to delete all accounts and transactions?</string>
+    <string name="all_data_was_deleted">All data was deleted</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>

@@ -8,8 +8,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.domain.model.Account
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.OnAccountClickListener
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Currency
 
@@ -36,9 +38,12 @@ class AccountItemAdapter(
 
     override fun getItemCount() = dataset.size
     override fun onBindViewHolder(holder: AccountItemViewHolder, position: Int) {
-        val format = NumberFormat.getCurrencyInstance()
+        val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
+        val format = DecimalFormat(pattern)
         format.maximumFractionDigits = 2
-        format.currency = Currency.getInstance(AppPreferences.currency)
+//        val format = NumberFormat.getCurrencyInstance()
+//        format.maximumFractionDigits = 2
+//        format.currency = Currency.getInstance(AppPreferences.currency)
 
         val item = dataset[position]
         holder.name.text = item.name

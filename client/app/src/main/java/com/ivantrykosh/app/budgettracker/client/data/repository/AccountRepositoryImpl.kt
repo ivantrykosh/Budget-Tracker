@@ -29,4 +29,8 @@ class AccountRepositoryImpl @Inject constructor(
     override suspend fun deleteAccount(token: String, id: String) {
         return api.deleteAccount(token, id)
     }
+
+    override suspend fun deleteAllAccounts(token: String) {
+        return api.deleteAllAccounts(token)
+    }
 }

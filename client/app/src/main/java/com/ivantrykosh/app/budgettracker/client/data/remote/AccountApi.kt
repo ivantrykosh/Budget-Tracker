@@ -27,4 +27,7 @@ interface AccountApi {
 
     @DELETE("delete")
     suspend fun deleteAccount(@Header("Authorization") token: String, @Query("id") id: String)
+
+    @DELETE("delete-all")
+    suspend fun deleteAllAccounts(@Header("Authorization") token: String)
 }

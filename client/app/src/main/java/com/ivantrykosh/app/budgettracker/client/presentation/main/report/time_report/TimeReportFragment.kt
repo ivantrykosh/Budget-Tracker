@@ -120,6 +120,7 @@ class TimeReportFragment : Fragment() {
 
         binding.timeReportInputDatesText.keyListener = null
         binding.timeReportInputDatesText.setOnFocusChangeListener { _, isFocus ->
+            // todo add this if to every date and time pickers
             if (isFocus) {
                 if (!datePicker.isAdded) {
                     datePicker.show(parentFragmentManager, "datePicker")
@@ -133,6 +134,7 @@ class TimeReportFragment : Fragment() {
             }
         }
         binding.timeReportInputDatesText.setOnClickListener {
+            // todo add this if to every date and time pickers
             if (!datePicker.isAdded) {
                 datePicker.show(parentFragmentManager, "datePicker")
             }

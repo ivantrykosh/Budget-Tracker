@@ -345,7 +345,7 @@ public class TransactionController {
         calendar.set(Calendar.MILLISECOND, 999);
 
         List<Transaction> transactions = transactionService.getTransactionsByAccountIdsAndDateBetween(accountIds, startDate, calendar.getTime());
-        logger.info("All transactions for accountIDs " + accountIds + " and between dates " + startDate + " and " + endDate);
+        logger.info("All transactions for accountIDs " + accountIds + " and between dates " + startDate + " and " + calendar.getTime());
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 transactions.stream()

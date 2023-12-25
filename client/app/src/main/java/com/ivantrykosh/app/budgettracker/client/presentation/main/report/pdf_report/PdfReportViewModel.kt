@@ -152,7 +152,7 @@ class PdfReportViewModel @Inject constructor(
         AppPreferences.jwtToken?.let { token ->
             getTransactions(token, accountIds, reformatDate(_dateRange.value?.first ?: Date()), reformatDate(_dateRange.value?.second ?: Date()), type)
         } ?: run {
-            _getAccountsState.value = AccountsState(error = "No JWT token found")
+            _getTransactionsState.value = TransactionsState(error = "No JWT token found")
         }
     }
 
