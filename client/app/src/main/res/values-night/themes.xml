@@ -4,4 +4,37 @@
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
     </style>
+
+    <style name="TopBarTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="iconTint">@color/white</item>
+    </style>
+
+    <style name="BackgroundWithShadowTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@drawable/background_with_shadow_dark</item>
+    </style>
+
+    <style name="IconTheme" parent="Theme.Material3.DayNight">
+        <item name="android:tint">@color/white</item>
+    </style>
+
+    <style name="BackgroundTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@drawable/background_dark</item>
+    </style>
+
+    <style name="BackgroundTopTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@drawable/background_top_radius_dark</item>
+    </style>
+
+    <style name="BackgroundBottomTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@drawable/background_bottom_radius_dark</item>
+    </style>
+
+    <style name="LineBackgroundTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="ChartStyle">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>

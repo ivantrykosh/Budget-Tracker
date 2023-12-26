@@ -82,6 +82,14 @@ class LoginFragment : Fragment() {
         binding.loginNetworkError.errorOk.setOnClickListener {
             binding.loginNetworkError.root.visibility = View.GONE
         }
+
+        binding.loginAnyProblems.setOnClickListener {
+            showDefaultDialog(
+                resources.getString(R.string.any_problems_question),
+                resources.getString(R.string.any_problems_message),
+                resources.getString(R.string.ok)
+            )
+        }
     }
 
     private fun onLogin() {

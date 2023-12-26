@@ -67,6 +67,14 @@ class SignUpFragment : Fragment() {
         binding.signupNetworkError.errorOk.setOnClickListener {
             binding.signupNetworkError.root.visibility = View.GONE
         }
+
+        binding.signupAnyProblems.setOnClickListener {
+            showDialog(
+                resources.getString(R.string.any_problems_question),
+                resources.getString(R.string.any_problems_message),
+                resources.getString(R.string.ok)
+            )
+        }
     }
 
     private fun onSignUp() {

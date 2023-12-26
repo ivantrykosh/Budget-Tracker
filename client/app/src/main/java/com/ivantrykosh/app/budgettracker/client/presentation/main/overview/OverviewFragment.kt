@@ -95,6 +95,16 @@ class OverviewFragment : Fragment() {
         binding.overviewError.errorOk.setOnClickListener {
             binding.overviewError.root.visibility = View.GONE
         }
+
+        binding.overviewNestedScrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY > oldScrollY) {
+                // Scrolling down, hide the view
+                binding.overviewLayoutFabs.visibility = View.GONE
+            } else {
+                // Scrolling up, show the view
+                binding.overviewLayoutFabs.visibility = View.VISIBLE
+            }
+        }
     }
 
     override fun onResume() {

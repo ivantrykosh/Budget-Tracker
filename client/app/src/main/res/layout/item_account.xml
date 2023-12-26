@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     android:padding="16dp"
-    android:background="@drawable/background"
+    style="@style/BackgroundWithShadowTheme"
     android:id="@+id/item_account">
 
     <TextView

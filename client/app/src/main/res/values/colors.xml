@@ -4,6 +4,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="green">#FF32CD32</color>\
     <color name="red">#FFFF0000</color>
-    <color name="error_red">#ff0033</color>
+    <color name="error_red">#FF0033</color>
     <color name="light_gray">#D3D3D3</color>
+    <color name="light_black">#201E1E</color>
+    <color name="dark_white">#E8E8E8</color>
 </resources>

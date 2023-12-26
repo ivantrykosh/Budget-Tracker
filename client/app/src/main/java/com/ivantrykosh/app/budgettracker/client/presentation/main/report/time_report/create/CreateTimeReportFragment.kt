@@ -1,6 +1,8 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.time_report.create
 
+import android.graphics.Color
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,14 +49,21 @@ class CreateTimeReportFragment : Fragment(), OnChartValueSelectedListener {
     }
 
     private fun showReport() {
+        val typedValue = TypedValue()
+        requireActivity().theme.resolveAttribute(android.R.attr.colorAccent, typedValue, true)
+        val color = Color.valueOf(typedValue.data)
+
         val lineData = viewModel.getLineData()
         lineData.setValueTextSize(16f)
         lineData.setDrawValues(false)
+        lineData.setValueTextColor(color.toArgb())
         binding.createdTimeReportLineChart.data = lineData
         binding.createdTimeReportLineChart.description.isEnabled = false
         binding.createdTimeReportLineChart.xAxis.setDrawLabels(false)
         binding.createdTimeReportLineChart.axisLeft.textSize = 16f
         binding.createdTimeReportLineChart.axisRight.textSize = 16f
+        binding.createdTimeReportLineChart.axisLeft.textColor = color.toArgb()
+        binding.createdTimeReportLineChart.axisRight.textColor = color.toArgb()
         binding.createdTimeReportLineChart.legend.isEnabled = false
         binding.createdTimeReportLineChart.setOnChartValueSelectedListener(this)
 

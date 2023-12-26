@@ -26,6 +26,7 @@
                 android:layout_height="?attr/actionBarSize"
                 app:navigationIcon="@drawable/baseline_menu_24"
                 app:menu="@menu/accounts_menu"
+                android:theme="@style/TopBarTheme"
                 android:paddingEnd="10dp"
                 android:paddingStart="0dp"
                 app:title="@string/accounts" />
@@ -83,6 +84,6 @@
             android:id="@+id/accounts_error"
             layout="@layout/error"
             android:visibility="gone"
-            tools:visibility="gone" />
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

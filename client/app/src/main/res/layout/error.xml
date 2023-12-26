@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/error"
-    android:background="@color/light_gray"
+    style="@style/BackgroundTheme"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -56,6 +56,6 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@color/black" />
+        style="@style/LineBackgroundTheme" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

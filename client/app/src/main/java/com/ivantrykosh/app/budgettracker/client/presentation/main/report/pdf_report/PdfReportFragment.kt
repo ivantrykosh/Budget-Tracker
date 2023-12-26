@@ -312,27 +312,27 @@ class PdfReportFragment : Fragment() {
         barData.setValueTextSize(4f)
         val barChart = pdfView.rootView.findViewById<BarChart>(R.id.pdf_layout_category_report_barchart)
         barChart.data = barData
+        barChart.extraLeftOffset = 70f
+//        barChart.extraRightOffset = 0f
         barChart.description.isEnabled = false
         barChart.xAxis.setDrawLabels(false)
         barChart.xAxis.setDrawGridLines(false)
-        barChart.axisLeft.textSize = 4f
         barChart.axisRight.textSize = 4f
         barChart.axisLeft.isEnabled = false
         barChart.axisLeft.axisMinimum = -viewModel.maxCategoryValue
         barChart.axisLeft.axisMaximum = viewModel.maxCategoryValue
         barChart.axisRight.axisMinimum = -viewModel.maxCategoryValue
         barChart.axisRight.axisMaximum = viewModel.maxCategoryValue
-        barChart.extraLeftOffset = -230f
         val barChartLegend = barChart.legend
         barChartLegend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
         barChartLegend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
         barChartLegend.orientation = Legend.LegendOrientation.VERTICAL
         barChartLegend.form = Legend.LegendForm.SQUARE
-        barChartLegend.setDrawInside(false)
+        barChartLegend.setDrawInside(true)
         barChartLegend.isWordWrapEnabled = true
-        barChartLegend.yOffset = 0f
-        barChartLegend.xOffset = 0f
-        barChartLegend.yEntrySpace = 0f
+//        barChartLegend.yOffset = 0f
+//        barChartLegend.xOffset = 0f
+//        barChartLegend.yEntrySpace = 0f
         barChartLegend.textSize = 4f
 
 

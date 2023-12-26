@@ -29,7 +29,9 @@
         </receiver>
         <activity
             android:name=".presentation.splash_screen.SplashScreenActivity"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,11 +42,15 @@
             android:name=".presentation.auth.AuthActivity"
             android:exported="false"
             android:label="@string/title_activity_login"
-            android:theme="@style/Theme.BudgetTracker" />
+            android:theme="@style/Theme.BudgetTracker"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".presentation.main.MainActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustNothing">
+            android:windowSoftInputMode="adjustNothing"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 

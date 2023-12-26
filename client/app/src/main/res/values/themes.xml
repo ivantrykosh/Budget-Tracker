@@ -3,6 +3,7 @@
     <style name="Base.Theme.BudgetTracker" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
     </style>
 
     <style name="Theme.BudgetTracker" parent="Base.Theme.BudgetTracker" />
@@ -14,5 +15,38 @@
     <style name="Widget.MaterialComponents.TextInputLayout.FilledBox.Time" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
         <item name="boxStrokeWidth">0dp</item>
         <item name="boxStrokeWidthFocused">0dp</item>
+    </style>
+
+    <style name="TopBarTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="iconTint">@color/black</item>
+    </style>
+
+    <style name="BackgroundWithShadowTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@drawable/background_with_shadow_light</item>
+    </style>
+
+    <style name="IconTheme" parent="Theme.Material3.DayNight">
+        <item name="android:tint">@color/black</item>
+    </style>
+
+    <style name="BackgroundTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@drawable/background_light</item>
+    </style>
+
+    <style name="BackgroundTopTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@drawable/background_top_radius_light</item>
+    </style>
+
+    <style name="BackgroundBottomTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@drawable/background_bottom_radius_light</item>
+    </style>
+
+    <style name="LineBackgroundTheme" parent="Theme.Material3.DayNight">
+        <item name="android:background">@color/black</item>
+    </style>
+
+    <style name="ChartStyle">
+        <item name="android:textColor">@android:color/black</item>
     </style>
 </resources>

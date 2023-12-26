@@ -18,6 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentAddIncomeBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction.AddTransactionViewModel
@@ -66,7 +67,7 @@ class AddIncomeFragment : Fragment() {
         }
 
         // todo add pref instead of usd
-        binding.addIncomeInputValue.prefixText = Currency.getInstance(AppPreferences.currency).symbol
+        binding.addIncomeInputValue.prefixText = Constants.CURRENCIES[AppPreferences.currency]
         binding.addIncomeInputValueEditText.filters = arrayOf(InputFilter.LengthFilter(13), DecimalDigitsInputFilter(10, 2))
         binding.addIncomeInputValueEditText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {

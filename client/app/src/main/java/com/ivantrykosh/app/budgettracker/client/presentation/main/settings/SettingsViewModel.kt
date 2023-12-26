@@ -46,7 +46,7 @@ class SettingsViewModel @Inject constructor(
     private val _currency = MutableLiveData(AppPreferences.currency)
     val currency: LiveData<String> = _currency.map {  currency ->
         currency?.let {
-            it + " - " + getCurrencySymbol(it)
+            it + " - " + Constants.CURRENCIES[it]
         } ?: ""
     }
 

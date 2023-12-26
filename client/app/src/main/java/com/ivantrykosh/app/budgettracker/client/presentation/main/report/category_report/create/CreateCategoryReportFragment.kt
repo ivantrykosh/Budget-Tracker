@@ -1,6 +1,8 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.category_report.create
 
+import android.graphics.Color
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +14,7 @@ import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentCreatedCategoryReportBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.main.report.category_report.CategoryReportViewModel
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class CreateCategoryReportFragment : Fragment() {
@@ -39,14 +42,21 @@ class CreateCategoryReportFragment : Fragment() {
     }
 
     private fun showReport() {
+        val typedValue = TypedValue()
+        requireActivity().theme.resolveAttribute(android.R.attr.colorAccent, typedValue, true)
+        val color = Color.valueOf(typedValue.data)
+
         val barData = viewModel.getBarDataByCategory()
         barData.setValueTextSize(16f)
+        barData.setValueTextColor(color.toArgb())
         binding.createdCategoryReportBarchart.data = barData
         binding.createdCategoryReportBarchart.description.isEnabled = false
         binding.createdCategoryReportBarchart.xAxis.setDrawLabels(false)
         binding.createdCategoryReportBarchart.xAxis.setDrawGridLines(false)
         binding.createdCategoryReportBarchart.axisLeft.textSize = 16f
         binding.createdCategoryReportBarchart.axisRight.textSize = 16f
+        binding.createdCategoryReportBarchart.axisLeft.textColor = color.toArgb()
+        binding.createdCategoryReportBarchart.axisRight.textColor = color.toArgb()
 
         binding.createdCategoryReportBarchart.axisLeft.axisMinimum = -viewModel.maxCategoryValue
         binding.createdCategoryReportBarchart.axisLeft.axisMaximum = viewModel.maxCategoryValue
@@ -62,6 +72,7 @@ class CreateCategoryReportFragment : Fragment() {
         legend.isWordWrapEnabled = true
         legend.setDrawInside(false)
         legend.textSize = 16f
+        legend.textColor = color.toArgb()
     }
 
     override fun onDestroyView() {

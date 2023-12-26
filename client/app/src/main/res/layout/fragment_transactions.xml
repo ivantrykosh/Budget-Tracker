@@ -26,6 +26,7 @@
                 android:layout_height="?attr/actionBarSize"
                 app:navigationIcon="@drawable/baseline_menu_24"
                 app:menu="@menu/transactions_menu"
+                android:theme="@style/TopBarTheme"
                 android:paddingEnd="10dp"
                 android:paddingStart="0dp"
                 app:title="@string/transactions" />
@@ -118,7 +119,7 @@
                 android:id="@+id/transactions_dialog"
                 layout="@layout/dialog_transaction_details"
                 android:visibility="gone"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

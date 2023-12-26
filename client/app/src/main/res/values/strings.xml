@@ -146,6 +146,8 @@
     <string name="delete_data_question_title">Delete data?</string>
     <string name="delete_data_question_message">Do you really want to delete all accounts and transactions?</string>
     <string name="all_data_was_deleted">All data was deleted</string>
+    <string name="any_problems_question">Any problems?</string>
+    <string name="any_problems_message">Dou you have any problems? Please, contact me: trykoshivan4@gmail.com</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>

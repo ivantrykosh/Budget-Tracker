@@ -6,5 +6,6 @@
         android:id="@+id/transactions_refresh"
         android:icon="@drawable/outline_refresh_24"
         android:title="@string/refresh"
+        android:iconTintMode="add"
         app:showAsAction="ifRoom" />
 </menu>
