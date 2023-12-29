@@ -24,6 +24,9 @@ import java.security.MessageDigest
 import java.util.Base64
 import javax.inject.Inject
 
+/**
+ * Auth view model
+ */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
@@ -39,24 +42,24 @@ class AuthViewModel @Inject constructor(
             "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,32}$"
     }
 
-    private val _loginState = mutableStateOf<LoginState>(LoginState())
+    private val _loginState = mutableStateOf(LoginState())
     val loginState: State<LoginState> = _loginState
-    private val _isLoginLoading = MutableLiveData<Boolean>(false)
+    private val _isLoginLoading = MutableLiveData(false)
     val isLoginLoading: LiveData<Boolean> = _isLoginLoading
 
-    private val _signUpState = mutableStateOf<SignUpState>(SignUpState())
+    private val _signUpState = mutableStateOf(SignUpState())
     val signUpState: State<SignUpState> = _signUpState
-    private val _isSingUpLoading = MutableLiveData<Boolean>(false)
+    private val _isSingUpLoading = MutableLiveData(false)
     val isSingUpLoading: LiveData<Boolean> = _isSingUpLoading
 
-    private val _confirmationEmailState = mutableStateOf<ConfirmationEmailState>(ConfirmationEmailState())
+    private val _confirmationEmailState = mutableStateOf(ConfirmationEmailState())
     val confirmationEmailState = _confirmationEmailState
-    private val _isConfirmationEmailLoading = MutableLiveData<Boolean>(false)
+    private val _isConfirmationEmailLoading = MutableLiveData(false)
     val isConfirmationEmailLoading: LiveData<Boolean> = _isConfirmationEmailLoading
 
-    private val _resetPasswordState = mutableStateOf<ResetPasswordState>(ResetPasswordState())
+    private val _resetPasswordState = mutableStateOf(ResetPasswordState())
     val resetPasswordState = _resetPasswordState
-    private val _isResetPasswordLoading = MutableLiveData<Boolean>(false)
+    private val _isResetPasswordLoading = MutableLiveData(false)
     val isResetPasswordLoading: LiveData<Boolean> = _isResetPasswordLoading
 
     private var authDto: AuthDto? = null
@@ -104,12 +107,10 @@ class AuthViewModel @Inject constructor(
                         _isLoginLoading.value = false
                         AppPreferences.jwtToken = _loginState.value.token
                     }
-
                     is Resource.Error -> {
                         _loginState.value = LoginState(error = result.message ?: "An unexpected error occurred")
                         _isLoginLoading.value = false
                     }
-
                     is Resource.Loading -> {
                         _loginState.value = LoginState(isLoading = true)
                         _isLoginLoading.value = true
@@ -144,12 +145,10 @@ class AuthViewModel @Inject constructor(
                         _signUpState.value = SignUpState()
                         _isSingUpLoading.value = false
                     }
-
                     is Resource.Error -> {
                         _signUpState.value = SignUpState(error = result.message ?: "An unexpected error occurred")
                         _isSingUpLoading.value = false
                     }
-
                     is Resource.Loading -> {
                         _signUpState.value = SignUpState(isLoading = true)
                         _isSingUpLoading.value = true
@@ -184,12 +183,10 @@ class AuthViewModel @Inject constructor(
                         _confirmationEmailState.value = ConfirmationEmailState()
                         _isConfirmationEmailLoading.value = false
                     }
-
                     is Resource.Error -> {
                         _confirmationEmailState.value = ConfirmationEmailState(error = result.message ?: "An unexpected error occurred")
                         _isConfirmationEmailLoading.value = false
                     }
-
                     is Resource.Loading -> {
                         _confirmationEmailState.value = ConfirmationEmailState(isLoading = true)
                         _isConfirmationEmailLoading.value = true
@@ -214,12 +211,10 @@ class AuthViewModel @Inject constructor(
                         _resetPasswordState.value = ResetPasswordState()
                         _isResetPasswordLoading.value = false
                     }
-
                     is Resource.Error -> {
                         _resetPasswordState.value = ResetPasswordState(error = result.message ?: "An unexpected error occurred")
                         _isResetPasswordLoading.value = false
                     }
-
                     is Resource.Loading -> {
                         _resetPasswordState.value = ResetPasswordState(isLoading = true)
                         _isResetPasswordLoading.value = true

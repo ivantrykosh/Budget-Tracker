@@ -10,14 +10,14 @@ import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.OnAccountClickListener
 import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.OnTransactionClickListener
 import java.text.DecimalFormat
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
-import java.util.Currency
 import java.util.Locale
 
+/**
+ * Transaction item adapter
+ */
 class TransactionItemAdapter(
     private val context: Context,
     private val dataset: List<Transaction>,
@@ -50,10 +50,6 @@ class TransactionItemAdapter(
         val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
         val format = DecimalFormat(pattern)
         format.maximumFractionDigits = 2
-
-//        val format = NumberFormat.getCurrencyInstance()
-//        format.maximumFractionDigits = 2
-//        format.currency = Currency.getInstance(AppPreferences.currency)
 
         val item = dataset[position]
         holder.category.text = item.category

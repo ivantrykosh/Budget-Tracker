@@ -15,7 +15,9 @@ import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.delete_user
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.get_user.GetUserUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.reset_password.ResetPasswordUseCase
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.reset_password.ResetPasswordState
-import com.ivantrykosh.app.budgettracker.client.presentation.main.user.UserState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.my_profile.state.ChangePasswordState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.my_profile.state.DeleteUserState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.my_profile.state.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -23,6 +25,9 @@ import java.security.MessageDigest
 import java.util.Base64
 import javax.inject.Inject
 
+/**
+ * My profile view model
+ */
 @HiltViewModel
 class MyProfileViewModel @Inject constructor(
     private val getUserUseCase: GetUserUseCase,
@@ -76,9 +81,9 @@ class MyProfileViewModel @Inject constructor(
         }
     }
 
-    fun deleteUser() {
+    fun deleteUser(password: String) {
         AppPreferences.jwtToken?.let { token ->
-            deleteUser(token)
+            deleteUser(token, password)
         } ?: run {
             _deleteUserState.value = DeleteUserState(error = "No JWT token found")
         }
@@ -175,9 +180,13 @@ class MyProfileViewModel @Inject constructor(
         }
     }
 
-    private fun deleteUser(token: String) {
+    private fun deleteUser(token: String, password: String) {
         _isLoadingDeleteUser.value = true
-        deleteUserUseCase(token).onEach {result ->
+        val authDto = AuthDto(
+            _getUserState.value.user?.email ?: "",
+            hashPassword(password, _getUserState.value.user?.email ?: ""),
+        )
+        deleteUserUseCase(token, authDto).onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     _deleteUserState.value = DeleteUserState()

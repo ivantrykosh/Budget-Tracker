@@ -19,6 +19,9 @@ import com.ivantrykosh.app.budgettracker.client.databinding.FragmentLoginBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Login fragment
+ */
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
 
@@ -96,7 +99,6 @@ class LoginFragment : Fragment() {
         binding.loginTextInputEmail.clearFocus()
         binding.loginTextInputPassword.clearFocus()
 
-        // todo add error checks and shows
         val email = binding.loginEditTextInputEmail.text?.toString() ?: ""
         val password = binding.loginEditTextInputPassword.text?.toString() ?: ""
 
@@ -161,7 +163,6 @@ class LoginFragment : Fragment() {
         binding.loginEditTextInputPassword.text = null
         binding.loginTextInputPassword.error = null
 
-        // todo add error checks and shows
         val email = binding.loginEditTextInputEmail.text?.toString() ?: ""
         if (!sharedAuthViewModel.checkEmail(email)) {
             binding.loginTextInputEmail.error = resources.getString(R.string.invalid_email)
@@ -181,7 +182,6 @@ class LoginFragment : Fragment() {
     }
 
     private fun resetPassword() {
-        // todo add error checks and shows
         binding.loginCircularProgressIndicator.visibility = View.VISIBLE
 
         requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
@@ -201,11 +201,14 @@ class LoginFragment : Fragment() {
                         resources.getString(R.string.ok)
                     )
                 } else if (sharedAuthViewModel.resetPasswordState.value.error.startsWith("403")) {
-                    showDefaultDialog(
-                        resources.getString(R.string.confirm_email_error_message_with_question),
-                        resources.getString(R.string.confirm_email_message),
-                        resources.getString(R.string.ok)
-                    )
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(resources.getString(R.string.confirm_email_error_title))
+                        .setMessage(resources.getString(R.string.confirm_email_error_message_with_question))
+                        .setPositiveButton(resources.getString(R.string.ok)) { _, _ ->
+                            sendConfirmationEmail()
+                        }
+                        .setNegativeButton(resources.getString(R.string.no)) { _, _ -> }
+                        .show()
                 } else if (sharedAuthViewModel.resetPasswordState.value.error.startsWith("401")) {
                     binding.loginTextInputEmail.error = resources.getString(R.string.invalid_email)
                 } else if (sharedAuthViewModel.resetPasswordState.value.error.contains("HTTP", ignoreCase = true)) {
@@ -226,7 +229,6 @@ class LoginFragment : Fragment() {
     private fun sendConfirmationEmail() {
         binding.loginTextInputEmail.clearFocus()
 
-        // todo add error checks and shows
         val email = binding.loginEditTextInputEmail.text?.toString() ?: ""
         val password = binding.loginEditTextInputPassword.text?.toString() ?: ""
 

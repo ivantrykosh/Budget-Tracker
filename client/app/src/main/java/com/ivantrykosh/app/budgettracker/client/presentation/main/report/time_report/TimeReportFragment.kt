@@ -21,6 +21,9 @@ import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
 
+/**
+ * Time report fragment
+ */
 @AndroidEntryPoint
 class TimeReportFragment : Fragment() {
     private var _binding: FragmentTimeReportBinding? = null
@@ -120,7 +123,6 @@ class TimeReportFragment : Fragment() {
 
         binding.timeReportInputDatesText.keyListener = null
         binding.timeReportInputDatesText.setOnFocusChangeListener { _, isFocus ->
-            // todo add this if to every date and time pickers
             if (isFocus) {
                 if (!datePicker.isAdded) {
                     datePicker.show(parentFragmentManager, "datePicker")
@@ -134,7 +136,6 @@ class TimeReportFragment : Fragment() {
             }
         }
         binding.timeReportInputDatesText.setOnClickListener {
-            // todo add this if to every date and time pickers
             if (!datePicker.isAdded) {
                 datePicker.show(parentFragmentManager, "datePicker")
             }
@@ -188,7 +189,7 @@ class TimeReportFragment : Fragment() {
                         setAccounts()
                     }
                 } else {
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.timeReportError.root.visibility = View.VISIBLE
@@ -251,7 +252,7 @@ class TimeReportFragment : Fragment() {
                             findNavController().navigate(R.id.action_timeReportFragment_to_createdTimeReportFragment)
                         }
                     } else {
-                        if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
+                        if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401") || viewModel.getTransactionsState.value.error.contains("JWT", ignoreCase = true)) {
                             startAuthActivity()
                         } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.timeReportError.root.visibility = View.VISIBLE

@@ -15,8 +15,8 @@ import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transactions_between_dates.GetTransactionsBetweenDates
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.AccountsState
-import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.TransactionsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.AccountsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.TransactionsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -28,6 +28,9 @@ import java.util.NoSuchElementException
 import javax.inject.Inject
 import kotlin.math.absoluteValue
 
+/**
+ * Time report view model
+ */
 @HiltViewModel
 class TimeReportViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
@@ -39,13 +42,13 @@ class TimeReportViewModel @Inject constructor(
     private val _getAccountsState = mutableStateOf(AccountsState())
     val getAccountsState: State<AccountsState> = _getAccountsState
 
-    private val _isLoadingGetAccounts = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetAccounts = MutableLiveData(false)
     val isLoadingGetAccounts: LiveData<Boolean> = _isLoadingGetAccounts
 
     private val _getTransactionsState = mutableStateOf(TransactionsState())
     val getTransactionsState: State<TransactionsState> = _getTransactionsState
 
-    private val _isLoadingGetTransactions = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetTransactions = MutableLiveData(false)
     val isLoadingGetTransactions: LiveData<Boolean> = _isLoadingGetTransactions
 
     private val _dateRange = MutableLiveData(Pair(Date(), Date()))
@@ -119,6 +122,10 @@ class TimeReportViewModel @Inject constructor(
 
     private fun reformatDate(date: Date): String {
         return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+    }
+
+    private fun userFormatDate(date: Date): String {
+        return SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(date)
     }
 
     fun getAccountIdByName(accountName: String): Long? {
@@ -212,10 +219,10 @@ class TimeReportViewModel @Inject constructor(
         // Iterate through transactions and calculate the sum for each date within the selected period
         transactions.forEach { transaction ->
             val dateKey = when (period) {
-                Period.DAY -> reformatDate(transaction.date)
-                Period.WEEK -> reformatDate(getWeekEndDate(transaction.date))
-                Period.MONTH -> reformatDate(getMonthEndDate(transaction.date))
-                Period.YEAR -> reformatDate(getYearEndDate(transaction.date))
+                Period.DAY -> userFormatDate(transaction.date)
+                Period.WEEK -> userFormatDate(getWeekEndDate(transaction.date))
+                Period.MONTH -> userFormatDate(getMonthEndDate(transaction.date))
+                Period.YEAR -> userFormatDate(getYearEndDate(transaction.date))
             }
 
             // Update the sum for the date
@@ -224,7 +231,6 @@ class TimeReportViewModel @Inject constructor(
 
         // Convert the map entries to MPAndroidChart entries
         sumMap.entries.forEachIndexed { index, entry ->
-            val date = entry.key
             val sum = entry.value
             _maxTimeValue = _maxTimeValue.coerceAtLeast(sum.absoluteValue)
             entries.add(Entry(index.toFloat(), sum))
@@ -235,7 +241,6 @@ class TimeReportViewModel @Inject constructor(
         // Create LineDataSet
         val dataSet = LineDataSet(entries, "Transaction Sum")
 
-        // Create LineData and return
         return LineData(dataSet)
     }
 
@@ -252,15 +257,14 @@ class TimeReportViewModel @Inject constructor(
 
             while (calendar.time <= endDate) {
                 val dateKey = when (period) {
-                    Period.DAY -> reformatDate(calendar.time)
-                    Period.WEEK -> reformatDate(getWeekEndDate(calendar.time))
-                    Period.MONTH -> reformatDate(getMonthEndDate(calendar.time))
-                    Period.YEAR -> reformatDate(getYearEndDate(calendar.time))
+                    Period.DAY -> userFormatDate(calendar.time)
+                    Period.WEEK -> userFormatDate(getWeekEndDate(calendar.time))
+                    Period.MONTH -> userFormatDate(getMonthEndDate(calendar.time))
+                    Period.YEAR -> userFormatDate(getYearEndDate(calendar.time))
                 }
 
                 sumMap[dateKey] = 0f
 
-                // Move to the next date
                 calendar.add(getCalendarFieldForPeriod(), 1)
             }
         }

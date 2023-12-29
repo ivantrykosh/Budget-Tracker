@@ -3,8 +3,6 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.report.pdf_re
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.pdf.PdfDocument
-import android.graphics.pdf.PdfDocument.PageInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,12 +24,11 @@ import com.ivantrykosh.app.budgettracker.client.databinding.FragmentPdfReportBin
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.util.Date
 
-
+/**
+ * Pdf report fragment
+ */
 @AndroidEntryPoint
 class PdfReportFragment : Fragment() {
     private var _binding: FragmentPdfReportBinding? = null
@@ -197,7 +194,7 @@ class PdfReportFragment : Fragment() {
                         setAccounts()
                     }
                 } else {
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.pdfReportError.root.visibility = View.VISIBLE
@@ -260,7 +257,7 @@ class PdfReportFragment : Fragment() {
                             inflateLayout()
                         }
                     } else {
-                        if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
+                        if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401") || viewModel.getTransactionsState.value.error.contains("JWT", ignoreCase = true)) {
                             startAuthActivity()
                         } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.pdfReportError.root.visibility = View.VISIBLE
@@ -313,7 +310,6 @@ class PdfReportFragment : Fragment() {
         val barChart = pdfView.rootView.findViewById<BarChart>(R.id.pdf_layout_category_report_barchart)
         barChart.data = barData
         barChart.extraLeftOffset = 70f
-//        barChart.extraRightOffset = 0f
         barChart.description.isEnabled = false
         barChart.xAxis.setDrawLabels(false)
         barChart.xAxis.setDrawGridLines(false)
@@ -330,9 +326,6 @@ class PdfReportFragment : Fragment() {
         barChartLegend.form = Legend.LegendForm.SQUARE
         barChartLegend.setDrawInside(true)
         barChartLegend.isWordWrapEnabled = true
-//        barChartLegend.yOffset = 0f
-//        barChartLegend.xOffset = 0f
-//        barChartLegend.yEntrySpace = 0f
         barChartLegend.textSize = 4f
 
 
@@ -355,44 +348,6 @@ class PdfReportFragment : Fragment() {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         pdfView.draw(Canvas(bitmap))
 
-        PdfGenerator().generatePdf(bitmap)
-    }
-
-    inner class PdfGenerator {
-        fun generatePdf(bitmap: Bitmap) {
-            val pdfDocument = PdfDocument()
-            val pageInfo = PageInfo.Builder(bitmap.width, bitmap.height, 1).create()
-
-            val page = pdfDocument.startPage(pageInfo)
-
-            val canvas = page.canvas
-            canvas.drawBitmap(bitmap, 0f, 0f, null)
-
-            pdfDocument.finishPage(page)
-
-            // Generate a unique filename based on the current time
-            val fileName = resources.getString(R.string.pdf_report_file_name, System.currentTimeMillis().toString())
-
-            try {
-                val directory = File(requireContext().getExternalFilesDir(null), resources.getString(R.string.reports))
-                saveToPdf(pdfDocument, directory, fileName)
-
-                pdfDocument.close()
-
-                Toast.makeText(requireContext(), resources.getString(R.string.report_saved_successful), Toast.LENGTH_SHORT).show()
-            } catch (e: IOException) {
-                Toast.makeText(requireContext(), resources.getString(R.string.report_saved_fail), Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        private fun saveToPdf(pdfDocument: PdfDocument, directory: File, fileName: String) {
-            if (!directory.exists()) {
-                directory.mkdirs()
-            }
-
-            val filePath = File(directory, fileName)
-
-            pdfDocument.writeTo(FileOutputStream(filePath))
-        }
+        viewModel.PdfGenerator(requireContext()).generatePdf(bitmap)
     }
 }

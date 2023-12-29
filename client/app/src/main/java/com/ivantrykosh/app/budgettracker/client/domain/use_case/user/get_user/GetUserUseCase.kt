@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import javax.inject.Inject
 
+/**
+ * Get user use case
+ */
 class GetUserUseCase @Inject constructor(
     private val repository: UserRepository
 ){

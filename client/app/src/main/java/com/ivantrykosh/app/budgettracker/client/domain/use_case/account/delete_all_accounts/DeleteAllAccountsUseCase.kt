@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import javax.inject.Inject
 
+/**
+ * Delete all accounts use case
+ */
 class DeleteAllAccountsUseCase @Inject constructor(
     private val repository: AccountRepository
 ) {

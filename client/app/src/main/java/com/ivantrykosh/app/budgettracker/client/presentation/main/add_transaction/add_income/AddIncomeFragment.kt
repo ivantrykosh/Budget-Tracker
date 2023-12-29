@@ -30,6 +30,9 @@ import java.util.Currency
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Add income fragment
+ */
 @AndroidEntryPoint
 class AddIncomeFragment : Fragment() {
 
@@ -66,7 +69,6 @@ class AddIncomeFragment : Fragment() {
             findNavController().navigate(R.id.action_addIncomeFragment_to_overviewFragment)
         }
 
-        // todo add pref instead of usd
         binding.addIncomeInputValue.prefixText = Constants.CURRENCIES[AppPreferences.currency]
         binding.addIncomeInputValueEditText.filters = arrayOf(InputFilter.LengthFilter(13), DecimalDigitsInputFilter(10, 2))
         binding.addIncomeInputValueEditText.setOnFocusChangeListener { _, hasFocus ->
@@ -91,7 +93,6 @@ class AddIncomeFragment : Fragment() {
             }
         }
 
-        // todo retrieve categories
         val categories = resources.getStringArray(R.array.income_categories)
         val adapterCategory = ArrayAdapter(requireContext(), R.layout.list_item_name_item, categories)
         (binding.addIncomeInputCategory.editText as? AutoCompleteTextView)?.setAdapter(adapterCategory)
@@ -105,11 +106,12 @@ class AddIncomeFragment : Fragment() {
             }
         }
 
-        // todo date picker
         binding.addIncomeInputDateText.keyListener = null
         binding.addIncomeInputDateText.setOnFocusChangeListener { v, isFocus ->
             if (isFocus) {
-                datePicker.show(parentFragmentManager, "datePicker")
+                if (!datePicker.isAdded) {
+                    datePicker.show(parentFragmentManager, "datePicker")
+                }
             } else {
                 if (binding.addIncomeInputDateText.text?.isBlank() != false) {
                     binding.addIncomeInputDate.error = resources.getString(R.string.invalid_date)
@@ -119,10 +121,11 @@ class AddIncomeFragment : Fragment() {
             }
         }
         binding.addIncomeInputDateText.setOnClickListener {
-            datePicker.show(parentFragmentManager, "datePicker")
+            if (!datePicker.isAdded) {
+                datePicker.show(parentFragmentManager, "datePicker")
+            }
         }
         datePicker.addOnPositiveButtonClickListener {
-            // todo retrieve date format
             binding.addIncomeInputDateText.setText(SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(Date(datePicker.selection!!)))
         }
 
@@ -169,7 +172,7 @@ class AddIncomeFragment : Fragment() {
                         setAccounts()
                     }
                 } else {
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.addIncomeError.root.visibility = View.VISIBLE
@@ -216,7 +219,6 @@ class AddIncomeFragment : Fragment() {
                 binding.addIncomeInputAccountText.text.toString(),
                 binding.addIncomeInputCategoryText.text.toString(),
                 binding.addIncomeInputValueEditText.text.toString().toDouble(),
-                // todo retrieve date format
                 viewModel.parseToCorrectDate(binding.addIncomeInputDateText.text.toString()),
                 binding.addIncomeInputFromEdit.text.toString(),
                 binding.addIncomeInputNoteEdit.text.toString()
@@ -238,7 +240,7 @@ class AddIncomeFragment : Fragment() {
                         if (viewModel.createTransactionState.value.error.isBlank()) {
                             Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_added), Toast.LENGTH_SHORT).show()
                             findNavController().navigate(R.id.action_addIncomeFragment_to_overviewFragment)
-                        } else if (viewModel.createTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.createTransactionState.value.error.startsWith("401")) {
+                        } else if (viewModel.createTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.createTransactionState.value.error.startsWith("401") || viewModel.createTransactionState.value.error.contains("JWT", ignoreCase = true)) {
                             startAuthActivity()
                         } else if (viewModel.createTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.addIncomeError.root.visibility = View.VISIBLE

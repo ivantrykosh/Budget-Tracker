@@ -9,7 +9,8 @@ import com.ivantrykosh.app.budgettracker.server.domain.model.Account;
 import com.ivantrykosh.app.budgettracker.server.domain.model.AccountUsers;
 import com.ivantrykosh.app.budgettracker.server.domain.model.User;
 import com.ivantrykosh.app.budgettracker.server.presentation.requests.ChangePasswordRequest;
-import com.ivantrykosh.app.budgettracker.server.application.services.*;
+import com.ivantrykosh.app.budgettracker.server.presentation.requests.RegisterAndLoginRequest;
+import com.ivantrykosh.app.budgettracker.server.presentation.responses.TokenResponse;
 import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
 import com.ivantrykosh.app.budgettracker.server.util.PasswordManager;
 import com.ivantrykosh.app.budgettracker.server.validators.UserValidator;
@@ -19,6 +20,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +51,8 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private EmailSenderService emailSenderService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
     private final UserValidator userValidator = new UserValidator();
     private final Mapper<User, UserDto> mapper = new UserMapper();
     private final String SUBJECT = "New password"; // Email subject
@@ -65,7 +73,7 @@ public class UserController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
         UserDto userDto = mapper.convertToDto(user);
-        logger.info("User data for email" + userDto.getEmail() + " was got successfully");
+        logger.info("User data for email " + userDto.getEmail() + " was got successfully");
         return ResponseEntity.status(HttpStatus.OK).body(userDto);
     }
 
@@ -77,38 +85,48 @@ public class UserController {
      */
     @DeleteMapping("/delete")
     @Transactional
-    public ResponseEntity<String> deleteUser() {
-        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!customUserDetails.isEnabled()) {
-            logger.error("Email " + customUserDetails.getUsername() + " is not verified");
+    public ResponseEntity<String> deleteUser(@RequestBody RegisterAndLoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPasswordHash()));
+
+            if (authentication.isAuthenticated()) {
+                User user = userService.getUserByEmail(loginRequest.getEmail());
+
+                confirmationTokenService.deleteConfirmationTokensByUserId(user.getUserId());
+                logger.info("Confirmation tokens for user " + user.getEmail() + " were deleted");
+
+                List<Account> accounts = accountService.getAccountsByUserId(user.getUserId());
+                for (Account account : accounts) {
+                    transactionService.deleteTransactionsByAccountId(account.getAccountId());
+                    logger.info("Transactions of user " + user.getEmail() + " and account with ID " + account.getAccountId() + " were deleted");
+
+                    AccountUsers accountUsers = accountUsersService.getAccountUsersByAccountId(account.getAccountId());
+                    accountUsersService.deleteAccountUsersById(accountUsers.getAccountUsersId());
+                    logger.info("AccountUsers with ID " + accountUsers.getAccountUsersId() + " of user " + user.getEmail() + " were deleted");
+                }
+
+                accountUsersService.deleteUserIdFromAccountUsers(user.getUserId());
+                logger.info("User with email " + user.getEmail() + " was deleted from AccountUsers");
+
+                accountService.deleteAccountsByUserId(user.getUserId());
+                logger.info("Accounts of user with email " + user.getEmail() + " were deleted");
+
+                userService.deleteUserById(user.getUserId());
+                logger.info("User with email " + user.getEmail() + " was deleted");
+
+                return ResponseEntity.status(HttpStatus.OK).body("User is deleted!");
+            } else {
+                logger.error("Incorrect user data with email " + loginRequest.getEmail());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect user data!");
+            }
+        } catch (DisabledException e) {
+            logger.error("Email " + loginRequest.getEmail() + " is not verified");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email is not verified!");
         }
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userService.getUserByEmail(email);
-
-        confirmationTokenService.deleteConfirmationTokensByUserId(user.getUserId());
-        logger.info("Confirmation tokens for user " + user.getEmail() + " were deleted");
-
-        List<Account> accounts = accountService.getAccountsByUserId(user.getUserId());
-        for (Account account : accounts) {
-            transactionService.deleteTransactionsByAccountId(account.getAccountId());
-            logger.info("Transactions of user " + user.getEmail() + " and account with ID " + account.getAccountId() + " were deleted");
-
-            AccountUsers accountUsers = accountUsersService.getAccountUsersByAccountId(account.getAccountId());
-            accountUsersService.deleteAccountUsersById(accountUsers.getAccountUsersId());
-            logger.info("AccountUsers with ID " + accountUsers.getAccountUsersId() + " of user " + user.getEmail() + " were deleted");
+        catch (AuthenticationException e) {
+            logger.error("Authentication failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
         }
-
-        accountUsersService.deleteUserIdFromAccountUsers(user.getUserId());
-        logger.info("User with email " + user.getEmail() + " was deleted from AccountUsers");
-
-        accountService.deleteAccountsByUserId(user.getUserId());
-        logger.info("Accounts of user with email " + user.getEmail() + " were deleted");
-
-        userService.deleteUserById(user.getUserId());
-        logger.info("User with email " + user.getEmail() + " was deleted");
-
-        return ResponseEntity.status(HttpStatus.OK).body("User is deleted!");
     }
 
     /**
@@ -185,76 +203,58 @@ public class UserController {
      * @return The HTML email content.
      */
     private String buildPasswordEmail(String newPassword) {
-        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
-                "\n" +
-                "<span style=\"display:none;font-size:1px;color:#fff;max-height:0\"></span>\n" +
-                "\n" +
-                "  <table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;min-width:100%;width:100%!important\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
-                "    <tbody><tr>\n" +
-                "      <td width=\"100%\" height=\"53\" bgcolor=\"#0b0c0c\">\n" +
-                "        \n" +
-                "        <table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;max-width:580px\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" align=\"center\">\n" +
-                "          <tbody><tr>\n" +
-                "            <td width=\"70\" bgcolor=\"#0b0c0c\" valign=\"middle\">\n" +
-                "                <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse\">\n" +
-                "                  <tbody><tr>\n" +
-                "                    <td style=\"padding-left:10px\">\n" +
-                "                  \n" +
-                "                    </td>\n" +
-                "                    <td style=\"font-size:28px;line-height:1.315789474;Margin-top:4px;padding-left:10px\">\n" +
-                "                      <span style=\"font-family:Helvetica,Arial,sans-serif;font-weight:700;color:#ffffff;text-decoration:none;vertical-align:top;display:inline-block\">New Password</span>\n" +
-                "                    </td>\n" +
-                "                  </tr>\n" +
-                "                </tbody></table>\n" +
-                "              </a>\n" +
-                "            </td>\n" +
-                "          </tr>\n" +
-                "        </tbody></table>\n" +
-                "        \n" +
-                "      </td>\n" +
-                "    </tr>\n" +
-                "  </tbody></table>\n" +
-                "  <table role=\"presentation\" class=\"m_-6186904992287805515content\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;max-width:580px;width:100%!important\" width=\"100%\">\n" +
-                "    <tbody><tr>\n" +
-                "      <td width=\"10\" height=\"10\" valign=\"middle\"></td>\n" +
-                "      <td>\n" +
-                "        \n" +
-                "                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse\">\n" +
-                "                  <tbody><tr>\n" +
-                "                    <td bgcolor=\"#1D70B8\" width=\"100%\" height=\"10\"></td>\n" +
-                "                  </tr>\n" +
-                "                </tbody></table>\n" +
-                "        \n" +
-                "      </td>\n" +
-                "      <td width=\"10\" valign=\"middle\" height=\"10\"></td>\n" +
-                "    </tr>\n" +
-                "  </tbody></table>\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "  <table role=\"presentation\" class=\"m_-6186904992287805515content\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;max-width:580px;width:100%!important\" width=\"100%\">\n" +
-                "    <tbody><tr>\n" +
-                "      <td height=\"30\"><br></td>\n" +
-                "    </tr>\n" +
-                "    <tr>\n" +
-                "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
-                "      <td style=\"font-family:Helvetica,Arial,sans-serif;font-size:19px;line-height:1.315789474;max-width:560px\">\n" +
-                "        \n" +
-                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Your password has been reset. Here is your new password:</p>\n" +
-                "            <blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\">\n" +
-                "                <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">" + newPassword + "</p>\n" +
-                "            </blockquote>\n" +
-                "            <p>For security reasons, please change your password after logging in.</p>" +
-                "        \n" +
-                "      </td>\n" +
-                "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
-                "    </tr>\n" +
-                "    <tr>\n" +
-                "      <td height=\"30\"><br></td>\n" +
-                "    </tr>\n" +
-                "  </tbody></table><div class=\"yj6qo\"></div><div class=\"adL\">\n" +
-                "\n" +
-                "</div></div>";
+        return """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Password Reset</title>
+                  <style>
+                    body {
+                      font-family: Arial, sans-serif;
+                      margin: 0;
+                      padding: 0;
+                      background-color: #f4f4f4;
+                    }
+                    .container {
+                      max-width: 600px;
+                      margin: 20px auto;
+                      background-color: #ffffff;
+                      padding: 20px;
+                      border-radius: 8px;
+                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                      text-align: center; /* Center-align text within the container */
+                    }
+                    .header {
+                      margin-bottom: 20px;
+                    }
+                    .content {
+                      margin-bottom: 30px;
+                    }
+                    .footer {
+                      margin-top: 20px;
+                      color: #777777;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <div class="header">
+                      <h2>Password Reset</h2>
+                    </div>
+                    <div class="content">
+                      <p>Your password has been reset. Here is your new password:</p>
+                      <p><strong>%s</strong></p>
+                      <p>For security reasons, please change your password after logging in.</p>
+                    </div>
+                    <div class="footer">
+                      <p>Budgetracker</p>
+                    </div>
+                  </div>
+                </body>
+                </html>
+                """.formatted(newPassword);
     }
 
 }

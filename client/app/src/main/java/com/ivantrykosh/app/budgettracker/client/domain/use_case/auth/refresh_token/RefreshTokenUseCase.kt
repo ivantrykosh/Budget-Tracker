@@ -8,6 +8,9 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * Refresh JWT use case
+ */
 class RefreshTokenUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {

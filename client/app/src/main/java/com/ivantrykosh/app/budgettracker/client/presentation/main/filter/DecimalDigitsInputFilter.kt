@@ -4,6 +4,9 @@ import android.text.InputFilter
 import android.text.Spanned
 import java.util.regex.Pattern
 
+/**
+ * Decimal digits input filter for filtering decimal numbers
+ */
 class DecimalDigitsInputFilter(
     private val digitsBeforePoint: Int,
     private val digitsAfterPoint: Int,

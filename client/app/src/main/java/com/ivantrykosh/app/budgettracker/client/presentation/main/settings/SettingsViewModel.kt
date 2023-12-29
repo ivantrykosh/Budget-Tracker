@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.text.format.DateFormat
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -16,22 +15,21 @@ import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.delete_all_accounts.DeleteAllAccountsUseCase
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.AccountsState
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.DeleteAccountState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.AccountsState
 import com.ivantrykosh.app.budgettracker.client.presentation.main.settings.notification.DailyReminderReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Calendar
-import java.util.Currency
 import java.util.Locale
 import javax.inject.Inject
 
-
+/**
+ * Settings view model
+ */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val deleteAllAccountsUseCase: DeleteAllAccountsUseCase,
@@ -40,7 +38,7 @@ class SettingsViewModel @Inject constructor(
     private val _deleteAllAccountsState = mutableStateOf(AccountsState())
     val deleteAllAccountsState: State<AccountsState> = _deleteAllAccountsState
 
-    private val _isLoadingDeleteAllAccounts = MutableLiveData<Boolean>(false)
+    private val _isLoadingDeleteAllAccounts = MutableLiveData(false)
     val isLoadingDeleteAllAccounts: LiveData<Boolean> = _isLoadingDeleteAllAccounts
 
     private val _currency = MutableLiveData(AppPreferences.currency)
@@ -71,19 +69,6 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun setDailyReminderTime(hours: Int, minutes: Int, locale: Locale) {
-//        val calendar = Calendar.getInstance().apply {
-//            set(Calendar.HOUR_OF_DAY, hours)
-//            set(Calendar.MINUTE, minutes)
-//        }
-//
-//        val pattern = DateFormat.getBestDateTimePattern(locale, "Hm")
-//        val simpleDateFormat = SimpleDateFormat(pattern, locale)
-//
-//        val time = simpleDateFormat.format(calendar.time)
-//
-//        AppPreferences.reminderTime = time
-//        _dailyReminderTime.value = time
-
         val time = LocalTime.of(hours, minutes)
         val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale)
 
@@ -96,13 +81,6 @@ class SettingsViewModel @Inject constructor(
     private fun deleteDailyReminderTime() {
         _dailyReminderTime.value = null
         AppPreferences.reminderTime = null
-    }
-
-    private fun getCurrencySymbol(currency: String): String {
-        return when (currency) {
-            "UAH" -> "₴"
-            else -> Currency.getInstance(currency).symbol
-        }
     }
 
     fun setCurrency(currencyWithSymbol: String) {

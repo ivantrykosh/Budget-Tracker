@@ -18,6 +18,9 @@ import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * My profile fragment
+ */
 @AndroidEntryPoint
 class MyProfileFragment : Fragment() {
 
@@ -97,6 +100,77 @@ class MyProfileFragment : Fragment() {
         binding.myProfileError.errorOk.setOnClickListener {
             binding.myProfileError.root.visibility = View.GONE
         }
+
+        // Listeners for password dialog
+        binding.myProfilePasswordDialog.passwordEditTextInputPassword.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                if (!viewModel.checkPassword(binding.myProfilePasswordDialog.passwordEditTextInputPassword.text.toString())) {
+                    binding.myProfilePasswordDialog.passwordTextInputPassword.error = resources.getString(R.string.invalid_password)
+                } else {
+                    binding.myProfilePasswordDialog.passwordTextInputPassword.error = null
+                }
+                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(binding.myProfilePasswordDialog.passwordTextInputPassword.windowToken, 0)
+            }
+        }
+
+        binding.myProfilePasswordDialog.passwordTextOk.setOnClickListener {
+            binding.myProfilePasswordDialog.passwordEditTextInputPassword.clearFocus()
+
+            if (!viewModel.checkPassword(binding.myProfilePasswordDialog.passwordEditTextInputPassword.text.toString())) {
+                binding.myProfilePasswordDialog.passwordTextInputPassword.error = resources.getString(R.string.invalid_password)
+            } else {
+                deleteAll(binding.myProfilePasswordDialog.passwordEditTextInputPassword.text.toString())
+                binding.myProfilePasswordDialog.root.visibility = View.GONE
+            }
+        }
+
+        binding.myProfilePasswordDialog.changePasswordTextCancel.setOnClickListener {
+            binding.myProfilePasswordDialog.root.visibility = View.GONE
+        }
+
+        // Listeners for change password dialog
+        binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString())) {
+                    binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = resources.getString(R.string.invalid_password)
+                } else {
+                    binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = null
+                }
+                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.windowToken, 0)
+            }
+        }
+
+        binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())) {
+                    binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = resources.getString(R.string.invalid_password)
+                } else {
+                    binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = null
+                }
+                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.windowToken, 0)
+            }
+        }
+
+        binding.myProfileChangePasswordDialog.changePasswordTextOk.setOnClickListener {
+            binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.clearFocus()
+            binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.clearFocus()
+
+            if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString())) {
+                binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = resources.getString(R.string.invalid_password)
+            } else if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())) {
+                binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = resources.getString(R.string.invalid_password)
+            } else {
+                changePassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString(), binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())
+                binding.myProfileChangePasswordDialog.root.visibility = View.GONE
+            }
+        }
+
+        binding.myProfileChangePasswordDialog.changePasswordTextCancel.setOnClickListener {
+            binding.myProfileChangePasswordDialog.root.visibility = View.GONE
+        }
     }
 
     private fun getUser() {
@@ -139,48 +213,6 @@ class MyProfileFragment : Fragment() {
         binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = null
         binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text = null
         binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text = null
-
-        binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString())) {
-                    binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = resources.getString(R.string.invalid_password)
-                } else {
-                    binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = null
-                }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.windowToken, 0)
-            }
-        }
-
-        binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())) {
-                    binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = resources.getString(R.string.invalid_password)
-                } else {
-                    binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = null
-                }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.windowToken, 0)
-            }
-        }
-
-        binding.myProfileChangePasswordDialog.changePasswordTextOk.setOnClickListener {
-            binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.clearFocus()
-            binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.clearFocus()
-
-            if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString())) {
-                binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = resources.getString(R.string.invalid_password)
-            } else if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())) {
-                binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = resources.getString(R.string.invalid_password)
-            } else {
-                changePassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString(), binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())
-                binding.myProfileChangePasswordDialog.root.visibility = View.GONE
-            }
-        }
-
-        binding.myProfileChangePasswordDialog.changePasswordTextCancel.setOnClickListener {
-            binding.myProfileChangePasswordDialog.root.visibility = View.GONE
-        }
     }
 
     private fun changePassword(password: String, newPassword: String) {
@@ -270,11 +302,7 @@ class MyProfileFragment : Fragment() {
                     binding.myProfileError.root.visibility = View.VISIBLE
                     binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
                     binding.myProfileError.errorText.text = resources.getString(R.string.invalid_email)
-                } else if (viewModel.resetPasswordState.value.error.contains(
-                        "HTTP",
-                        ignoreCase = true
-                    )
-                ) {
+                } else if (viewModel.resetPasswordState.value.error.contains("HTTP", ignoreCase = true)) {
                     binding.myProfileError.root.visibility = View.VISIBLE
                     binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
                     binding.myProfileError.errorText.text =
@@ -299,19 +327,24 @@ class MyProfileFragment : Fragment() {
             .setTitle(resources.getString(R.string.delete_all_data_question_title))
             .setMessage(resources.getString(R.string.delete_all_data_question_message))
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                deleteAll()
+
+                binding.myProfileError.root.visibility = View.GONE
+                binding.myProfilePasswordDialog.root.visibility = View.VISIBLE
+
+                binding.myProfilePasswordDialog.passwordTextInputPassword.error = null
+                binding.myProfilePasswordDialog.passwordEditTextInputPassword.text = null
             }
             .setNegativeButton(resources.getString(R.string.no)) { _, _ -> }
             .show()
     }
 
-    private fun deleteAll() {
+    private fun deleteAll(password: String) {
         binding.root.isRefreshing = true
         binding.myProfileError.root.visibility = View.GONE
 
         requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
 
-        viewModel.deleteUser()
+        viewModel.deleteUser(password)
         viewModel.isLoadingDeleteUser.observe(requireActivity()) { isLoading ->
             if (!isLoading) {
                 requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
@@ -321,8 +354,12 @@ class MyProfileFragment : Fragment() {
                     Toast.makeText(requireContext(), resources.getString(R.string.all_data_was_deleted), Toast.LENGTH_LONG).show()
                     startAuthActivity()
                 } else {
-                    if (viewModel.deleteUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.deleteUserState.value.error.startsWith("401") || viewModel.deleteUserState.value.error.contains("JWT", ignoreCase = true)) {
+                    if (viewModel.deleteUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.deleteUserState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
+                    } else if (viewModel.deleteUserState.value.error.startsWith("401")) {
+                        binding.myProfileError.root.visibility = View.VISIBLE
+                        binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
+                        binding.myProfileError.errorText.text = resources.getString(R.string.incorrect_password)
                     } else if (viewModel.deleteUserState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.myProfileError.root.visibility = View.VISIBLE
                         binding.myProfileError.errorTitle.text = resources.getString(R.string.error)

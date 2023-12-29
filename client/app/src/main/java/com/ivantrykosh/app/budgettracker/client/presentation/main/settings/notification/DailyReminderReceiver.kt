@@ -14,6 +14,9 @@ import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.presentation.splash_screen.SplashScreenActivity
 
+/**
+ * Daily reminder receiver
+ */
 class DailyReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d("DailyReminderReceiver", "Received broadcast")
@@ -28,14 +31,14 @@ class DailyReminderReceiver : BroadcastReceiver() {
 
     private fun showNotification(context: Context, title: String, content: String) {
         Log.d("DailyReminderReceiver", "Start show notification")
-        // Create an explicit intent for the MainActivity
+        // Create an explicit intent for the SplashScreenActivity
         val mainIntent = Intent(context, SplashScreenActivity::class.java)
         mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_IMMUTABLE)
 
         // Build the notification
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(context, Constants.Notification.CHANNEL_ID)
-            .setSmallIcon(R.drawable.app_icon_24) // Replace with your app's icon
+            .setSmallIcon(R.drawable.app_icon_24)
             .setContentTitle(title)
             .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -49,7 +52,7 @@ class DailyReminderReceiver : BroadcastReceiver() {
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            notificationManager.notify(1, builder.build()) // Use a unique notification ID
+            notificationManager.notify(1, builder.build())
         }
     }
 }

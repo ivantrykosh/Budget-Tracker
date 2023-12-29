@@ -1,6 +1,10 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.pdf_report
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.pdf.PdfDocument
+import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -14,16 +18,20 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transactions_between_dates.GetTransactionsBetweenDates
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.AccountsState
-import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.TransactionsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.AccountsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.TransactionsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -32,6 +40,9 @@ import java.util.NoSuchElementException
 import javax.inject.Inject
 import kotlin.math.absoluteValue
 
+/**
+ * Pdf report view model
+ */
 @HiltViewModel
 class PdfReportViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
@@ -42,13 +53,13 @@ class PdfReportViewModel @Inject constructor(
     private val _getAccountsState = mutableStateOf(AccountsState())
     val getAccountsState: State<AccountsState> = _getAccountsState
 
-    private val _isLoadingGetAccounts = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetAccounts = MutableLiveData(false)
     val isLoadingGetAccounts: LiveData<Boolean> = _isLoadingGetAccounts
 
     private val _getTransactionsState = mutableStateOf(TransactionsState())
     val getTransactionsState: State<TransactionsState> = _getTransactionsState
 
-    private val _isLoadingGetTransactions = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetTransactions = MutableLiveData(false)
     val isLoadingGetTransactions: LiveData<Boolean> = _isLoadingGetTransactions
 
     private val _dateRange = MutableLiveData(Pair(Date(), Date()))
@@ -59,10 +70,6 @@ class PdfReportViewModel @Inject constructor(
     }
 
     private var period: Period = Period.DAY
-
-    private var _labels = mutableSetOf<String>()
-    val labels
-        get() = _labels
 
     private var _maxCategoryValue = 0f
     val maxCategoryValue
@@ -128,7 +135,7 @@ class PdfReportViewModel @Inject constructor(
         return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
     }
 
-    fun userFormatDate(date: Date): String {
+    private fun userFormatDate(date: Date): String {
         return SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(date)
     }
 
@@ -223,10 +230,10 @@ class PdfReportViewModel @Inject constructor(
         // Iterate through transactions and calculate the sum for each date within the selected period
         transactions.forEach { transaction ->
             val dateKey = when (period) {
-                Period.DAY -> reformatDate(transaction.date)
-                Period.WEEK -> reformatDate(getWeekEndDate(transaction.date))
-                Period.MONTH -> reformatDate(getMonthEndDate(transaction.date))
-                Period.YEAR -> reformatDate(getYearEndDate(transaction.date))
+                Period.DAY -> userFormatDate(transaction.date)
+                Period.WEEK -> userFormatDate(getWeekEndDate(transaction.date))
+                Period.MONTH -> userFormatDate(getMonthEndDate(transaction.date))
+                Period.YEAR -> userFormatDate(getYearEndDate(transaction.date))
             }
 
             // Update the sum for the date
@@ -235,18 +242,13 @@ class PdfReportViewModel @Inject constructor(
 
         // Convert the map entries to MPAndroidChart entries
         sumMap.entries.forEachIndexed { index, entry ->
-            val date = entry.key
             val sum = entry.value
             _maxTimeValue = _maxTimeValue.coerceAtLeast(sum.absoluteValue)
             entries.add(Entry(index.toFloat(), sum))
         }
 
-        _labels = sumMap.keys
-
-        // Create LineDataSet
         val dataSet = LineDataSet(entries, "Transaction Sum")
 
-        // Create LineData and return
         return LineData(dataSet)
     }
 
@@ -263,15 +265,14 @@ class PdfReportViewModel @Inject constructor(
 
             while (calendar.time <= endDate) {
                 val dateKey = when (period) {
-                    Period.DAY -> reformatDate(calendar.time)
-                    Period.WEEK -> reformatDate(getWeekEndDate(calendar.time))
-                    Period.MONTH -> reformatDate(getMonthEndDate(calendar.time))
-                    Period.YEAR -> reformatDate(getYearEndDate(calendar.time))
+                    Period.DAY -> userFormatDate(calendar.time)
+                    Period.WEEK -> userFormatDate(getWeekEndDate(calendar.time))
+                    Period.MONTH -> userFormatDate(getMonthEndDate(calendar.time))
+                    Period.YEAR -> userFormatDate(getYearEndDate(calendar.time))
                 }
 
                 sumMap[dateKey] = 0f
 
-                // Move to the next date
                 calendar.add(getCalendarFieldForPeriod(), 1)
             }
         }
@@ -333,5 +334,43 @@ class PdfReportViewModel @Inject constructor(
 
     private fun getRandomColor(): Int {
         return Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
+    }
+
+    inner class PdfGenerator(private val context: Context) {
+        fun generatePdf(bitmap: Bitmap) {
+            val pdfDocument = PdfDocument()
+            val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, 1).create()
+
+            val page = pdfDocument.startPage(pageInfo)
+
+            val canvas = page.canvas
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
+
+            pdfDocument.finishPage(page)
+
+            // Generate a unique filename based on the current time
+            val fileName = context.resources.getString(R.string.pdf_report_file_name, System.currentTimeMillis().toString())
+
+            try {
+                val directory = File(context.getExternalFilesDir(null), context.resources.getString(R.string.reports))
+                saveToPdf(pdfDocument, directory, fileName)
+
+                pdfDocument.close()
+
+                Toast.makeText(context, context.resources.getString(R.string.report_saved_successful), Toast.LENGTH_SHORT).show()
+            } catch (e: IOException) {
+                Toast.makeText(context,  context.resources.getString(R.string.report_saved_fail), Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        private fun saveToPdf(pdfDocument: PdfDocument, directory: File, fileName: String) {
+            if (!directory.exists()) {
+                directory.mkdirs()
+            }
+
+            val filePath = File(directory, fileName)
+
+            pdfDocument.writeTo(FileOutputStream(filePath))
+        }
     }
 }

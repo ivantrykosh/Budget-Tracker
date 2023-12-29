@@ -4,9 +4,10 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import java.util.Currency
-import java.util.Locale
 
+/**
+ * Object for saved and retrieved app preferences
+ */
 object AppPreferences {
     private var sharedPreferences: SharedPreferences? = null
 

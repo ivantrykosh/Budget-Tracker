@@ -25,6 +25,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+/**
+ * Object with provided APIs and repositories
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {

@@ -4,6 +4,9 @@ import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AccountDto
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AccountWithAccountUsersDto
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
 
+/**
+ * Account repository interface
+ */
 interface AccountRepository {
 
     suspend fun createAccount(token: String, request: ChangeAccountDto)

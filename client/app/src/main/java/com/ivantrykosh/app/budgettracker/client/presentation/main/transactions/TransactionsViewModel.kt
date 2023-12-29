@@ -17,7 +17,11 @@ import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.dele
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transaction.GetTransactionUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transactions_between_dates.GetTransactionsBetweenDates
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.update_transaction.UpdateTransactionUseCase
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.AccountsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.AccountsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.DeleteTransactionState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.GetTransactionState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.TransactionsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.UpdateTransactionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -29,6 +33,9 @@ import java.util.Locale
 import java.util.NoSuchElementException
 import javax.inject.Inject
 
+/**
+ * Transactions view model
+ */
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
@@ -41,31 +48,31 @@ class TransactionsViewModel @Inject constructor(
     private val _getAccountsState = mutableStateOf(AccountsState())
     val getAccountsState: State<AccountsState> = _getAccountsState
 
-    private val _isLoadingGetAccounts = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetAccounts = MutableLiveData(false)
     val isLoadingGetAccounts: LiveData<Boolean> = _isLoadingGetAccounts
 
     private val _getTransactionsState = mutableStateOf(TransactionsState())
     val getTransactionsState: State<TransactionsState> = _getTransactionsState
 
-    private val _isLoadingGetTransactions = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetTransactions = MutableLiveData(false)
     val isLoadingGetTransactions: LiveData<Boolean> = _isLoadingGetTransactions
 
     private val _getTransactionState = mutableStateOf(GetTransactionState())
     val getTransactionState: State<GetTransactionState> = _getTransactionState
 
-    private val _isLoadingGetTransaction = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetTransaction = MutableLiveData(false)
     val isLoadingGetTransaction: LiveData<Boolean> = _isLoadingGetTransaction
 
     private val _updateTransactionState = mutableStateOf(UpdateTransactionState())
     val updateTransactionState: State<UpdateTransactionState> = _updateTransactionState
 
-    private val _isLoadingUpdateTransaction = MutableLiveData<Boolean>(false)
+    private val _isLoadingUpdateTransaction = MutableLiveData(false)
     val isLoadingUpdateTransaction: LiveData<Boolean> = _isLoadingUpdateTransaction
 
     private val _deleteTransactionState = mutableStateOf(DeleteTransactionState())
     val deleteTransactionState: State<DeleteTransactionState> = _deleteTransactionState
 
-    private val _isLoadingDeleteTransaction = MutableLiveData<Boolean>(false)
+    private val _isLoadingDeleteTransaction = MutableLiveData(false)
     val isLoadingDeleteTransaction: LiveData<Boolean> = _isLoadingDeleteTransaction
 
     private val _currentDate = MutableLiveData(Date())

@@ -3,6 +3,9 @@ package com.ivantrykosh.app.budgettracker.client.domain.repository
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TokenDto
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
 
+/**
+ * Auth repository interface
+ */
 interface AuthRepository {
 
     suspend fun signUp(request: AuthDto)

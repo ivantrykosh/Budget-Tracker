@@ -7,7 +7,9 @@ import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import dagger.hilt.android.HiltAndroidApp
 
-
+/**
+ * Application class
+ */
 @HiltAndroidApp
 class BudgetTrackerApplication: Application() {
     override fun onCreate() {

@@ -11,6 +11,9 @@ import com.ivantrykosh.app.budgettracker.client.databinding.ActivityAuthBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.login.LoginFragment
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Auth activity
+ */
 @AndroidEntryPoint
 class AuthActivity : AppCompatActivity() {
 

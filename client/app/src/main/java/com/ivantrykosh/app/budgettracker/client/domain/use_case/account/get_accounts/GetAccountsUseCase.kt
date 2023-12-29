@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import javax.inject.Inject
 
+/**
+ * Get all user accounts use case
+ */
 class GetAccountsUseCase @Inject constructor(
     private val repository: AccountRepository
 ) {

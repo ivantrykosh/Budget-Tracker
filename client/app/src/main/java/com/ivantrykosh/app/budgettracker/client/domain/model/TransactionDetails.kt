@@ -2,6 +2,9 @@ package com.ivantrykosh.app.budgettracker.client.domain.model
 
 import java.util.Date
 
+/**
+ * Transaction details model
+ */
 data class TransactionDetails(
     val transactionId: Long?,
     val accountName: String,

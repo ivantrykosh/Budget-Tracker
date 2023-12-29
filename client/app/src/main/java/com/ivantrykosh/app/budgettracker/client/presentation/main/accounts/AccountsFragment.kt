@@ -25,6 +25,9 @@ import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.Accoun
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 
+/**
+ * Account fragment
+ */
 @AndroidEntryPoint
 class AccountsFragment : Fragment(), OnAccountClickListener {
     private var _binding: FragmentAccountsBinding? = null
@@ -36,7 +39,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
         val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
         val format = DecimalFormat(pattern)
         format.maximumFractionDigits = 2
-//        format.currency = Currency.getInstance(AppPreferences.currency)
         return format
     }
 
@@ -64,7 +66,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
         binding.accountsTopAppBar.setNavigationOnClickListener {
             (activity as MainActivity).openDrawer()
         }
-
 
         binding.accountsTopAppBar.setOnMenuItemClickListener { menuItem ->
             binding.accountsDialog.root.visibility = View.GONE
@@ -268,19 +269,19 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                 requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 binding.root.isRefreshing = false
                 if (viewModel.getAccountsState.value.error.isBlank()) {
+                    val adapter = AccountItemAdapter(
+                        requireContext(),
+                        viewModel.getAccountsState.value.accounts
+                    )
+                    adapter.setOnAccountClickListener(this)
+                    binding.accountsRecyclerView.adapter = adapter
+                    binding.accountsRecyclerView.setHasFixedSize(true)
+
                     if (viewModel.getAccountsState.value.accounts.isEmpty()) {
                         Toast.makeText(requireContext(), R.string.you_do_not_have_any_accounts, Toast.LENGTH_SHORT).show()
-                    } else {
-                        val adapter = AccountItemAdapter(
-                            requireContext(),
-                            viewModel.getAccountsState.value.accounts
-                        )
-                        adapter.setOnAccountClickListener(this)
-                        binding.accountsRecyclerView.adapter = adapter
-                        binding.accountsRecyclerView.setHasFixedSize(true)
                     }
                 } else {
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.accountsError.root.visibility = View.VISIBLE
@@ -326,7 +327,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                         if (viewModel.getAccountState.value.account!!.userId == (viewModel.getUserState.value.user?.userId ?: -1)) {
                             binding.accountsDialog.accountDetailsEmailsLayout.visibility = View.VISIBLE
                             binding.accountsDialog.accountDetailsDeleteAccount.visibility = View.VISIBLE
-//                            binding.accountsDialog.accountDetailsInputNameEditText.isClickable = true
                             binding.accountsDialog.accountDetailsInputNameEditText.isFocusableInTouchMode = true
                             binding.accountsDialog.accountDetailsInputNameEditText.isFocusable = true
                             binding.accountsDialog.accountDetailsTextInputEmail1.error = null
@@ -342,13 +342,12 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                                 viewModel.getAccountState.value.account!!.email4
                             )
                         } else {
-//                            binding.accountsDialog.accountDetailsInputNameEditText.isClickable = false
                             binding.accountsDialog.accountDetailsInputNameEditText.isFocusable = false
                         }
                         binding.accountsDialog.root.requestLayout()
                     }
                 } else {
-                    if (viewModel.getAccountState.value.error.startsWith("403") || viewModel.getAccountState.value.error.startsWith("401")) {
+                    if (viewModel.getAccountState.value.error.startsWith("403") || viewModel.getAccountState.value.error.startsWith("401") || viewModel.getAccountState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getAccountState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.accountsError.root.visibility = View.VISIBLE
@@ -401,7 +400,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                         Toast.makeText(requireContext(), resources.getString(R.string.account_was_created), Toast.LENGTH_SHORT).show()
                         refresh()
                     } else {
-                        if (viewModel.createAccountState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.createAccountState.value.error.startsWith("401")) {
+                        if (viewModel.createAccountState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.createAccountState.value.error.startsWith("401") || viewModel.createAccountState.value.error.contains("JWT", ignoreCase = true)) {
                             startAuthActivity()
                         } else if (viewModel.createAccountState.value.error.startsWith("400")) {
                             binding.accountsError.root.visibility = View.VISIBLE
@@ -472,11 +471,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                             ).show()
                             refresh()
                         } else {
-                            if (viewModel.updateAccountState.value.error.contains(
-                                    "Email is not verified",
-                                    ignoreCase = true
-                                ) || viewModel.updateAccountState.value.error.startsWith("401")
-                            ) {
+                            if (viewModel.updateAccountState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.updateAccountState.value.error.startsWith("401") || viewModel.updateAccountState.value.error.contains("JWT", ignoreCase = true)) {
                                 startAuthActivity()
                             } else if (viewModel.updateAccountState.value.error.startsWith("400")) {
                                 binding.accountsError.root.visibility = View.VISIBLE
@@ -486,11 +481,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                                 binding.accountsError.root.visibility = View.VISIBLE
                                 binding.accountsError.errorTitle.text = resources.getString(R.string.error)
                                 binding.accountsError.errorText.text = resources.getString(R.string.invalid_user_email)
-                            } else if (viewModel.updateAccountState.value.error.contains(
-                                    "HTTP",
-                                    ignoreCase = true
-                                )
-                            ) {
+                            } else if (viewModel.updateAccountState.value.error.contains("HTTP", ignoreCase = true)) {
                                 binding.accountsError.root.visibility = View.VISIBLE
                                 binding.accountsError.errorTitle.text =
                                     resources.getString(R.string.error)
@@ -535,16 +526,9 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                         Toast.makeText(requireContext(), R.string.account_was_deleted, Toast.LENGTH_SHORT).show()
                         refresh()
                     } else {
-                        if (viewModel.deleteAccountState.value.error.startsWith("403") || viewModel.deleteAccountState.value.error.startsWith(
-                                "401"
-                            )
-                        ) {
+                        if (viewModel.deleteAccountState.value.error.startsWith("403") || viewModel.deleteAccountState.value.error.startsWith("401") || viewModel.deleteAccountState.value.error.contains("JWT", ignoreCase = true)) {
                             startAuthActivity()
-                        } else if (viewModel.deleteAccountState.value.error.contains(
-                                "HTTP",
-                                ignoreCase = true
-                            )
-                        ) {
+                        } else if (viewModel.deleteAccountState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.accountsError.root.visibility = View.VISIBLE
                             binding.accountsError.errorTitle.text =
                                 resources.getString(R.string.error)

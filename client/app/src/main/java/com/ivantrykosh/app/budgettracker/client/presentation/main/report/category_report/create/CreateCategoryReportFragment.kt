@@ -15,7 +15,9 @@ import com.ivantrykosh.app.budgettracker.client.databinding.FragmentCreatedCateg
 import com.ivantrykosh.app.budgettracker.client.presentation.main.report.category_report.CategoryReportViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
-
+/**
+ * Create category report fragment
+ */
 @AndroidEntryPoint
 class CreateCategoryReportFragment : Fragment() {
     private var _binding: FragmentCreatedCategoryReportBinding? = null

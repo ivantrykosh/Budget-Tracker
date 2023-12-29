@@ -5,6 +5,9 @@ import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
 import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRepository
 import javax.inject.Inject
 
+/**
+ * Transaction repository implementation
+ */
 class TransactionRepositoryImpl @Inject constructor(
     private val api: TransactionApi
 ) : TransactionRepository {

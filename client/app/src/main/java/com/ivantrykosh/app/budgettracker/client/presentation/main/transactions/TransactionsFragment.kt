@@ -2,7 +2,6 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.transactions
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -17,7 +16,6 @@ import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -33,11 +31,13 @@ import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.Transa
 import com.ivantrykosh.app.budgettracker.client.presentation.main.filter.DecimalDigitsInputFilter
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
-import java.util.Currency
 import java.util.Date
 import java.util.Locale
 import kotlin.math.absoluteValue
 
+/**
+ * Transactions fragment
+ */
 @AndroidEntryPoint
 class TransactionsFragment : Fragment(), OnTransactionClickListener {
     private var _binding: FragmentTransactionsBinding? = null
@@ -153,9 +153,11 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
         }
 
         binding.transactionsDialog.transactionDetailsInputDateText.keyListener = null
-        binding.transactionsDialog.transactionDetailsInputDateText.setOnFocusChangeListener { v, isFocus ->
+        binding.transactionsDialog.transactionDetailsInputDateText.setOnFocusChangeListener { _, isFocus ->
             if (isFocus) {
-                datePicker.show(parentFragmentManager, "datePicker")
+                if (!datePicker.isAdded) {
+                    datePicker.show(parentFragmentManager, "datePicker")
+                }
             } else {
                 if (binding.transactionsDialog.transactionDetailsInputDateText.text?.isBlank() != false) {
                     binding.transactionsDialog.transactionDetailsInputDate.error = resources.getString(R.string.invalid_date)
@@ -165,7 +167,9 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
             }
         }
         binding.transactionsDialog.transactionDetailsInputDateText.setOnClickListener {
-            datePicker.show(parentFragmentManager, "datePicker")
+            if (!datePicker.isAdded) {
+                datePicker.show(parentFragmentManager, "datePicker")
+            }
         }
         datePicker.addOnPositiveButtonClickListener {
             binding.transactionsDialog.transactionDetailsInputDateText.setText(
@@ -227,7 +231,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                     binding.transactionsRecyclerView.visibility = View.GONE
                     binding.transactionsNoTransactionsText.visibility = View.VISIBLE
                     binding.root.isRefreshing = false
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.transactionsError.root.visibility = View.VISIBLE
@@ -276,7 +280,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                     binding.transactionsRecyclerView.visibility = View.GONE
                     binding.transactionsNoTransactionsText.visibility = View.VISIBLE
                     binding.root.isRefreshing = false
-                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401")) {
+                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401") || viewModel.getTransactionsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.transactionsError.root.visibility = View.VISIBLE
@@ -363,7 +367,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         binding.transactionsDialog.root.requestLayout()
                     }
                 } else {
-                    if (viewModel.getTransactionState.value.error.startsWith("403") || viewModel.getTransactionState.value.error.startsWith("401")) {
+                    if (viewModel.getTransactionState.value.error.startsWith("403") || viewModel.getTransactionState.value.error.startsWith("401") || viewModel.getTransactionState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.transactionsError.root.visibility = View.VISIBLE
@@ -430,7 +434,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         if (viewModel.updateTransactionState.value.error.isBlank()) {
                             Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_updated), Toast.LENGTH_SHORT).show()
                             refresh()
-                        } else if (viewModel.updateTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.updateTransactionState.value.error.startsWith("401")) {
+                        } else if (viewModel.updateTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.updateTransactionState.value.error.startsWith("401") || viewModel.updateTransactionState.value.error.contains("JWT", ignoreCase = true)) {
                             startAuthActivity()
                         } else if (viewModel.updateTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.transactionsError.root.visibility = View.VISIBLE
@@ -471,16 +475,9 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         Toast.makeText(requireContext(), R.string.transaction_is_deleted, Toast.LENGTH_SHORT).show()
                         refresh()
                     } else {
-                        if (viewModel.deleteTransactionState.value.error.startsWith("403") || viewModel.deleteTransactionState.value.error.startsWith(
-                                "401"
-                            )
-                        ) {
+                        if (viewModel.deleteTransactionState.value.error.startsWith("403") || viewModel.deleteTransactionState.value.error.startsWith("401") || viewModel.deleteTransactionState.value.error.contains("JWT", ignoreCase = true)) {
                             startAuthActivity()
-                        } else if (viewModel.deleteTransactionState.value.error.contains(
-                                "HTTP",
-                                ignoreCase = true
-                            )
-                        ) {
+                        } else if (viewModel.deleteTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.transactionsError.root.visibility = View.VISIBLE
                             binding.transactionsError.errorTitle.text =
                                 resources.getString(R.string.error)

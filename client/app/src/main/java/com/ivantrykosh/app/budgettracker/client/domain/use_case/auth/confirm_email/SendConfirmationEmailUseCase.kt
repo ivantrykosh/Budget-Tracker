@@ -9,6 +9,9 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * Send confirmation email use case
+ */
 class SendConfirmationEmailUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {

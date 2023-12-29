@@ -2,7 +2,6 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.settings
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
@@ -16,20 +15,20 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.MenuRes
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.ivantrykosh.app.budgettracker.client.R
-import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentSettingsBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.Date
 
+/**
+ * Settings fragment
+ */
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
 
@@ -47,16 +46,6 @@ class SettingsFragment : Fragment() {
             viewModel.setDailyReminder(requireContext(), timePicker.hour, timePicker.minute)
         }
     }
-
-//    private fun showPermissionRequest() {
-//        if (ActivityCompat.checkSelfPermission(
-//                requireContext(),
-//                Manifest.permission.POST_NOTIFICATIONS
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            ActivityCompat.requestPermissions()
-//        }
-//    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -131,13 +120,11 @@ class SettingsFragment : Fragment() {
 
         binding.settingsChooseRemainderInputText.keyListener = null
         binding.settingsChooseRemainderInputText.setOnFocusChangeListener { v, isFocus ->
-            // todo add this if to every date and time pickers
             if (isFocus) {
                 showMenu(v, R.menu.reminder_menu)
             }
         }
         binding.settingsChooseRemainderInputText.setOnClickListener {
-            // todo add this if to every date and time pickers
             showMenu(it, R.menu.reminder_menu)
         }
         timePicker.addOnPositiveButtonClickListener {
@@ -184,10 +171,7 @@ class SettingsFragment : Fragment() {
                 else -> true
             }
         }
-        popup.setOnDismissListener {
-            // Respond to popup being dismissed.
-        }
-        // Show the popup menu.
+        popup.setOnDismissListener { }
         popup.show()
     }
 

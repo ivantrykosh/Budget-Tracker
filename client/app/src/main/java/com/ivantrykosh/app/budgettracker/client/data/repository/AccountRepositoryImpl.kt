@@ -7,6 +7,9 @@ import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountRepository
 import javax.inject.Inject
 
+/**
+ * Account repository implementation
+ */
 class AccountRepositoryImpl @Inject constructor(
     private val api: AccountApi
 ) : AccountRepository {

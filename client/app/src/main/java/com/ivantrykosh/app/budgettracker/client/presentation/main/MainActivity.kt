@@ -6,7 +6,6 @@ import android.view.MenuItem
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.navigation.NavigationView
@@ -17,6 +16,9 @@ import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.overview.OverviewFragment
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Main activity
+ */
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -89,7 +91,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun openDrawer() {
-//        val drawerLayout = findViewById<DrawerLayout>(R.id.main_drawer_layout)
         binding.mainDrawerLayout.openDrawer(GravityCompat.START)
     }
 

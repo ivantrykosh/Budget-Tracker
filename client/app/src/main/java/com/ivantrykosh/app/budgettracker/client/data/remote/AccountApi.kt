@@ -11,6 +11,9 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Query
 
+/**
+ * Api for accounts
+ */
 interface AccountApi {
 
     @POST("create")

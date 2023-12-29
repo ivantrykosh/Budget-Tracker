@@ -9,6 +9,9 @@ import retrofit2.HttpException
 import java.util.Date
 import javax.inject.Inject
 
+/**
+ * Get all transactions between dates use case
+ */
 class GetTransactionsBetweenDates @Inject constructor(
     private val repository: TransactionRepository
 ) {

@@ -10,18 +10,17 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.ivantrykosh.app.budgettracker.client.R
-import com.ivantrykosh.app.budgettracker.client.databinding.FragmentCreatedCategoryReportBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentCreatedTimeReportBinding
-import com.ivantrykosh.app.budgettracker.client.presentation.main.report.category_report.CategoryReportViewModel
 import com.ivantrykosh.app.budgettracker.client.presentation.main.report.time_report.TimeReportViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Create time report fragment
+ */
 @AndroidEntryPoint
 class CreateTimeReportFragment : Fragment(), OnChartValueSelectedListener {
     private var _binding: FragmentCreatedTimeReportBinding? = null

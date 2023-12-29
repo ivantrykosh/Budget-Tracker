@@ -15,12 +15,20 @@ import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_acco
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.update_account.UpdateAccountUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.get_user.GetUserUseCase
-import com.ivantrykosh.app.budgettracker.client.presentation.main.user.UserState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.AccountsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.CreateAccountState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.DeleteAccountState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.GetAccountState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.UpdateAccountState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.my_profile.state.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
+/**
+ * Accounts view model
+ */
 @HiltViewModel
 class AccountsViewModel @Inject constructor(
     private val getUserUseCase: GetUserUseCase,
@@ -39,37 +47,37 @@ class AccountsViewModel @Inject constructor(
     private val _getUserState = mutableStateOf(UserState())
     val getUserState: State<UserState> = _getUserState
 
-    private val _isLoadingGetUser = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetUser = MutableLiveData(false)
     val isLoadingGetUser: LiveData<Boolean> = _isLoadingGetUser
 
     private val _getAccountsState = mutableStateOf(AccountsState())
     val getAccountsState: State<AccountsState> = _getAccountsState
 
-    private val _isLoadingGetAccounts = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetAccounts = MutableLiveData(false)
     val isLoadingGetAccounts: LiveData<Boolean> = _isLoadingGetAccounts
 
     private val _getAccountState = mutableStateOf(GetAccountState())
     val getAccountState: State<GetAccountState> = _getAccountState
 
-    private val _isLoadingGetAccount = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetAccount = MutableLiveData(false)
     val isLoadingGetAccount: LiveData<Boolean> = _isLoadingGetAccount
 
     private val _createAccountState = mutableStateOf(CreateAccountState())
     val createAccountState: State<CreateAccountState> = _createAccountState
 
-    private val _isLoadingCreateAccount = MutableLiveData<Boolean>(false)
+    private val _isLoadingCreateAccount = MutableLiveData(false)
     val isLoadingCreateAccount: LiveData<Boolean> = _isLoadingCreateAccount
 
     private val _updateAccountState = mutableStateOf(UpdateAccountState())
     val updateAccountState: State<UpdateAccountState> = _updateAccountState
 
-    private val _isLoadingUpdateAccount = MutableLiveData<Boolean>(false)
+    private val _isLoadingUpdateAccount = MutableLiveData(false)
     val isLoadingUpdateAccount: LiveData<Boolean> = _isLoadingUpdateAccount
 
     private val _deleteAccountState = mutableStateOf(DeleteAccountState())
     val deleteAccountState: State<DeleteAccountState> = _deleteAccountState
 
-    private val _isLoadingDeleteAccount = MutableLiveData<Boolean>(false)
+    private val _isLoadingDeleteAccount = MutableLiveData(false)
     val isLoadingDeleteAccount: LiveData<Boolean> = _isLoadingDeleteAccount
 
     fun checkName(name: String): Boolean {
@@ -224,14 +232,12 @@ class AccountsViewModel @Inject constructor(
                         _createAccountState.value = CreateAccountState()
                         _isLoadingCreateAccount.value = false
                     }
-
                     is Resource.Error -> {
                         _createAccountState.value = CreateAccountState(
                             error = result.message ?: "An unexpected error occurred"
                         )
                         _isLoadingCreateAccount.value = false
                     }
-
                     is Resource.Loading -> {
                         _createAccountState.value = CreateAccountState(isLoading = true)
                         _isLoadingCreateAccount.value = true
@@ -280,14 +286,12 @@ class AccountsViewModel @Inject constructor(
                         _updateAccountState.value = UpdateAccountState()
                         _isLoadingUpdateAccount.value = false
                     }
-
                     is Resource.Error -> {
                         _updateAccountState.value = UpdateAccountState(
                             error = result.message ?: "An unexpected error occurred"
                         )
                         _isLoadingUpdateAccount.value = false
                     }
-
                     is Resource.Loading -> {
                         _updateAccountState.value = UpdateAccountState(isLoading = true)
                         _isLoadingUpdateAccount.value = true

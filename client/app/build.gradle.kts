@@ -26,10 +26,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL", "\"http://192.168.1.10:8080\"")
-        }
-        debug {
-            buildConfigField("String", "BASE_URL", "\"http://192.168.1.10:8080\"")
         }
     }
     compileOptions {
@@ -70,7 +66,6 @@ dependencies {
     //Dagger - Hilt
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
-//    implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
     kapt("androidx.hilt:hilt-compiler:1.0.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0-alpha03")
 
@@ -85,7 +80,4 @@ dependencies {
 
     // Charts
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-
-    // PDF
-//    implementation("com.itextpdf:itextg:5.5.10")
 }

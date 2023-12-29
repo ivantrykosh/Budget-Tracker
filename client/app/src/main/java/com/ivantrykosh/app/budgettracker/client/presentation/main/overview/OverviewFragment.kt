@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -21,12 +20,13 @@ import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
-import java.util.Currency
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Overview fragment
+ */
 @AndroidEntryPoint
 class OverviewFragment : Fragment() {
 
@@ -47,7 +47,6 @@ class OverviewFragment : Fragment() {
         val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
         val format = DecimalFormat(pattern)
         format.maximumFractionDigits = 2
-//        format.currency = Currency.getInstance(AppPreferences.currency)
         return format
     }
 
@@ -148,7 +147,7 @@ class OverviewFragment : Fragment() {
                     setIncomesVisible(false)
                     setExpensesVisible(false)
                     binding.root.isRefreshing = false
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.overviewError.root.visibility = View.VISIBLE
@@ -228,7 +227,7 @@ class OverviewFragment : Fragment() {
                     setIncomesVisible(false)
                     setExpensesVisible(false)
                     binding.root.isRefreshing = false
-                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401") || viewModel.getTransactionsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.overviewError.root.visibility = View.VISIBLE

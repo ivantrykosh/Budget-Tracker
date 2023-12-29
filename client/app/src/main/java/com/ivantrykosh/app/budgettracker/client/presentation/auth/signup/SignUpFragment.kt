@@ -17,6 +17,9 @@ import com.ivantrykosh.app.budgettracker.client.databinding.FragmentSignupBindin
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Sign up fragment
+ */
 @AndroidEntryPoint
 class SignUpFragment : Fragment() {
 
@@ -81,7 +84,6 @@ class SignUpFragment : Fragment() {
         binding.signupTextInputEmail.clearFocus()
         binding.signupTextInputPassword.clearFocus()
 
-        // todo add error checks and shows
         val email = binding.signupEditTextInputEmail.text?.toString() ?: ""
         val password = binding.signupEditTextInputPassword.text?.toString() ?: ""
 

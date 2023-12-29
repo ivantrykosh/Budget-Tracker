@@ -11,8 +11,8 @@ import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.create_transaction.CreateTransactionUseCase
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.AccountsState
-import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.TransactionState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.AccountsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.TransactionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -23,6 +23,9 @@ import java.util.Locale
 import java.util.NoSuchElementException
 import javax.inject.Inject
 
+/**
+ * Add transaction view model
+ */
 @HiltViewModel
 class AddTransactionViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
@@ -32,13 +35,13 @@ class AddTransactionViewModel @Inject constructor(
     private val _getAccountsState = mutableStateOf(AccountsState())
     val getAccountsState: State<AccountsState> = _getAccountsState
 
-    private val _isLoadingGetAccounts = MutableLiveData<Boolean>(false)
+    private val _isLoadingGetAccounts = MutableLiveData(false)
     val isLoadingGetAccounts: LiveData<Boolean> = _isLoadingGetAccounts
 
     private val _createTransactionState = mutableStateOf(TransactionState())
     val createTransactionState: State<TransactionState> = _createTransactionState
 
-    private val _isLoadingCreateTransaction = MutableLiveData<Boolean>(false)
+    private val _isLoadingCreateTransaction = MutableLiveData(false)
     val isLoadingCreateTransaction: LiveData<Boolean> = _isLoadingCreateTransaction
 
     fun checkValue(value: String): Boolean {

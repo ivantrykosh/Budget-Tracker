@@ -1,5 +1,8 @@
 package com.ivantrykosh.app.budgettracker.client.common
 
+/**
+ * App constants
+ */
 object Constants {
     const val PREFERENCES = "Budgetracker"
 
@@ -9,7 +12,6 @@ object Constants {
     const val ACCOUNT_URL = "api/v1/accounts/"
     const val TRANSACTION_URL = "api/v1/transactions/"
 
-//    val CURRENCIES = setOf("USD", "UAH")
     val CURRENCIES = mapOf("USD" to "$", "UAH" to "₴", "EUR" to "€")
     val DATE_FORMATS = setOf("dd/MM/yyyy", "dd.MM.yyyy", "MM/dd/yyyy", "MM.dd.yyyy", "yyyy-MM-dd")
 

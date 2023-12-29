@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import javax.inject.Inject
 
+/**
+ * Reset password use case
+ */
 class ResetPasswordUseCase @Inject constructor(
     private val repository: UserRepository
 ) {

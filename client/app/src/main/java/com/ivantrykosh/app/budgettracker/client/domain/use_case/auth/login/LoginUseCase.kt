@@ -9,6 +9,9 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * Login use case
+ */
 class LoginUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {

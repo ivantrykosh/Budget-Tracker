@@ -10,10 +10,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
-import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.databinding.ActivitySplashScreenBinding
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Splash screen activity
+ */
 @AndroidEntryPoint
 class SplashScreenActivity : AppCompatActivity() {
 
@@ -23,8 +25,6 @@ class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        AppPreferences.jwtToken = null
-//        AppPreferences.jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2YW55dHJ5a29jaDc4OUBnbWFpbC5jb20iLCJpYXQiOjE3MDE3MTQwNDcsImV4cCI6MTcwMjMxODg0N30.w6SWeKYH2L5lrJU1BZCK0kLwY3FYDINSthc3a92EeDw"
         installSplashScreen().apply {
             setKeepOnScreenCondition {
                 return@setKeepOnScreenCondition viewModel.state.value.isLoading

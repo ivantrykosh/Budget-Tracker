@@ -21,6 +21,9 @@ import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
 
+/**
+ * Category report fragment
+ */
 @AndroidEntryPoint
 class CategoryReportFragment : Fragment() {
     private var _binding: FragmentCategoryReportBinding? = null
@@ -155,7 +158,7 @@ class CategoryReportFragment : Fragment() {
                         setAccounts()
                     }
                 } else {
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401")) {
+                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
                         startAuthActivity()
                     } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
                         binding.categoryReportError.root.visibility = View.VISIBLE
@@ -215,7 +218,7 @@ class CategoryReportFragment : Fragment() {
                             findNavController().navigate(R.id.action_categoryReportFragment_to_createdCategoryReport)
                         }
                     } else {
-                        if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getAccountsState.value.error.startsWith("401")) {
+                        if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401") || viewModel.getTransactionsState.value.error.contains("JWT", ignoreCase = true)) {
                             startAuthActivity()
                         } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
                             binding.categoryReportError.root.visibility = View.VISIBLE

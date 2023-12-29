@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Budget Tracker</string>
+    <string name="app_name">Budgetracker</string>
     <string name="balance_for">Balance for %s</string>
     <string name="main_incomes_text">Incomes:</string>
     <string name="main_expenses_text">Expenses:</string>
@@ -148,6 +148,7 @@
     <string name="all_data_was_deleted">All data was deleted</string>
     <string name="any_problems_question">Any problems?</string>
     <string name="any_problems_message">Dou you have any problems? Please, contact me: trykoshivan4@gmail.com</string>
+    <string name="input_password">Input password</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>

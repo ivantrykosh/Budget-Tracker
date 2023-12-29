@@ -12,9 +12,10 @@ import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.domain.model.Account
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.OnAccountClickListener
 import java.text.DecimalFormat
-import java.text.NumberFormat
-import java.util.Currency
 
+/**
+ * Account item adapter
+ */
 class AccountItemAdapter(
     private val context: Context,
     private val dataset: List<Account>,
@@ -41,9 +42,6 @@ class AccountItemAdapter(
         val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
         val format = DecimalFormat(pattern)
         format.maximumFractionDigits = 2
-//        val format = NumberFormat.getCurrencyInstance()
-//        format.maximumFractionDigits = 2
-//        format.currency = Currency.getInstance(AppPreferences.currency)
 
         val item = dataset[position]
         holder.name.text = item.name

@@ -7,6 +7,9 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 
+/**
+ * Api for auth
+ */
 interface AuthApi {
 
     @POST("register")

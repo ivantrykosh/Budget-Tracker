@@ -6,6 +6,9 @@ import com.ivantrykosh.app.budgettracker.client.domain.repository.AuthRepository
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
 import javax.inject.Inject
 
+/**
+ * Auth repository implementation
+ */
 class AuthRepositoryImpl @Inject constructor(
     private val api: AuthApi
 ) : AuthRepository {

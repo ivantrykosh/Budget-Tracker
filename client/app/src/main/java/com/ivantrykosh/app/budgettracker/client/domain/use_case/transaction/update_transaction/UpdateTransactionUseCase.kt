@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import javax.inject.Inject
 
+/**
+ * Update transaction use case
+ */
 class UpdateTransactionUseCase @Inject constructor(
     private val repository: TransactionRepository
 ){
