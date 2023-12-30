@@ -18,6 +18,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,7 +61,9 @@ public class AuthController {
     @Autowired
     private EmailSenderService emailSenderService;
     private final UserValidator userValidator = new UserValidator();
-    private final String LINK = "http://192.168.1.7:8080/api/v1/auth/confirm?token="; // Confirmation link
+    @Value("${properties.address}")
+    private String SERVER_ADDRESS; // Server address
+    private final String LINK = "/api/v1/auth/confirm?token="; // Confirmation link
     private final String SUBJECT = "Confirm your email address"; // Email subject
     Logger logger = LoggerFactory.getLogger(AuthController.class); // Logger
 
@@ -106,7 +109,7 @@ public class AuthController {
 
         logger.info("Confirmation token for email " + savedUser.getEmail() + " was created");
 
-        emailSenderService.sendEmail(savedUser.getEmail(), SUBJECT, buildConfirmationEmail(LINK + token));
+        emailSenderService.sendEmail(savedUser.getEmail(), SUBJECT, buildConfirmationEmail(SERVER_ADDRESS + LINK + token));
 
         Account account = new Account();
         account.setName("My wallet");
@@ -260,7 +263,7 @@ public class AuthController {
 
             logger.info("Confirmation token for email " + user.getEmail() + " was created");
 
-            emailSenderService.sendEmail(user.getEmail(), SUBJECT, buildConfirmationEmail(LINK + token));
+            emailSenderService.sendEmail(user.getEmail(), SUBJECT, buildConfirmationEmail(SERVER_ADDRESS + LINK + token));
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Email was sent. Confirm your email address!");
         }
