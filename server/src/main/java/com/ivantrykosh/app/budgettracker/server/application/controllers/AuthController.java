@@ -109,7 +109,7 @@ public class AuthController {
 
         logger.info("Confirmation token for email " + savedUser.getEmail() + " was created");
 
-        emailSenderService.sendEmail(savedUser.getEmail(), SUBJECT, buildConfirmationEmail(SERVER_ADDRESS + LINK + token));
+        emailSenderService.sendEmail(savedUser.getEmail(), SUBJECT, buildConfirmationEmail("http://" + SERVER_ADDRESS + LINK + token));
 
         Account account = new Account();
         account.setName("My wallet");
@@ -263,7 +263,7 @@ public class AuthController {
 
             logger.info("Confirmation token for email " + user.getEmail() + " was created");
 
-            emailSenderService.sendEmail(user.getEmail(), SUBJECT, buildConfirmationEmail(SERVER_ADDRESS + LINK + token));
+            emailSenderService.sendEmail(user.getEmail(), SUBJECT, buildConfirmationEmail("http://" + SERVER_ADDRESS + LINK + token));
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Email was sent. Confirm your email address!");
         }
@@ -334,7 +334,7 @@ public class AuthController {
                       <p>Link will expire in 15 minutes.</p>
                     </div>
                     <div class="footer">
-                      <p>App Name: Budgetracker</p>
+                      <p>Budgetracker</p>
                     </div>
                   </div>
                 </body>

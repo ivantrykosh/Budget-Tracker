@@ -10,7 +10,6 @@ import com.ivantrykosh.app.budgettracker.server.domain.model.AccountUsers;
 import com.ivantrykosh.app.budgettracker.server.domain.model.User;
 import com.ivantrykosh.app.budgettracker.server.presentation.requests.ChangePasswordRequest;
 import com.ivantrykosh.app.budgettracker.server.presentation.requests.RegisterAndLoginRequest;
-import com.ivantrykosh.app.budgettracker.server.presentation.responses.TokenResponse;
 import com.ivantrykosh.app.budgettracker.server.util.CustomUserDetails;
 import com.ivantrykosh.app.budgettracker.server.util.PasswordManager;
 import com.ivantrykosh.app.budgettracker.server.validators.UserValidator;
