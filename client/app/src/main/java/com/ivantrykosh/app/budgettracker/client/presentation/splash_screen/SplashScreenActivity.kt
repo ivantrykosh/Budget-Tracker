@@ -1,6 +1,7 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.splash_screen
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -25,20 +26,34 @@ class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        installSplashScreen().apply {
-            setKeepOnScreenCondition {
-                return@setKeepOnScreenCondition viewModel.state.value.isLoading
-            }
-
-            setOnExitAnimationListener {
-                val intent = checkToken()
-                if (intent == null) {
-                    setContent()
-                } else {
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    this@SplashScreenActivity.startActivity(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            installSplashScreen().apply {
+                setKeepOnScreenCondition {
+                    return@setKeepOnScreenCondition viewModel.state.value.isLoading
                 }
-                it.remove()
+
+                setOnExitAnimationListener {
+                    val intent = checkToken()
+                    if (intent == null) {
+                        setContent()
+                    } else {
+                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        this@SplashScreenActivity.startActivity(intent)
+                    }
+                    it.remove()
+                }
+            }
+        } else {
+            viewModel.isLoading.observe(this@SplashScreenActivity) { isLoading ->
+                if (!isLoading) {
+                    val intent = checkToken()
+                    if (intent == null) {
+                        setContent()
+                    } else {
+                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        this@SplashScreenActivity.startActivity(intent)
+                    }
+                }
             }
         }
     }

@@ -27,7 +27,7 @@ public class PasswordManager {
                 .ints(length, 0, ALL_CHARS.length())
                 .mapToObj(ALL_CHARS::charAt)
                 .map(Object::toString)
-                .collect(Collectors.joining());
+                .collect(Collectors.joining()) + "Aa0@";
     }
 
     /**

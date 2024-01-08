@@ -38,7 +38,7 @@ class DailyReminderReceiver : BroadcastReceiver() {
 
         // Build the notification
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(context, Constants.Notification.CHANNEL_ID)
-            .setSmallIcon(R.drawable.app_icon_24)
+            .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle(title)
             .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

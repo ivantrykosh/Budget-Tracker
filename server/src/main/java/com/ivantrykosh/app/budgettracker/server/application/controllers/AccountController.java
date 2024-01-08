@@ -340,7 +340,7 @@ public class AccountController {
 
         if (createAndChangeAccountRequest.getEmail2() != null) {
             User user2 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail2());
-            List<Account> user2Accounts = accountService.getAccountsByUserId(user.getUserId());
+            List<Account> user2Accounts = accountService.getAccountsByUserId(user2.getUserId());
             if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user2Accounts)) {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
@@ -355,7 +355,7 @@ public class AccountController {
 
         if (createAndChangeAccountRequest.getEmail3() != null) {
             User user3 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail3());
-            List<Account> user3Accounts = accountService.getAccountsByUserId(user.getUserId());
+            List<Account> user3Accounts = accountService.getAccountsByUserId(user3.getUserId());
             if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user3Accounts)) {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
@@ -370,7 +370,7 @@ public class AccountController {
 
         if (createAndChangeAccountRequest.getEmail4() != null) {
             User user4 = userService.getUserByEmail(createAndChangeAccountRequest.getEmail4());
-            List<Account> user4Accounts = accountService.getAccountsByUserId(user.getUserId());
+            List<Account> user4Accounts = accountService.getAccountsByUserId(user4.getUserId());
             if (!accountValidator.checkName(createAndChangeAccountRequest.getName(), user4Accounts)) {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 logger.error("Invalid name " + createAndChangeAccountRequest.getName() + " of account for user email " + user.getEmail());
