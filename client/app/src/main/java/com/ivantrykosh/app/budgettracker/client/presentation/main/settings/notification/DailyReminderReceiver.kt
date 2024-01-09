@@ -29,6 +29,13 @@ class DailyReminderReceiver : BroadcastReceiver() {
         }
     }
 
+    /**
+     * Show notification
+     *
+     * @param context context
+     * @param title title of notification
+     * @param content notification content
+     */
     private fun showNotification(context: Context, title: String, content: String) {
         Log.d("DailyReminderReceiver", "Start show notification")
         // Create an explicit intent for the SplashScreenActivity

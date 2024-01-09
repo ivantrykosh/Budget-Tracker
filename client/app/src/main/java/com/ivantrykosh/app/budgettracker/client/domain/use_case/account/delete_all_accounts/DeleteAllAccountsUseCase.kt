@@ -1,5 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.domain.use_case.account.delete_all_accounts
 
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,15 +14,20 @@ import javax.inject.Inject
 class DeleteAllAccountsUseCase @Inject constructor(
     private val repository: AccountRepository
 ) {
+    /**
+     * Invoke delete all accounts use case with token
+     *
+     * @param token user's JWT
+     */
     operator fun invoke(token: String): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
             repository.deleteAllAccounts("Bearer $token")
-            emit(Resource.Success("Success"))
+            emit(Resource.Success(""))
         } catch (e: HttpException) {
-            emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))
+            emit(Resource.Error(e.code()))
         } catch (e: Exception) {
-            emit(Resource.Error("Couldn't reach server. Check your internet connection"))
+            emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
         }
     }
 }

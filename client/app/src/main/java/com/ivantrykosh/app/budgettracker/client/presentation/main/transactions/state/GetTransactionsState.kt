@@ -5,8 +5,8 @@ import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 /**
  * Transactions state
  */
-data class TransactionsState(
+data class GetTransactionsState(
     val isLoading: Boolean = false,
     val transactions: List<Transaction> = emptyList(),
-    val error: String = "",
+    val error: Int? = null,
 )

@@ -43,6 +43,9 @@ class OverviewFragment : Fragment() {
         AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_anti_clock_wise)
     }
 
+    /**
+     * Get format of values
+     */
     private fun getFormat(): DecimalFormat {
         val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
         val format = DecimalFormat(pattern)
@@ -114,6 +117,9 @@ class OverviewFragment : Fragment() {
         binding.overviewMainFloatingActionButton.isExpanded = false
     }
 
+    /**
+     * Refresh balance
+     */
     private fun refreshBalance() {
         val stringDate = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date())
         binding.overviewTextViewBalanceFor.text = getString(R.string.balance_for, stringDate)
@@ -125,46 +131,42 @@ class OverviewFragment : Fragment() {
         setIncomesVisible(false)
         setExpensesVisible(false)
         binding.overviewError.root.visibility = View.GONE
-        binding.root.isRefreshing = true
-
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressStart()
 
         viewModel.getAccounts()
-        viewModel.isLoadingGetAccounts.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                if (viewModel.getAccountsState.value.error.isBlank()) {
-                    if (viewModel.getAccountsState.value.accounts.isNotEmpty()) {
-                        loadTransactions()
-                    } else {
-                        setIncomesVisible(false)
-                        setExpensesVisible(false)
+        viewModel.getAccountsState.observe(requireActivity()) { getAccounts ->
+            if (!getAccounts.isLoading) {
+                progressEnd()
 
-                        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                        binding.root.isRefreshing = false
+                when (getAccounts.error) {
+                    null -> {
+                        if (getAccounts.accounts.isNotEmpty()) {
+                            loadTransactions()
+                        }
                     }
-                } else {
-                    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                    setIncomesVisible(false)
-                    setExpensesVisible(false)
-                    binding.root.isRefreshing = false
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                         startAuthActivity()
-                    } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.overviewError.root.visibility = View.VISIBLE
-                        binding.overviewError.errorTitle.text = resources.getString(R.string.error)
-                        binding.overviewError.errorText.text = viewModel.getAccountsState.value.error
-                    } else {
-                        binding.overviewError.root.visibility = View.VISIBLE
-                        binding.overviewError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.overviewError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
-                binding.root.isRefreshing = false
-                viewModel.isLoadingGetAccounts.removeObservers(requireActivity())
+
+                viewModel.getAccountsState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * Set visibility of incomes
+     *
+     * @param visible are incomes visible
+     */
     private fun setIncomesVisible(visible: Boolean) {
         if (visible) {
             binding.overviewLastIncomesRecyclerView.visibility = View.VISIBLE
@@ -175,6 +177,11 @@ class OverviewFragment : Fragment() {
         }
     }
 
+    /**
+     * Set visibility of expenses
+     *
+     * @param visible are expenses visible
+     */
     private fun setExpensesVisible(visible: Boolean) {
         if (visible) {
             binding.overviewLastExpensesRecyclerView.visibility = View.VISIBLE
@@ -185,64 +192,90 @@ class OverviewFragment : Fragment() {
         }
     }
 
+    /**
+     * Load transactions
+     */
+    private fun loadTransactions() {
+        binding.overviewError.root.visibility = View.GONE
+        progressStart()
+
+        viewModel.getTransactions(viewModel.getAccountsState.value!!.accounts.map { it.accountId }, viewModel.getStartMonth(), viewModel.getEndMonth())
+        viewModel.getTransactionsState.observe(requireActivity()) { getTransactions ->
+            if (!getTransactions.isLoading) {
+                progressEnd()
+
+                when (getTransactions.error) {
+                    null -> {
+                        binding.overviewMainIncomesValue.text = getFormat().format(viewModel.getSumOfIncomes())
+                        binding.overviewMainExpensesValue.text = getFormat().format(viewModel.getSumOfExpenses())
+                        binding.mainTotalValue.text = getFormat().format(viewModel.getTotalSum())
+
+                        if (viewModel.getIncomes().isNotEmpty()) {
+                            val incomes = viewModel.getIncomes()
+                            binding.overviewLastIncomesRecyclerView.adapter = TransactionItemAdapter(requireContext(), incomes, incomes.size, 3)
+                            binding.overviewLastIncomesRecyclerView.setHasFixedSize(true)
+                            setIncomesVisible(true)
+                        }
+                        if (viewModel.getExpenses().isNotEmpty()) {
+                            val expenses = viewModel.getExpenses()
+                            binding.overviewLastExpensesRecyclerView.adapter = TransactionItemAdapter(requireContext(), expenses, expenses.size, 3)
+                            binding.overviewLastExpensesRecyclerView.setHasFixedSize(true)
+                            setExpensesVisible(true)
+                        }
+                    }
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
+                        startAuthActivity()
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                    }
+                }
+
+                viewModel.getTransactionsState.removeObservers(requireActivity())
+            }
+        }
+    }
+
+    /**
+     * Start auth activity
+     */
     private fun startAuthActivity() {
         val intent = Intent(requireActivity(), AuthActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         requireActivity().startActivity(intent)
     }
 
-    private fun loadTransactions() {
-        binding.overviewError.root.visibility = View.GONE
-
+    /**
+     * Show progress indicator and make screen not touchable
+     */
+    private fun progressStart() {
+        binding.root.isRefreshing = true
         requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
 
-        viewModel.getTransactions(viewModel.getAccountsState.value.accounts.map { it.accountId }, viewModel.getStartMonth(), viewModel.getEndMonth())
-        viewModel.isLoadingGetTransactions.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    /**
+     * Hide progress indicator and make screen touchable
+     */
+    private fun progressEnd() {
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        binding.root.isRefreshing = false
+    }
 
-                if (viewModel.getTransactionsState.value.error.isBlank()) {
-
-                    binding.overviewMainIncomesValue.text = getFormat().format(viewModel.getSumOfIncomes())
-                    binding.overviewMainExpensesValue.text = getFormat().format(viewModel.getSumOfExpenses())
-                    binding.mainTotalValue.text = getFormat().format(viewModel.getTotalSum())
-
-                    if (viewModel.getIncomes().isNotEmpty()) {
-                        val incomes = viewModel.getIncomes()
-                        binding.overviewLastIncomesRecyclerView.adapter = TransactionItemAdapter(requireContext(), incomes, incomes.size, 3)
-                        binding.overviewLastIncomesRecyclerView.setHasFixedSize(true)
-                        setIncomesVisible(true)
-                    } else {
-                        setIncomesVisible(false)
-                    }
-                    if (viewModel.getExpenses().isNotEmpty()) {
-                        val expenses = viewModel.getExpenses()
-                        binding.overviewLastExpensesRecyclerView.adapter = TransactionItemAdapter(requireContext(), expenses, expenses.size, 3)
-                        binding.overviewLastExpensesRecyclerView.setHasFixedSize(true)
-                        setExpensesVisible(true)
-                    } else {
-                        setExpensesVisible(false)
-                    }
-                } else {
-                    setIncomesVisible(false)
-                    setExpensesVisible(false)
-                    binding.root.isRefreshing = false
-                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401") || viewModel.getTransactionsState.value.error.contains("JWT", ignoreCase = true)) {
-                        startAuthActivity()
-                    } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.overviewError.root.visibility = View.VISIBLE
-                        binding.overviewError.errorTitle.text = resources.getString(R.string.error)
-                        binding.overviewError.errorText.text = viewModel.getTransactionsState.value.error
-                    } else {
-                        binding.overviewError.root.visibility = View.VISIBLE
-                        binding.overviewError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.overviewError.errorText.text = resources.getString(R.string.connection_failed_message)
-                    }
-                }
-                binding.root.isRefreshing = false
-                viewModel.isLoadingGetTransactions.removeObservers(requireActivity())
-            }
-        }
+    /**
+     * Show error message
+     *
+     * @param title title of message
+     * @param text text of message
+     */
+    private fun showError(title: String, text: String) {
+        binding.overviewError.root.visibility = View.VISIBLE
+        binding.overviewError.errorTitle.text = title
+        binding.overviewError.errorText.text = text
     }
 
     override fun onDestroyView() {

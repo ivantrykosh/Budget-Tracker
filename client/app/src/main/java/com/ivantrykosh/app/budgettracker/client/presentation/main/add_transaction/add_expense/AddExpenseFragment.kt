@@ -3,6 +3,7 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.add_transacti
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.IBinder
 import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
@@ -24,9 +25,6 @@ import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction.AddTransactionViewModel
 import com.ivantrykosh.app.budgettracker.client.presentation.main.filter.DecimalDigitsInputFilter
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 /**
  * Add expense fragment
@@ -57,10 +55,10 @@ class AddExpenseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadData()
+        getAccounts()
 
         binding.root.setOnRefreshListener {
-            loadData()
+            getAccounts()
         }
 
         binding.addExpenseTopAppBar.setOnClickListener {
@@ -76,8 +74,7 @@ class AddExpenseFragment : Fragment() {
                 } else {
                     binding.addExpenseInputValue.error = null
                 }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.addExpenseInputValue.windowToken, 0)
+                hideKeyboard(binding.addExpenseInputValue.windowToken)
             }
         }
 
@@ -124,23 +121,18 @@ class AddExpenseFragment : Fragment() {
             }
         }
         datePicker.addOnPositiveButtonClickListener {
-            binding.addExpenseInputDateText.setText(
-                SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(
-                    Date(datePicker.selection!!)
-                ))
+            binding.addExpenseInputDateText.setText(viewModel.parseDateToString(datePicker.selection!!))
         }
 
         binding.addExpenseInputToEdit.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.addExpenseInputTo.windowToken, 0)
+                hideKeyboard(binding.addExpenseInputTo.windowToken)
             }
         }
 
         binding.addExpenseInputNoteEdit.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.addExpenseInputNote.windowToken, 0)
+                hideKeyboard(binding.addExpenseInputNote.windowToken)
             }
         }
 
@@ -153,59 +145,61 @@ class AddExpenseFragment : Fragment() {
         }
     }
 
-    private fun loadData() {
+    /**
+     * Get all user accounts
+     */
+    private fun getAccounts() {
         binding.addExpenseError.root.visibility = View.GONE
-        binding.root.isRefreshing = true
-
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressStart()
 
         viewModel.getAccounts()
-        viewModel.isLoadingGetAccounts.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                binding.root.isRefreshing = false
-                if (viewModel.getAccountsState.value.error.isBlank()) {
-                    if (viewModel.getAccountsState.value.accounts.isEmpty()) {
-                        binding.addExpenseError.root.visibility = View.VISIBLE
-                        binding.addExpenseError.errorTitle.text = resources.getString(R.string.error)
-                        binding.addExpenseError.errorText.text = resources.getString(R.string.no_accounts)
-                    } else {
-                        setAccounts()
+        viewModel.getAccountsState.observe(requireActivity()) { getAccounts ->
+            if (!getAccounts.isLoading) {
+                progressEnd()
+
+                when (getAccounts.error) {
+                    null -> {
+                        if (getAccounts.accounts.isEmpty()) {
+                            showError(resources.getString(R.string.error), resources.getString(R.string.no_accounts))
+                        } else {
+                            setAccounts()
+                        }
                     }
-                } else {
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                         startAuthActivity()
-                    } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.addExpenseError.root.visibility = View.VISIBLE
-                        binding.addExpenseError.errorTitle.text = resources.getString(R.string.error)
-                        binding.addExpenseError.errorText.text = viewModel.getAccountsState.value.error
-                    } else {
-                        binding.addExpenseError.root.visibility = View.VISIBLE
-                        binding.addExpenseError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.addExpenseError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
-                viewModel.isLoadingGetAccounts.removeObservers(requireActivity())
+
+                viewModel.getAccountsState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * Set accounts to AutoCompleteTextView
+     */
     private fun setAccounts() {
-        val items = viewModel.getAccountsState.value.accounts.map { it.name }
+        val items = viewModel.getAccountsState.value?.accounts?.map { it.name } ?: emptyList()
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item_name_item, items)
         (binding.addExpenseInputAccount.editText as? AutoCompleteTextView)?.setAdapter(adapter)
 
         binding.addExpenseInputAccountText.text = null
     }
 
+    /**
+     * Add income
+     */
     private fun addExpense() {
         binding.addExpenseError.root.visibility = View.GONE
-        binding.addExpenseInputValueEditText.clearFocus()
-        binding.addExpenseInputAccount.clearFocus()
-        binding.addExpenseInputCategoryText.clearFocus()
-        binding.addExpenseInputDateText.clearFocus()
-        binding.addExpenseInputToEdit.clearFocus()
-        binding.addExpenseInputNoteEdit.clearFocus()
+        clearFocusOfFields()
 
         if (!viewModel.checkValue(binding.addExpenseInputValueEditText.text.toString())) {
             binding.addExpenseInputValue.error = resources.getString(R.string.invalid_value)
@@ -220,51 +214,102 @@ class AddExpenseFragment : Fragment() {
                 binding.addExpenseInputAccountText.text.toString(),
                 binding.addExpenseInputCategoryText.text.toString(),
                 -binding.addExpenseInputValueEditText.text.toString().toDouble(),
-                viewModel.parseToCorrectDate(binding.addExpenseInputDateText.text.toString()),
+                binding.addExpenseInputDateText.text.toString(),
                 binding.addExpenseInputToEdit.text.toString(),
                 binding.addExpenseInputNoteEdit.text.toString()
             )
             if (transactionDto == null) {
-                binding.addExpenseError.root.visibility = View.VISIBLE
-                binding.addExpenseError.errorTitle.text = resources.getString(R.string.error)
-                binding.addExpenseError.errorText.text = resources.getString(R.string.invalid_account)
+                showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account))
             } else {
-                binding.root.isRefreshing = true
-
-                requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                progressStart()
 
                 viewModel.createTransaction(transactionDto)
-                viewModel.isLoadingCreateTransaction.observe(requireActivity()) { isLoading ->
-                    if (!isLoading) {
+                viewModel.createTransactionState.observe(requireActivity()) { createTransaction ->
+                    if (!createTransaction.isLoading) {
                         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
 
-                        if (viewModel.createTransactionState.value.error.isBlank()) {
-                            Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_added), Toast.LENGTH_SHORT).show()
-                            findNavController().navigate(R.id.action_addExpenseFragment_to_overviewFragment)
-                        } else if (viewModel.createTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.createTransactionState.value.error.startsWith("401") || viewModel.createTransactionState.value.error.contains("JWT", ignoreCase = true)) {
-                            startAuthActivity()
-                        } else if (viewModel.createTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
-                            binding.addExpenseError.root.visibility = View.VISIBLE
-                            binding.addExpenseError.errorTitle.text = resources.getString(R.string.error)
-                            binding.addExpenseError.errorText.text = viewModel.createTransactionState.value.error
-                        } else {
-                            binding.addExpenseError.root.visibility = View.VISIBLE
-                            binding.addExpenseError.errorTitle.text = resources.getString(R.string.network_error)
-                            binding.addExpenseError.errorText.text = resources.getString(R.string.connection_failed_message)
+                        when (createTransaction.error) {
+                            null -> {
+                                Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_added), Toast.LENGTH_SHORT).show()
+                                findNavController().navigate(R.id.action_addExpenseFragment_to_overviewFragment)
+                            }
+                            Constants.ErrorStatusCodes.UNAUTHORIZED,
+                            Constants.ErrorStatusCodes.FORBIDDEN,
+                            Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
+                                startAuthActivity()
+                            }
+                            Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                                showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                            }
+                            else -> {
+                                showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                            }
                         }
 
-                        binding.root.isRefreshing = false
-                        viewModel.isLoadingCreateTransaction.removeObservers(requireActivity())
+                        viewModel.createTransactionState.removeObservers(requireActivity())
                     }
                 }
             }
         }
     }
 
+    /**
+     * Start auth activity
+     */
     private fun startAuthActivity() {
         val intent = Intent(requireActivity(), AuthActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         requireActivity().startActivity(intent)
+    }
+
+    /**
+     * Hide keyboard
+     *
+     * @param windowToken token of window
+     */
+    private fun hideKeyboard(windowToken: IBinder) {
+        val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    }
+
+    /**
+     * Clear focus of Add Income fields
+     */
+    private fun clearFocusOfFields() {
+        binding.addExpenseInputValueEditText.clearFocus()
+        binding.addExpenseInputAccount.clearFocus()
+        binding.addExpenseInputCategoryText.clearFocus()
+        binding.addExpenseInputDateText.clearFocus()
+        binding.addExpenseInputToEdit.clearFocus()
+        binding.addExpenseInputNoteEdit.clearFocus()
+    }
+
+    /**
+     * Show progress indicator and make screen not touchable
+     */
+    private fun progressStart() {
+        binding.root.isRefreshing = true
+        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    /**
+     * Hide progress indicator and make screen touchable
+     */
+    private fun progressEnd() {
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        binding.root.isRefreshing = false
+    }
+
+    /**
+     * Show error message
+     *
+     * @param title title of message
+     * @param text text of message
+     */
+    private fun showError(title: String, text: String) {
+        binding.addExpenseError.root.visibility = View.VISIBLE
+        binding.addExpenseError.errorTitle.text = title
+        binding.addExpenseError.errorText.text = text
     }
 
     override fun onDestroyView() {

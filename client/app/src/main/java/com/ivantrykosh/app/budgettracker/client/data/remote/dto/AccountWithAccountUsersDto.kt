@@ -10,6 +10,9 @@ data class AccountWithAccountUsersDto(
     val accountUsersDto: AccountUsersDto
 )
 
+/**
+ * Convert from AccountWithAccountUsersDto to AccountDetails
+ */
 fun AccountWithAccountUsersDto.toAccountDetails(): AccountDetails {
     return AccountDetails(
         accountId = accountDto.accountId,

@@ -17,15 +17,37 @@ import retrofit2.http.Query
  */
 interface UserApi {
 
+    /**
+     * Get user with token
+     *
+     * @param token user's JWT
+     */
     @GET("get")
     suspend fun getUser(@Header("Authorization") token: String): UserDto
 
+    /**
+     * Delete user with token and request
+     *
+     * @param token user's JWT
+     * @param request AuthDto request
+     */
     @HTTP(method = "DELETE", path = "delete", hasBody = true)
     suspend fun deleteUser(@Header("Authorization") token: String, @Body request: AuthDto)
 
+    /**
+     * Change user password with token and request
+     *
+     * @param token user's JWT
+     * @param request ChangePasswordDto request
+     */
     @PATCH("change-password")
     suspend fun changeUserPassword(@Header("Authorization") token: String, @Body request: ChangePasswordDto)
 
+    /**
+     * Reset user password with email
+     *
+     * @param email user's email
+     */
     @PATCH("reset-password")
     suspend fun resetUserPassword(@Query("email") email: String)
 }

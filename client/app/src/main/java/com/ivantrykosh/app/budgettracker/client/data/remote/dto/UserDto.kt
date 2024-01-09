@@ -13,6 +13,9 @@ data class UserDto(
     val isVerified: Boolean,
 )
 
+/**
+ * Convert from UserDto to User
+ */
 fun UserDto.toUser(): User {
     return User(
         userId = userId,

@@ -26,10 +26,19 @@ class TransactionItemAdapter(
 ) : RecyclerView.Adapter<TransactionItemAdapter.TransactionItemViewHolder>() {
 
     private var clickListener: OnTransactionClickListener? = null
+
+    /**
+     * Set on transaction click listener
+     *
+     * @param listener OnTransactionClickListener
+     */
     fun setOnTransactionClickListener(listener: OnTransactionClickListener) {
         this.clickListener = listener
     }
 
+    /**
+     * Transaction Item View Holder
+     */
     class TransactionItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         val category: TextView = view.findViewById(R.id.item_transaction_category)
         val value: TextView = view.findViewById(R.id.item_transaction_value)

@@ -21,6 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.ivantrykosh.app.budgettracker.client.R
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentSettingsBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
@@ -152,6 +153,9 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    /**
+     * Show context menu
+     */
     private fun showMenu(v: View, @MenuRes menuRes: Int) {
         val popup = PopupMenu(requireContext(), v)
         popup.menuInflater.inflate(menuRes, popup.menu)
@@ -175,6 +179,9 @@ class SettingsFragment : Fragment() {
         popup.show()
     }
 
+    /**
+     * Show feedback message
+     */
     private fun showFeedBackMessage() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.support_and_feedback))
@@ -183,6 +190,9 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    /**
+     * On delete data click
+     */
     private fun onDeleteData() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.delete_data_question_title))
@@ -194,42 +204,75 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    /**
+     * Delete data
+     */
     private fun deleteData() {
-        binding.root.isRefreshing = true
         binding.settingsError.root.visibility = View.GONE
-
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressStart()
 
         viewModel.deleteAllAccounts()
-        viewModel.isLoadingDeleteAllAccounts.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                binding.root.isRefreshing = false
+        viewModel.deleteAllAccountsState.observe(requireActivity()) { deleteAllAccounts ->
+            if (!deleteAllAccounts.isLoading) {
+                progressEnd()
 
-                if (viewModel.deleteAllAccountsState.value.error.isBlank()) {
-                    Toast.makeText(requireContext(), resources.getString(R.string.data_was_deleted), Toast.LENGTH_LONG).show()
-                } else {
-                    if (viewModel.deleteAllAccountsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.deleteAllAccountsState.value.error.startsWith("401") || viewModel.deleteAllAccountsState.value.error.contains("JWT", ignoreCase = true)) {
+                when (deleteAllAccounts.error) {
+                    null -> {
+                        Toast.makeText(requireContext(), resources.getString(R.string.data_was_deleted), Toast.LENGTH_LONG).show()
+                    }
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                         startAuthActivity()
-                    } else if (viewModel.deleteAllAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.settingsError.root.visibility = View.VISIBLE
-                        binding.settingsError.errorTitle.text = resources.getString(R.string.error)
-                        binding.settingsError.errorText.text = viewModel.deleteAllAccountsState.value.error
-                    } else {
-                        binding.settingsError.root.visibility = View.VISIBLE
-                        binding.settingsError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.settingsError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
-                viewModel.isLoadingDeleteAllAccounts.removeObservers(requireActivity())
+
+                viewModel.deleteAllAccountsState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * Start auth activity
+     */
     private fun startAuthActivity() {
         val intent = Intent(requireActivity(), AuthActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         requireActivity().startActivity(intent)
+    }
+
+    /**
+     * Show progress indicator and make screen not touchable
+     */
+    private fun progressStart() {
+        binding.root.isRefreshing = true
+        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    /**
+     * Hide progress indicator and make screen touchable
+     */
+    private fun progressEnd() {
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        binding.root.isRefreshing = false
+    }
+
+    /**
+     * Show error message
+     *
+     * @param title title of message
+     * @param text text of message
+     */
+    private fun showError(title: String, text: String) {
+        binding.settingsError.root.visibility = View.VISIBLE
+        binding.settingsError.errorTitle.text = title
+        binding.settingsError.errorText.text = text
     }
 
     override fun onDestroyView() {

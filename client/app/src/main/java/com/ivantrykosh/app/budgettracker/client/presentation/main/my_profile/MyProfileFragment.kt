@@ -3,6 +3,7 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.my_profile
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentMyProfileBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
@@ -41,11 +43,9 @@ class MyProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.myProfileChangePasswordDialog.root.visibility = View.GONE
         getUser()
 
         binding.root.setOnRefreshListener {
-            binding.myProfileChangePasswordDialog.root.visibility = View.GONE
             getUser()
         }
 
@@ -109,8 +109,7 @@ class MyProfileFragment : Fragment() {
                 } else {
                     binding.myProfilePasswordDialog.passwordTextInputPassword.error = null
                 }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.myProfilePasswordDialog.passwordTextInputPassword.windowToken, 0)
+                hideKeyboard(binding.myProfilePasswordDialog.passwordTextInputPassword.windowToken)
             }
         }
 
@@ -137,8 +136,7 @@ class MyProfileFragment : Fragment() {
                 } else {
                     binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = null
                 }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.windowToken, 0)
+                hideKeyboard(binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.windowToken)
             }
         }
 
@@ -149,8 +147,7 @@ class MyProfileFragment : Fragment() {
                 } else {
                     binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = null
                 }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.windowToken, 0)
+                hideKeyboard(binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.windowToken)
             }
         }
 
@@ -173,38 +170,44 @@ class MyProfileFragment : Fragment() {
         }
     }
 
+    /**
+     * Get user
+     */
     private fun getUser() {
-        binding.root.isRefreshing = true
+        binding.myProfileChangePasswordDialog.root.visibility = View.GONE
         binding.myProfileError.root.visibility = View.GONE
-
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressStart()
 
         viewModel.getUser()
-        viewModel.isLoadingGetUser.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                binding.root.isRefreshing = false
+        viewModel.getUserState.observe(requireActivity()) { getUser ->
+            if (!getUser.isLoading) {
+                progressEnd()
 
-                if (viewModel.getUserState.value.error.isBlank()) {
-                    binding.myProfileEmailEmail.text = viewModel.getUserState.value.user?.email ?: resources.getString(R.string.no_email)
-                } else {
-                    if (viewModel.getUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getUserState.value.error.startsWith("401") || viewModel.getUserState.value.error.contains("JWT", ignoreCase = true)) {
+                when (getUser.error) {
+                    null -> {
+                        binding.myProfileEmailEmail.text = getUser.user?.email ?: resources.getString(R.string.no_email)
+                    }
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                         startAuthActivity()
-                    } else if (viewModel.getUserState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.myProfileError.root.visibility = View.VISIBLE
-                        binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-                        binding.myProfileError.errorText.text = viewModel.getUserState.value.error
-                    } else {
-                        binding.myProfileError.root.visibility = View.VISIBLE
-                        binding.myProfileError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.myProfileError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
-                viewModel.isLoadingGetUser.removeObservers(requireActivity())
+
+                viewModel.getUserState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * On change password click
+     */
     private fun onChangePassword() {
         binding.myProfileError.root.visibility = View.GONE
         binding.myProfileChangePasswordDialog.root.visibility = View.VISIBLE
@@ -215,54 +218,59 @@ class MyProfileFragment : Fragment() {
         binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text = null
     }
 
+    /**
+     * Change password with current and new password
+     *
+     * @param password current password
+     * @param newPassword new password
+     */
     private fun changePassword(password: String, newPassword: String) {
         if (!viewModel.checkPassword(password)) {
-            binding.myProfileError.root.visibility = View.VISIBLE
-            binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-            binding.myProfileError.errorText.text = resources.getString(R.string.invalid_password)
+            showError(resources.getString(R.string.error), resources.getString(R.string.invalid_password))
         } else if (!viewModel.checkPassword(newPassword)) {
-            binding.myProfileError.root.visibility = View.VISIBLE
-            binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-            binding.myProfileError.errorText.text = resources.getString(R.string.invalid_new_password)
+            showError(resources.getString(R.string.error), resources.getString(R.string.invalid_new_password))
         } else {
-            binding.root.isRefreshing = true
             binding.myProfileError.root.visibility = View.GONE
-
-            requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            progressStart()
 
             viewModel.changePassword(password, newPassword)
-            viewModel.isLoadingChangePassword.observe(requireActivity()) { isLoading ->
-                if (!isLoading) {
-                    binding.root.isRefreshing = false
-                    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            viewModel.changePasswordState.observe(requireActivity()) { changePassword ->
+                if (!changePassword.isLoading) {
+                    progressEnd()
 
-                    if (viewModel.changePasswordState.value.error.isBlank()) {
-                        showDefaultDialog(
-                            resources.getString(R.string.password_was_changed),
-                            resources.getString(R.string.password_was_changed),
-                            resources.getString(R.string.ok)
-                        )
-                    } else if (viewModel.changePasswordState.value.error.startsWith("400")) {
-                        binding.myProfileError.root.visibility = View.VISIBLE
-                        binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-                        binding.myProfileError.errorText.text = resources.getString(R.string.incorrect_password)
-                    } else if (viewModel.changePasswordState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.changePasswordState.value.error.startsWith("401") || viewModel.changePasswordState.value.error.contains("JWT", ignoreCase = true)) {
-                        startAuthActivity()
-                    } else if (viewModel.changePasswordState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.myProfileError.root.visibility = View.VISIBLE
-                        binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-                        binding.myProfileError.errorText.text = viewModel.changePasswordState.value.error
-                    } else {
-                        binding.myProfileError.root.visibility = View.VISIBLE
-                        binding.myProfileError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.myProfileError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    when (changePassword.error) {
+                        null -> {
+                            showDefaultDialog(
+                                resources.getString(R.string.password_was_changed),
+                                resources.getString(R.string.password_was_changed),
+                                resources.getString(R.string.ok)
+                            )
+                        }
+                        Constants.ErrorStatusCodes.BAD_REQUEST -> {
+                            showError(resources.getString(R.string.error), resources.getString(R.string.incorrect_password))
+                        }
+                        Constants.ErrorStatusCodes.UNAUTHORIZED,
+                        Constants.ErrorStatusCodes.FORBIDDEN,
+                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
+                            startAuthActivity()
+                        }
+                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                        }
+                        else -> {
+                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                        }
                     }
-                    viewModel.isLoadingChangePassword.removeObservers(requireActivity())
+
+                    viewModel.changePasswordState.removeObservers(requireActivity())
                 }
             }
         }
     }
 
+    /**
+     * On reset password click
+     */
     private fun onResetPassword() {
         binding.myProfileError.root.visibility = View.GONE
 
@@ -276,50 +284,49 @@ class MyProfileFragment : Fragment() {
             .show()
     }
 
+    /**
+     * Reset password
+     */
     private fun resetPassword() {
-        binding.root.isRefreshing = true
         binding.myProfileError.root.visibility = View.GONE
-        requireActivity().window.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
+        progressStart()
 
         viewModel.resetPassword()
-        viewModel.isLoadingResetPassword.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                binding.root.isRefreshing = false
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        viewModel.resetPasswordState.observe(requireActivity()) { resetPassword ->
+            if (!resetPassword.isLoading) {
+                progressEnd()
 
-                if (viewModel.resetPasswordState.value.error.isBlank()) {
-                    showDefaultDialog(
-                        resources.getString(R.string.reset_password_title),
-                        resources.getString(R.string.reset_password_message),
-                        resources.getString(R.string.ok)
-                    )
-                } else if (viewModel.resetPasswordState.value.error.startsWith("403") || viewModel.resetPasswordState.value.error.contains("JWT", ignoreCase = true)) {
-                    startAuthActivity()
-                } else if (viewModel.resetPasswordState.value.error.startsWith("401")) {
-                    binding.myProfileError.root.visibility = View.VISIBLE
-                    binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-                    binding.myProfileError.errorText.text = resources.getString(R.string.invalid_email)
-                } else if (viewModel.resetPasswordState.value.error.contains("HTTP", ignoreCase = true)) {
-                    binding.myProfileError.root.visibility = View.VISIBLE
-                    binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-                    binding.myProfileError.errorText.text =
-                        viewModel.resetPasswordState.value.error
-                } else {
-                    binding.myProfileError.root.visibility = View.VISIBLE
-                    binding.myProfileError.errorTitle.text =
-                        resources.getString(R.string.network_error)
-                    binding.myProfileError.errorText.text =
-                        resources.getString(R.string.connection_failed_message)
+                when (resetPassword.error) {
+                    null -> {
+                        showDefaultDialog(
+                            resources.getString(R.string.reset_password_title),
+                            resources.getString(R.string.reset_password_message),
+                            resources.getString(R.string.ok)
+                        )
+                    }
+                    Constants.ErrorStatusCodes.UNAUTHORIZED -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.invalid_email))
+                    }
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
+                        startAuthActivity()
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                    }
                 }
 
-                viewModel.isLoadingResetPassword.removeObservers(requireActivity())
+                viewModel.resetPasswordState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * On delete all click
+     */
     private fun onDeleteAll() {
         binding.myProfileError.root.visibility = View.GONE
 
@@ -338,44 +345,53 @@ class MyProfileFragment : Fragment() {
             .show()
     }
 
+    /**
+     * Delete all data with password
+     *
+     * @param password user current password
+     */
     private fun deleteAll(password: String) {
-        binding.root.isRefreshing = true
         binding.myProfileError.root.visibility = View.GONE
-
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressStart()
 
         viewModel.deleteUser(password)
-        viewModel.isLoadingDeleteUser.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                binding.root.isRefreshing = false
+        viewModel.deleteUserState.observe(requireActivity()) { deleteUser ->
+            if (!deleteUser.isLoading) {
+                progressEnd()
 
-                if (viewModel.deleteUserState.value.error.isBlank()) {
-                    Toast.makeText(requireContext(), resources.getString(R.string.all_data_was_deleted), Toast.LENGTH_LONG).show()
-                    startAuthActivity()
-                } else {
-                    if (viewModel.deleteUserState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.deleteUserState.value.error.contains("JWT", ignoreCase = true)) {
+                when (deleteUser.error) {
+                    null -> {
+                        Toast.makeText(requireContext(), resources.getString(R.string.all_data_was_deleted), Toast.LENGTH_LONG).show()
                         startAuthActivity()
-                    } else if (viewModel.deleteUserState.value.error.startsWith("401")) {
-                        binding.myProfileError.root.visibility = View.VISIBLE
-                        binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-                        binding.myProfileError.errorText.text = resources.getString(R.string.incorrect_password)
-                    } else if (viewModel.deleteUserState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.myProfileError.root.visibility = View.VISIBLE
-                        binding.myProfileError.errorTitle.text = resources.getString(R.string.error)
-                        binding.myProfileError.errorText.text = viewModel.deleteUserState.value.error
-                    } else {
-                        binding.myProfileError.root.visibility = View.VISIBLE
-                        binding.myProfileError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.myProfileError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.UNAUTHORIZED -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.incorrect_password))
+                    }
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
+                        startAuthActivity()
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
-                viewModel.isLoadingGetUser.removeObservers(requireActivity())
+
+                viewModel.deleteUserState.removeObservers(requireActivity())
             }
         }
     }
 
 
+    /**
+     * Show default dialog
+     *
+     * @param title title of dialog
+     * @param message message of dialog
+     * @param posButton name of positive button
+     */
     private fun showDefaultDialog(title: String, message: String, posButton: String) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(title)
@@ -384,10 +400,51 @@ class MyProfileFragment : Fragment() {
             .show()
     }
 
+    /**
+     * Start auth activity
+     */
     private fun startAuthActivity() {
         val intent = Intent(requireActivity(), AuthActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         requireActivity().startActivity(intent)
+    }
+
+    /**
+     * Hide keyboard
+     *
+     * @param windowToken token of window
+     */
+    private fun hideKeyboard(windowToken: IBinder) {
+        val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    }
+
+    /**
+     * Show progress indicator and make screen not touchable
+     */
+    private fun progressStart() {
+        binding.root.isRefreshing = true
+        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    /**
+     * Hide progress indicator and make screen touchable
+     */
+    private fun progressEnd() {
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        binding.root.isRefreshing = false
+    }
+
+    /**
+     * Show error message
+     *
+     * @param title title of message
+     * @param text text of message
+     */
+    private fun showError(title: String, text: String) {
+        binding.myProfileError.root.visibility = View.VISIBLE
+        binding.myProfileError.errorTitle.text = title
+        binding.myProfileError.errorText.text = text
     }
 
     override fun onDestroyView() {

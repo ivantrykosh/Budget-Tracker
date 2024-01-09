@@ -43,68 +43,100 @@ object AppModule {
         .writeTimeout(5, TimeUnit.SECONDS)
         .build()
 
+    /**
+     * Provide auth API with Retrofit
+     */
     @Provides
     @Singleton
     fun provideAuthApi(): AuthApi {
         return Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL + Constants.AUTH_URL)
+            .baseUrl(Constants.URL.BASE_URL + Constants.URL.AUTH_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(AuthApi::class.java)
     }
 
+    /**
+     * Provide auth repository with api instance
+     *
+     * @param api instance of AuthApi
+     */
     @Provides
     @Singleton
     fun provideAuthRepository(api: AuthApi): AuthRepository {
         return AuthRepositoryImpl(api)
     }
 
+    /**
+     * Provide user API with Retrofit
+     */
     @Provides
     @Singleton
     fun provideUserApi(): UserApi {
         return Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL + Constants.USER_URL)
+            .baseUrl(Constants.URL.BASE_URL + Constants.URL.USER_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(UserApi::class.java)
     }
 
+    /**
+     * Provide user repository with api instance
+     *
+     * @param api instance of UserApi
+     */
     @Provides
     @Singleton
     fun provideUserRepository(api: UserApi): UserRepository {
         return UserRepositoryImpl(api)
     }
 
+    /**
+     * Provide account API with Retrofit
+     */
     @Provides
     @Singleton
     fun provideAccountApi(): AccountApi {
         return Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL + Constants.ACCOUNT_URL)
+            .baseUrl(Constants.URL.BASE_URL + Constants.URL.ACCOUNT_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(AccountApi::class.java)
     }
 
+    /**
+     * Provide account repository with api instance
+     *
+     * @param api instance of AccountApi
+     */
     @Provides
     @Singleton
     fun provideAccountRepository(api: AccountApi): AccountRepository {
         return AccountRepositoryImpl(api)
     }
 
+    /**
+     * Provide transaction API with Retrofit
+     */
     @Provides
     @Singleton
     fun provideTransactionApi(): TransactionApi {
         return Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL + Constants.TRANSACTION_URL)
+            .baseUrl(Constants.URL.BASE_URL + Constants.URL.TRANSACTION_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(TransactionApi::class.java)
     }
 
+    /**
+     * Provide transaction repository with api instance
+     *
+     * @param api instance of TransactionApi
+     */
     @Provides
     @Singleton
     fun provideTransactionRepository(api: TransactionApi): TransactionRepository {

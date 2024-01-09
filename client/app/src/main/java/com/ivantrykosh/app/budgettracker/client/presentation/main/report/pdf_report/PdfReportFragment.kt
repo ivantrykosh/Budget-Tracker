@@ -20,6 +20,7 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Legend
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.ivantrykosh.app.budgettracker.client.R
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentPdfReportBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
@@ -174,45 +175,49 @@ class PdfReportFragment : Fragment() {
         loadAccounts()
     }
 
+    /**
+     * Load user accounts
+     */
     private fun loadAccounts() {
         binding.pdfReportError.root.visibility = View.GONE
-        binding.root.isRefreshing = true
-
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressStart()
 
         viewModel.getAccounts()
-        viewModel.isLoadingGetAccounts.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                binding.root.isRefreshing = false
-                if (viewModel.getAccountsState.value.error.isBlank()) {
-                    if (viewModel.getAccountsState.value.accounts.isEmpty()) {
-                        binding.pdfReportError.root.visibility = View.VISIBLE
-                        binding.pdfReportError.errorTitle.text = resources.getString(R.string.error)
-                        binding.pdfReportError.errorText.text = resources.getString(R.string.no_accounts)
-                    } else {
-                        setAccounts()
+        viewModel.getAccountsState.observe(requireActivity()) { getAccounts ->
+            if (!getAccounts.isLoading) {
+                progressEnd()
+
+                when (getAccounts.error) {
+                    null -> {
+                        if (getAccounts.accounts.isEmpty()) {
+                            showError(resources.getString(R.string.error), resources.getString(R.string.no_accounts))
+                        } else {
+                            setAccounts()
+                        }
                     }
-                } else {
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                         startAuthActivity()
-                    } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.pdfReportError.root.visibility = View.VISIBLE
-                        binding.pdfReportError.errorTitle.text = resources.getString(R.string.error)
-                        binding.pdfReportError.errorText.text = viewModel.getAccountsState.value.error
-                    } else {
-                        binding.pdfReportError.root.visibility = View.VISIBLE
-                        binding.pdfReportError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.pdfReportError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
-                viewModel.isLoadingGetAccounts.removeObservers(requireActivity())
+
+                viewModel.getAccountsState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * Set accounts to AutoCompleteTextView
+     */
     private fun setAccounts() {
-        val items: MutableList<String> = viewModel.getAccountsState.value.accounts.map { it.name }.toMutableList()
+        val items: MutableList<String> = viewModel.getAccountsState.value?.accounts?.map { it.name }?.toMutableList() ?: mutableListOf()
         items.add(0, resources.getString(R.string.select_all))
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item_name_item, items)
         (binding.pdfReportInputAccount.editText as? AutoCompleteTextView)?.setAdapter(adapter)
@@ -220,6 +225,9 @@ class PdfReportFragment : Fragment() {
         binding.pdfReportInputAccountText.text = null
     }
 
+    /**
+     * Create PDF report
+     */
     private fun createReport() {
         binding.pdfReportError.root.visibility = View.GONE
         binding.pdfReportInputTransactionTypeText.clearFocus()
@@ -236,49 +244,84 @@ class PdfReportFragment : Fragment() {
         } else if (binding.pdfReportInputDatesText.text?.isBlank() == true) {
             binding.pdfReportInputDates.error = resources.getString(R.string.invalid_dates)
         } else {
-            binding.root.isRefreshing = true
-
-            requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            progressStart()
 
             val accountIds: List<Long> = when (isAllAccounts) {
-                true -> viewModel.getAccountsState.value.accounts.map { it.accountId }
+                true -> viewModel.getAccountsState.value!!.accounts.map { it.accountId }
                 false -> listOf(viewModel.getAccountIdByName(binding.pdfReportInputAccountText.text.toString()) ?: -1)
             }
-            viewModel.getTransactions(accountIds, binding.pdfReportInputTransactionTypeText.text.toString())
-            viewModel.isLoadingGetTransactions.observe(requireActivity()) { isLoading  ->
-                if (!isLoading) {
-                    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                    binding.root.isRefreshing = false
+            val type: Int = when (binding.pdfReportInputTransactionTypeText.text.toString()) {
+                resources.getString(R.string.incomes) -> 1
+                resources.getString(R.string.expenses) -> -1
+                else -> 0
+            }
+            viewModel.getTransactions(accountIds, type)
+            viewModel.getTransactionsState.observe(requireActivity()) { getTransactions  ->
+                if (!getTransactions.isLoading) {
+                    progressEnd()
 
-                    if (viewModel.getTransactionsState.value.error.isBlank()) {
-                        if (viewModel.getTransactionsState.value.transactions.isEmpty()) {
-                            Toast.makeText(requireContext(), resources.getString(R.string.no_transactions), Toast.LENGTH_SHORT).show()
-                        } else {
-                            inflateLayout()
+                    when (getTransactions.error) {
+                        null -> {
+                            if (getTransactions.transactions.isEmpty()) {
+                                Toast.makeText(requireContext(), resources.getString(R.string.no_transactions), Toast.LENGTH_SHORT).show()
+                            } else {
+                                inflateLayout()
+                            }
                         }
-                    } else {
-                        if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401") || viewModel.getTransactionsState.value.error.contains("JWT", ignoreCase = true)) {
+                        Constants.ErrorStatusCodes.UNAUTHORIZED,
+                        Constants.ErrorStatusCodes.FORBIDDEN,
+                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                             startAuthActivity()
-                        } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
-                            binding.pdfReportError.root.visibility = View.VISIBLE
-                            binding.pdfReportError.errorTitle.text = resources.getString(R.string.error)
-                            binding.pdfReportError.errorText.text = viewModel.getTransactionsState.value.error
-                        } else {
-                            binding.pdfReportError.root.visibility = View.VISIBLE
-                            binding.pdfReportError.errorTitle.text = resources.getString(R.string.network_error)
-                            binding.pdfReportError.errorText.text = resources.getString(R.string.connection_failed_message)
+                        }
+                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                        }
+                        else -> {
+                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                         }
                     }
-                    viewModel.isLoadingGetTransactions.removeObservers(requireActivity())
+
+                    viewModel.getTransactionsState.removeObservers(requireActivity())
                 }
             }
         }
     }
 
+    /**
+     * Start auth activity
+     */
     private fun startAuthActivity() {
         val intent = Intent(requireActivity(), AuthActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         requireActivity().startActivity(intent)
+    }
+
+    /**
+     * Show progress indicator and make screen not touchable
+     */
+    private fun progressStart() {
+        binding.root.isRefreshing = true
+        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    /**
+     * Hide progress indicator and make screen touchable
+     */
+    private fun progressEnd() {
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        binding.root.isRefreshing = false
+    }
+
+    /**
+     * Show error message
+     *
+     * @param title title of message
+     * @param text text of message
+     */
+    private fun showError(title: String, text: String) {
+        binding.pdfReportError.root.visibility = View.VISIBLE
+        binding.pdfReportError.errorTitle.text = title
+        binding.pdfReportError.errorText.text = text
     }
 
     override fun onDestroyView() {
@@ -287,6 +330,9 @@ class PdfReportFragment : Fragment() {
         _binding = null
     }
 
+    /**
+     * Inflate PDF layout and convert it to bitmap
+     */
     private fun inflateLayout() {
         val width = 950
         val height = 1375

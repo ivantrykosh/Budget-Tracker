@@ -47,6 +47,9 @@ class CreateTimeReportFragment : Fragment(), OnChartValueSelectedListener {
         showReport()
     }
 
+    /**
+     * Show time report
+     */
     private fun showReport() {
         val typedValue = TypedValue()
         requireActivity().theme.resolveAttribute(android.R.attr.colorAccent, typedValue, true)

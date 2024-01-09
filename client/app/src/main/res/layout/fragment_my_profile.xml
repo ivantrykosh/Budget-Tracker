@@ -88,10 +88,10 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/my_profile_change_password_main"
+                style="@style/BackgroundTheme"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                style="@style/BackgroundTheme"
                 android:clickable="true"
                 android:padding="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -100,10 +100,10 @@
 
                 <ImageView
                     android:id="@+id/my_profile_change_password_icon"
+                    style="@style/IconTheme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
-                    style="@style/IconTheme"
                     android:src="@drawable/outline_cached_24"
                     app:layout_constraintBottom_toBottomOf="@id/my_profile_change_password_text"
                     app:layout_constraintStart_toStartOf="parent"

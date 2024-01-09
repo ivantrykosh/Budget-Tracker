@@ -1,5 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.domain.use_case.auth.confirm_email
 
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AuthRepository
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
@@ -15,15 +16,20 @@ import javax.inject.Inject
 class SendConfirmationEmailUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {
+    /**
+     * Invoke send confirmation email use case with request
+     *
+     * @param request AuthDto request
+     */
     operator fun invoke(request: AuthDto): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
             repository.sendConfirmationEmail(request)
-            emit(Resource.Success("Success"))
+            emit(Resource.Success(""))
         } catch (e: HttpException) {
-            emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))
+            emit(Resource.Error(e.code()))
         } catch (e: IOException) {
-            emit(Resource.Error("Couldn't reach server. Check your internet connection"))
+            emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
         }
     }
 }

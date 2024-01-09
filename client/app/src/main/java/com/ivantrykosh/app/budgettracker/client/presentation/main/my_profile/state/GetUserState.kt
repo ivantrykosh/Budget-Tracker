@@ -5,8 +5,8 @@ import com.ivantrykosh.app.budgettracker.client.domain.model.User
 /**
  * User state
  */
-data class UserState(
+data class GetUserState(
     val isLoading: Boolean = false,
     val user: User? = null,
-    val error: String = "",
+    val error: Int? = null,
 )

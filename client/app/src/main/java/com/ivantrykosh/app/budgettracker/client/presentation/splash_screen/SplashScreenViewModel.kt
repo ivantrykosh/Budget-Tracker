@@ -1,12 +1,11 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.splash_screen
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.auth.refresh_token.RefreshTokenUseCase
 import com.ivantrykosh.app.budgettracker.client.presentation.splash_screen.state.RefreshTokenState
@@ -23,40 +22,43 @@ class SplashScreenViewModel @Inject constructor(
     private val refreshTokenUseCase: RefreshTokenUseCase,
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(RefreshTokenState())
-    val state: State<RefreshTokenState> = _state
-
-    private val _isLoading = MutableLiveData(false)
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _refreshTokenState = MutableLiveData(RefreshTokenState())
+    val refreshTokenState: LiveData<RefreshTokenState>
+        get() = _refreshTokenState
 
     init {
         refreshToken()
     }
 
+    /**
+     * Refresh token
+     */
     fun refreshToken() {
         AppPreferences.jwtToken?.let { token ->
             refreshToken(token)
         } ?: run {
-            _state.value = RefreshTokenState(error = "Token is not found")
-            _isLoading.value = false
+            _refreshTokenState.value = RefreshTokenState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
         }
     }
 
+    /**
+     * Refresh token with JWT
+     *
+     * @param token user's JWT
+     */
     private fun refreshToken(token: String) {
+        _refreshTokenState.value = RefreshTokenState(isLoading = true)
         refreshTokenUseCase(token).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value = RefreshTokenState(token = result.data ?: "")
-                    _isLoading.value = false
-                    AppPreferences.jwtToken = _state.value.token
+                    _refreshTokenState.value = RefreshTokenState(token = result.data ?: "")
+                    AppPreferences.jwtToken = _refreshTokenState.value!!.token
                 }
                 is Resource.Error -> {
-                    _state.value = RefreshTokenState(error = result.message ?: "An unexpected error occurred")
-                    _isLoading.value = false
+                    _refreshTokenState.value = RefreshTokenState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
                 }
                 is Resource.Loading -> {
-                    _state.value = RefreshTokenState(isLoading = true)
-                    _isLoading.value = true
+                    _refreshTokenState.value = RefreshTokenState(isLoading = true)
                 }
             }
         }.launchIn(viewModelScope)

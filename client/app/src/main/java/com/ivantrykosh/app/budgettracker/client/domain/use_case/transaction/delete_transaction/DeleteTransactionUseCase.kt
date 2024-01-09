@@ -1,5 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.delete_transaction
 
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,15 +14,21 @@ import javax.inject.Inject
 class DeleteTransactionUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
+    /**
+     * Invoke delete transaction use case with token and id
+     *
+     * @param token user's JWT
+     * @param id transaction id to delete
+     */
     operator fun invoke(token: String, id: String): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
             repository.deleteTransaction("Bearer $token", id)
-            emit(Resource.Success("Success"))
+            emit(Resource.Success(""))
         } catch (e: HttpException) {
-            emit(Resource.Error("${e.code()} ${e.localizedMessage ?: "An unexpected error occurred"}"))
+            emit(Resource.Error(e.code()))
         } catch (e: Exception) {
-            emit(Resource.Error("Couldn't reach server. Check your internet connection"))
+            emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
         }
     }
 }

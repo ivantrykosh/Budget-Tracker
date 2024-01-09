@@ -22,10 +22,19 @@ class AccountItemAdapter(
 ) : RecyclerView.Adapter<AccountItemAdapter.AccountItemViewHolder>() {
 
     private var clickListener: OnAccountClickListener? = null
+
+    /**
+     * Set on account click listener
+     *
+     * @param listener OnAccountClickListener
+     */
     fun setOnAccountClickListener(listener: OnAccountClickListener) {
         this.clickListener = listener
     }
 
+    /**
+     * Account Item View Holder
+     */
     class AccountItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.item_account_name)
         val totalValue: TextView = view.findViewById(R.id.item_account_total_value)

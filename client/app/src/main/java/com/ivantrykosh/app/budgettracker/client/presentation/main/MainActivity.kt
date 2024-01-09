@@ -58,6 +58,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    /**
+     * Set navigation item checked
+     */
     private fun setNavItemChecked(itemId: Int) {
         val navItem = binding.mainNavView.menu.findItem(itemId)
         if (!navItem.isChecked) {
@@ -74,6 +77,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    /**
+     * On exit back pressed. Check if it should navigate up or close app
+     */
     private fun exitOnBackPressed() {
         val navHostFragment: NavHostFragment = supportFragmentManager.findFragmentById(
             R.id.nav_main_fragment) as NavHostFragment
@@ -90,6 +96,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 || super.onSupportNavigateUp()
     }
 
+    /**
+     * Open navigation drawer
+     */
     fun openDrawer() {
         binding.mainDrawerLayout.openDrawer(GravityCompat.START)
     }
@@ -135,6 +144,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+    /**
+     * Log out
+     */
     fun logout() {
         AppPreferences.jwtToken = null
         val intent = Intent(this, AuthActivity::class.java)

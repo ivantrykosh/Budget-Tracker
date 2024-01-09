@@ -2,6 +2,7 @@ package com.ivantrykosh.app.budgettracker.client.presentation.auth.signup
 
 import android.content.Context
 import android.os.Bundle
+import android.os.IBinder
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AuthDto
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentSignupBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthViewModel
@@ -40,7 +42,6 @@ class SignUpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.signupButtonSignup.setOnClickListener {
-            binding.signupNetworkError.root.visibility = View.GONE
             onSignUp()
         }
 
@@ -51,8 +52,7 @@ class SignUpFragment : Fragment() {
                 } else {
                     binding.signupTextInputEmail.error = null
                 }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.signupTextInputEmail.windowToken, 0)
+                hideKeyboard(binding.signupTextInputEmail.windowToken)
             }
         }
         binding.signupEditTextInputPassword.setOnFocusChangeListener { _, hasFocus ->
@@ -62,8 +62,7 @@ class SignUpFragment : Fragment() {
                 } else {
                     binding.signupTextInputPassword.error = null
                 }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.signupTextInputPassword.windowToken, 0)
+                hideKeyboard(binding.signupTextInputPassword.windowToken)
             }
         }
 
@@ -72,7 +71,7 @@ class SignUpFragment : Fragment() {
         }
 
         binding.signupAnyProblems.setOnClickListener {
-            showDialog(
+            showDefaultDialog(
                 resources.getString(R.string.any_problems_question),
                 resources.getString(R.string.any_problems_message),
                 resources.getString(R.string.ok)
@@ -80,9 +79,12 @@ class SignUpFragment : Fragment() {
         }
     }
 
+    /**
+     * On sign up clicked
+     */
     private fun onSignUp() {
-        binding.signupTextInputEmail.clearFocus()
-        binding.signupTextInputPassword.clearFocus()
+        binding.signupNetworkError.root.visibility = View.GONE
+        clearFocusOfFields()
 
         val email = binding.signupEditTextInputEmail.text?.toString() ?: ""
         val password = binding.signupEditTextInputPassword.text?.toString() ?: ""
@@ -92,53 +94,100 @@ class SignUpFragment : Fragment() {
         } else if (!sharedAuthViewModel.checkPassword(password)) {
             binding.signupTextInputPassword.error = resources.getString(R.string.invalid_password)
         } else {
-            binding.signupTextInputEmail.error = null
-            binding.signupTextInputPassword.error = null
-
-            binding.signupCircularProgressIndicator.visibility = View.VISIBLE
-
-            requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            progressStart()
 
             sharedAuthViewModel.setAuthDto(AuthDto(email, password))
             sharedAuthViewModel.signUp()
-            sharedAuthViewModel.isSingUpLoading.observe(requireActivity()) { isLoading ->
-                if (!isLoading) {
-                    binding.signupCircularProgressIndicator.visibility = View.GONE
+            sharedAuthViewModel.signUpState.observe(requireActivity()) { signUp ->
+                if (!signUp.isLoading) {
+                    progressEnd()
 
-                    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-
-                    if (sharedAuthViewModel.signUpState.value.error == "") {
-                        showDialog(
-                            resources.getString(R.string.confirm_email_title),
-                            resources.getString(R.string.confirm_email_message),
-                            resources.getString(R.string.ok)
-                        )
-                        this@SignUpFragment.findNavController()
-                            .navigate(R.id.action_signUpFragment_to_loginFragment)
-                    } else if (sharedAuthViewModel.signUpState.value.error.startsWith("409")) {
-                        binding.signupTextInputEmail.error = resources.getString(R.string.email_is_used)
-                    } else if (sharedAuthViewModel.signUpState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.signupNetworkError.root.visibility = View.VISIBLE
-                        binding.signupNetworkError.errorTitle.text = resources.getString(R.string.error)
-                        binding.signupNetworkError.errorText.text = sharedAuthViewModel.signUpState.value.error
-                    } else {
-                        binding.signupNetworkError.root.visibility = View.VISIBLE
-                        binding.signupNetworkError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.signupNetworkError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    when (signUp.error) {
+                        null -> {
+                            showDefaultDialog(
+                                resources.getString(R.string.confirm_email_title),
+                                resources.getString(R.string.confirm_email_message),
+                                resources.getString(R.string.ok)
+                            )
+                            this@SignUpFragment.findNavController()
+                                .navigate(R.id.action_signUpFragment_to_loginFragment)
+                        }
+                        Constants.ErrorStatusCodes.CONFLICT -> {
+                            binding.signupTextInputEmail.error = resources.getString(R.string.email_is_used)
+                        }
+                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                        }
+                        else -> {
+                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                        }
                     }
 
-                    sharedAuthViewModel.isSingUpLoading.removeObservers(requireActivity())
+                    sharedAuthViewModel.signUpState.removeObservers(requireActivity())
                 }
             }
         }
     }
 
-    private fun showDialog(title: String, message: String, posButton: String) {
+    /**
+     * Show default dialog
+     *
+     * @param title title of dialog
+     * @param message message of dialog
+     * @param posButton name of positive button
+     */
+    private fun showDefaultDialog(title: String, message: String, posButton: String) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton(posButton) { _, _ -> }
             .show()
+    }
+
+    /**
+     * Hide keyboard
+     *
+     * @param windowToken token of window
+     */
+    private fun hideKeyboard(windowToken: IBinder) {
+        val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    }
+
+    /**
+     * Clear focus of login and password fields
+     */
+    private fun clearFocusOfFields() {
+        binding.signupTextInputEmail.clearFocus()
+        binding.signupTextInputPassword.clearFocus()
+    }
+
+    /**
+     * Show progress indicator and make screen not touchable
+     */
+    private fun progressStart() {
+        binding.signupCircularProgressIndicator.visibility = View.VISIBLE
+        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    /**
+     * Hide progress indicator and make screen touchable
+     */
+    private fun progressEnd() {
+        binding.signupCircularProgressIndicator.visibility = View.GONE
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    /**
+     * Show error message
+     *
+     * @param title title of message
+     * @param text text of message
+     */
+    private fun showError(title: String, text: String) {
+        binding.signupNetworkError.root.visibility = View.VISIBLE
+        binding.signupNetworkError.errorTitle.text = title
+        binding.signupNetworkError.errorText.text = text
     }
 
     override fun onDestroyView() {

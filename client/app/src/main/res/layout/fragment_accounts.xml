@@ -67,7 +67,7 @@
                 android:text="@string/add_account"/>
 
             <include
-                android:id="@+id/accounts_dialog"
+                android:id="@+id/account_dialog"
                 layout="@layout/dialog_account_details"
                 android:visibility="gone"
                 tools:visibility="gone" />

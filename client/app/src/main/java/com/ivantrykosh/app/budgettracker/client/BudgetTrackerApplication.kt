@@ -20,6 +20,9 @@ class BudgetTrackerApplication: Application() {
         createNotificationChannel()
     }
 
+    /**
+     * Create notification channel to send notifications
+     */
     private fun createNotificationChannel() {
         val name: CharSequence = Constants.Notification.CHANNEL_NAME
         val description = Constants.Notification.CHANNEL_DESCRIPTION

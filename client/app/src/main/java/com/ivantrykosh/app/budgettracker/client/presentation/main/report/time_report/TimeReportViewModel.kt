@@ -1,7 +1,5 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.time_report
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,12 +9,13 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
+import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transactions_between_dates.GetTransactionsBetweenDates
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.AccountsState
-import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.TransactionsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.GetAccountsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.state.GetTransactionsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -39,17 +38,11 @@ class TimeReportViewModel @Inject constructor(
 
     enum class Period { DAY, WEEK, MONTH, YEAR }
 
-    private val _getAccountsState = mutableStateOf(AccountsState())
-    val getAccountsState: State<AccountsState> = _getAccountsState
+    private val _getAccountsState = MutableLiveData(GetAccountsState())
+    val getAccountsState: LiveData<GetAccountsState> = _getAccountsState
 
-    private val _isLoadingGetAccounts = MutableLiveData(false)
-    val isLoadingGetAccounts: LiveData<Boolean> = _isLoadingGetAccounts
-
-    private val _getTransactionsState = mutableStateOf(TransactionsState())
-    val getTransactionsState: State<TransactionsState> = _getTransactionsState
-
-    private val _isLoadingGetTransactions = MutableLiveData(false)
-    val isLoadingGetTransactions: LiveData<Boolean> = _isLoadingGetTransactions
+    private val _getTransactionsState = MutableLiveData(GetTransactionsState())
+    val getTransactionsState: LiveData<GetTransactionsState> = _getTransactionsState
 
     private val _dateRange = MutableLiveData(Pair(Date(), Date()))
     val dateRange: LiveData<String> = _dateRange.map { range ->
@@ -69,15 +62,32 @@ class TimeReportViewModel @Inject constructor(
         get() = _maxTimeValue * 1.1f
 
 
+    /**
+     * Set period
+     *
+     * @param period time period
+     */
     fun setPeriod(period: Period) {
         this.period = period
         _dateRange.value = getDates(_dateRange.value?.first ?: Date(), _dateRange.value?.second ?: Date())
     }
 
+    /**
+     * Update date range
+     *
+     * @param firstDate first date
+     * @param secondDate second date
+     */
     fun updateDateRange(firstDate: Date, secondDate: Date) {
         _dateRange.value = getDates(firstDate, secondDate)
     }
 
+    /**
+     * Get pair of dates and period
+     *
+     * @param firstDate first date
+     * @param secondDate second date
+     */
     private fun getDates(firstDate: Date, secondDate: Date): Pair<Date, Date> {
         val calendar = Calendar.getInstance()
         calendar.time = firstDate
@@ -120,95 +130,130 @@ class TimeReportViewModel @Inject constructor(
         return Pair(firstPeriodDate, secondPeriodDate)
     }
 
+    /**
+     * Parse date to string
+     *
+     * @param date date to parse
+     */
     private fun reformatDate(date: Date): String {
         return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
     }
 
+    /**
+     * Parse date to user format string
+     *
+     * @param date date to parse
+     */
     private fun userFormatDate(date: Date): String {
         return SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(date)
     }
 
+    /**
+     * Get account ID by its name
+     *
+     * @param accountName name of account
+     */
     fun getAccountIdByName(accountName: String): Long? {
         return try {
-            _getAccountsState.value.accounts.first { it.name == accountName }.accountId
+            _getAccountsState.value?.accounts?.first { it.name == accountName }?.accountId ?: -1
         } catch (e: NoSuchElementException) {
             null
         }
     }
 
+    /**
+     * Get user accounts
+     */
     fun getAccounts() {
         AppPreferences.jwtToken?.let { token ->
             getAccounts(token)
         } ?: run {
-            _getAccountsState.value = AccountsState(error = "No JWT token found")
+            _getAccountsState.value = GetAccountsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
         }
     }
 
-    fun getTransactions(accountIds: List<Long>, type: String) {
+    /**
+     * Get transaction by account IDs and type
+     *
+     * @param accountIds IDs of accounts
+     * @param type type of transactions
+     */
+    fun getTransactions(accountIds: List<Long>, type: Int) {
         AppPreferences.jwtToken?.let { token ->
             getTransactions(token, accountIds, reformatDate(_dateRange.value?.first ?: Date()), reformatDate(_dateRange.value?.second ?: Date()), type)
         } ?: run {
-            _getTransactionsState.value = TransactionsState(error = "No JWT token found")
+            _getTransactionsState.value = GetTransactionsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
         }
     }
 
+    /**
+     * Get account using JWT
+     *
+     * @param token user JWT
+     */
     private fun getAccounts(token: String) {
-        _isLoadingGetAccounts.value = true
+        _getAccountsState.value = GetAccountsState(isLoading = true)
         getAccountsUseCase(token).onEach {result ->
             when (result) {
                 is Resource.Success -> {
-                    _getAccountsState.value = AccountsState(accounts = result.data ?: emptyList())
-                    _isLoadingGetAccounts.value = false
+                    _getAccountsState.value = GetAccountsState(accounts = result.data ?: emptyList())
                 }
                 is Resource.Error -> {
-                    _getAccountsState.value = AccountsState(error = result.message ?: "An unexpected error occurred")
-                    _isLoadingGetAccounts.value = false
+                    _getAccountsState.value = GetAccountsState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
                 }
                 is Resource.Loading -> {
-                    _getAccountsState.value = AccountsState(isLoading = true)
-                    _isLoadingGetAccounts.value = true
+                    _getAccountsState.value = GetAccountsState(isLoading = true)
                 }
             }
         }.launchIn(viewModelScope)
     }
 
-    private fun getTransactions(token: String, accountIds: List<Long>, startDate: String, endDate: String, type: String) {
-        _isLoadingGetTransactions.value = true
+    /**
+     * Get transaction using JWT and account IDs, start and end date and type
+     *
+     * @param token user JWT
+     * @param accountIds IDs of accounts
+     * @param startDate start date
+     * @param endDate end date
+     * @param type transaction type
+     */
+    private fun getTransactions(token: String, accountIds: List<Long>, startDate: String, endDate: String, type: Int) {
+        _getTransactionsState.value = GetTransactionsState(isLoading = true)
         getTransactionsBetweenDatesUseCase(token, accountIds, startDate, endDate).onEach {result ->
             when (result) {
                 is Resource.Success -> {
-                    val transactions = result.data?.map { transactionDto ->
+                    val transactions = result.data?.filter {
+                        when {
+                            type > 0 -> { it.value > 0 }
+                            type < 0 -> { it.value < 0 }
+                            else -> { true }
+                        }
+                    }?.map { transactionDto ->
                         Transaction(
                             transactionId = transactionDto.transactionId,
-                            accountName = _getAccountsState.value.accounts.filter { it.accountId == transactionDto.accountId }.map { it.name }.first(),
+                            accountName = _getAccountsState.value!!.accounts.filter { it.accountId == transactionDto.accountId }.map { it.name }.first(),
                             category = transactionDto.category,
                             value = transactionDto.value,
                             date = transactionDto.date
                         )
-                    }?.filter {
-                        when (type) {
-                            "Incomes" -> { it.value > 0 }
-                            "Expenses" -> { it.value < 0 }
-                            else -> { true }
-                        }
                     } ?: emptyList()
-                    _getTransactionsState.value = TransactionsState(transactions = transactions)
-                    _isLoadingGetTransactions.value = false
+                    _getTransactionsState.value = GetTransactionsState(transactions = transactions)
                 }
                 is Resource.Error -> {
-                    _getTransactionsState.value = TransactionsState(error = result.message ?: "An unexpected error occurred")
-                    _isLoadingGetTransactions.value = false
+                    _getTransactionsState.value = GetTransactionsState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
                 }
                 is Resource.Loading -> {
-                    _getTransactionsState.value = TransactionsState(isLoading = true)
-                    _isLoadingGetTransactions.value = true
+                    _getTransactionsState.value = GetTransactionsState(isLoading = true)
                 }
             }
         }.launchIn(viewModelScope)
     }
 
+    /**
+     * Get line data
+     */
     fun getLineData(): LineData {
-        val transactions = getTransactionsState.value.transactions
+        val transactions = getTransactionsState.value?.transactions ?: emptyList()
 
         val entries = mutableListOf<Entry>()
 
@@ -244,6 +289,9 @@ class TimeReportViewModel @Inject constructor(
         return LineData(dataSet)
     }
 
+    /**
+     * Initialize sum with 0
+     */
     private fun initializeSumMap(): MutableMap<String, Float> {
         val sumMap = mutableMapOf<String, Float>()
 
@@ -272,6 +320,9 @@ class TimeReportViewModel @Inject constructor(
         return sumMap
     }
 
+    /**
+     * Get calendar field for period
+     */
     private fun getCalendarFieldForPeriod(): Int {
         return when (period) {
             Period.DAY -> Calendar.DAY_OF_MONTH
@@ -281,6 +332,11 @@ class TimeReportViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Get end date of week
+     *
+     * @param date date
+     */
     private fun getWeekEndDate(date: Date): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -288,6 +344,11 @@ class TimeReportViewModel @Inject constructor(
         return calendar.time
     }
 
+    /**
+     * Get end date of month
+     *
+     * @param date date
+     */
     private fun getMonthEndDate(date: Date): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -295,6 +356,11 @@ class TimeReportViewModel @Inject constructor(
         return calendar.time
     }
 
+    /**
+     * Get end date of year
+     *
+     * @param date date
+     */
     private fun getYearEndDate(date: Date): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date

@@ -5,5 +5,5 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.my_profile.st
  */
 data class ChangePasswordState(
     val isLoading: Boolean = false,
-    val error: String = "",
+    val error: Int? = null,
 )

@@ -13,6 +13,9 @@ data class AccountDto(
     val expensesSum: Double
 )
 
+/**
+ * Convert from AccountDto to Account
+ */
 fun AccountDto.toAccount(): Account {
     return Account(
         accountId = accountId,

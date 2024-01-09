@@ -45,6 +45,9 @@ class AuthActivity : AppCompatActivity() {
         viewModel.setAuthDto(null)
     }
 
+    /**
+     * On exit back pressed. Check if it should navigate up or close app
+     */
     private fun exitOnBackPressed() {
         val navHostFragment: NavHostFragment = supportFragmentManager.findFragmentById(
             R.id.nav_auth_fragment) as NavHostFragment

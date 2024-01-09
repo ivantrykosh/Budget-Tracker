@@ -4,8 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,7 +13,7 @@ import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.delete_all_accounts.DeleteAllAccountsUseCase
-import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.AccountsState
+import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.GetAccountsState
 import com.ivantrykosh.app.budgettracker.client.presentation.main.settings.notification.DailyReminderReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -35,11 +33,8 @@ class SettingsViewModel @Inject constructor(
     private val deleteAllAccountsUseCase: DeleteAllAccountsUseCase,
 ) : ViewModel() {
 
-    private val _deleteAllAccountsState = mutableStateOf(AccountsState())
-    val deleteAllAccountsState: State<AccountsState> = _deleteAllAccountsState
-
-    private val _isLoadingDeleteAllAccounts = MutableLiveData(false)
-    val isLoadingDeleteAllAccounts: LiveData<Boolean> = _isLoadingDeleteAllAccounts
+    private val _deleteAllAccountsState = MutableLiveData(GetAccountsState())
+    val deleteAllAccountsState: LiveData<GetAccountsState> = _deleteAllAccountsState
 
     private val _currency = MutableLiveData(AppPreferences.currency)
     val currency: LiveData<String> = _currency.map {  currency ->
@@ -55,19 +50,32 @@ class SettingsViewModel @Inject constructor(
 
     private val _dailyReminderTime = MutableLiveData(AppPreferences.reminderTime)
     val dailyReminderTime: LiveData<String?> = _dailyReminderTime.map {
-        it ?: "Set time"
+        it ?: "-"
     }
 
+    /**
+     * Get currencies with their symbols
+     */
     fun getCurrencies(): List<String> {
         return Constants.CURRENCIES.map {
             it.key + " - " + it.value
         }
     }
 
+    /**
+     * Get date formats
+     */
     fun getDateFormats(): List<String> {
         return Constants.DATE_FORMATS.toList()
     }
 
+    /**
+     * Set daily reminder
+     *
+     * @param hours hour of reminder
+     * @param minutes minute of reminder
+     * @param locale locale
+     */
     private fun setDailyReminderTime(hours: Int, minutes: Int, locale: Locale) {
         val time = LocalTime.of(hours, minutes)
         val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale)
@@ -78,11 +86,19 @@ class SettingsViewModel @Inject constructor(
         _dailyReminderTime.value = formattedTime
     }
 
+    /**
+     * Delete daily reminder
+     */
     private fun deleteDailyReminderTime() {
         _dailyReminderTime.value = null
         AppPreferences.reminderTime = null
     }
 
+    /**
+     * Set currency
+     *
+     * @param currencyWithSymbol currency with its symbol
+     */
     fun setCurrency(currencyWithSymbol: String) {
         for (currency in Constants.CURRENCIES) {
             if (currencyWithSymbol.contains(currency.key)) {
@@ -93,6 +109,11 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Set date format
+     *
+     * @param chosenDateFormat date format
+     */
     fun setDateFormat(chosenDateFormat: String) {
         for (dateFormat in Constants.DATE_FORMATS) {
             if (chosenDateFormat.contains(dateFormat)) {
@@ -103,6 +124,13 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Set daily reminder
+     *
+     * @param context context
+     * @param hourOfDay hour
+     * @param minute minute
+     */
     fun setDailyReminder(context: Context, hourOfDay: Int, minute: Int) {
         cancelDailyReminder(context)
 
@@ -128,6 +156,11 @@ class SettingsViewModel @Inject constructor(
         setDailyReminderTime(hourOfDay, minute, Locale.getDefault())
     }
 
+    /**
+     * Cancel daily reminder
+     *
+     * @param context context
+     */
     fun cancelDailyReminder(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, DailyReminderReceiver::class.java)
@@ -140,29 +173,34 @@ class SettingsViewModel @Inject constructor(
         deleteDailyReminderTime()
     }
 
+    /**
+     * Delete all accounts
+     */
     fun deleteAllAccounts() {
         AppPreferences.jwtToken?.let { token ->
             deleteAllAccounts(token)
         } ?: run {
-            _deleteAllAccountsState.value = AccountsState(error = "No JWT token found")
+            _deleteAllAccountsState.value = GetAccountsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
         }
     }
 
+    /**
+     * Delete all account with JWT
+     *
+     * @param token user JWT
+     */
     private fun deleteAllAccounts(token: String) {
-        _isLoadingDeleteAllAccounts.value = true
+        _deleteAllAccountsState.value = GetAccountsState(isLoading = true)
         deleteAllAccountsUseCase(token).onEach {result ->
             when (result) {
                 is Resource.Success -> {
-                    _deleteAllAccountsState.value = AccountsState()
-                    _isLoadingDeleteAllAccounts.value = false
+                    _deleteAllAccountsState.value = GetAccountsState()
                 }
                 is Resource.Error -> {
-                    _deleteAllAccountsState.value = AccountsState(error = result.message ?: "An unexpected error occurred")
-                    _isLoadingDeleteAllAccounts.value = false
+                    _deleteAllAccountsState.value = GetAccountsState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
                 }
                 is Resource.Loading -> {
-                    _deleteAllAccountsState.value = AccountsState(isLoading = true)
-                    _isLoadingDeleteAllAccounts.value = true
+                    _deleteAllAccountsState.value = GetAccountsState(isLoading = true)
                 }
             }
         }.launchIn(viewModelScope)

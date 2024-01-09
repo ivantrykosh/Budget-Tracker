@@ -5,5 +5,5 @@ package com.ivantrykosh.app.budgettracker.client.presentation.auth.confirmation_
  */
 data class ConfirmationEmailState(
     val isLoading: Boolean = false,
-    val error: String = "",
+    val error: Int? = null,
 )

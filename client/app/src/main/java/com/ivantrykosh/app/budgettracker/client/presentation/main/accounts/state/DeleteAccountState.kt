@@ -5,5 +5,5 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.stat
  */
 data class DeleteAccountState (
     val isLoading: Boolean = false,
-    val error: String = "",
+    val error: Int? = null,
 )

@@ -5,8 +5,8 @@ import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
 /**
  * Transaction state
  */
-data class TransactionState(
+data class CreateTransactionState(
     val isLoading: Boolean = false,
     val transaction: TransactionDto? = null,
-    val error: String = "",
+    val error: Int? = null,
 )

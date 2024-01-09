@@ -11,6 +11,9 @@ import androidx.core.content.edit
 object AppPreferences {
     private var sharedPreferences: SharedPreferences? = null
 
+    /**
+     * Set up shared preferences
+     */
     fun setup(context: Context) {
         sharedPreferences = context.getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE)
 
@@ -19,37 +22,55 @@ object AppPreferences {
         dateFormat = dateFormat ?: Constants.DATE_FORMATS.elementAt(0)
     }
 
+    /**
+     * JWT preference
+     */
     var jwtToken: String?
         get() = Key.JWT_TOKEN.getString()
         set(value) = Key.JWT_TOKEN.setString(value)
 
+    /**
+     * Currency preference
+     */
     var currency: String?
         get() = Key.CURRENCY.getString()
         set(value) = Key.CURRENCY.setString(value)
 
+    /**
+     * Date format preference
+     */
     var dateFormat: String?
         get() = Key.DATE_FORMAT.getString()
         set(value) = Key.DATE_FORMAT.setString(value)
 
+    /**
+     * Reminder time preference
+     */
     var reminderTime: String?
         get() = Key.REMINDER_TIME.getString()
         set(value) = Key.REMINDER_TIME.setString(value)
 
+    /**
+     * App preferences
+     */
     private enum class Key {
         JWT_TOKEN, CURRENCY, DATE_FORMAT, REMINDER_TIME;
 
-        fun getBoolean(): Boolean? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getBoolean(name, false) else null
-        fun getFloat(): Float? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getFloat(name, 0f) else null
-        fun getInt(): Int? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getInt(name, 0) else null
-        fun getLong(): Long? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getLong(name, 0) else null
+        /**
+         * Get string from preferences by key
+         */
         fun getString(): String? = if (sharedPreferences!!.contains(name)) sharedPreferences!!.getString(name, "") else null
 
-        fun setBoolean(value: Boolean?) = value?.let { sharedPreferences!!.edit { putBoolean(name, value) } } ?: remove()
-        fun setFloat(value: Float?) = value?.let { sharedPreferences!!.edit { putFloat(name, value) } } ?: remove()
-        fun setInt(value: Int?) = value?.let { sharedPreferences!!.edit { putInt(name, value) } } ?: remove()
-        fun setLong(value: Long?) = value?.let { sharedPreferences!!.edit { putLong(name, value) } } ?: remove()
+        /**
+         * Set string for preference by key and value or remove it, if value is null
+         *
+         * @param value value to set. If it's null, then remove preference
+         */
         fun setString(value: String?) = value?.let { sharedPreferences!!.edit { putString(name, value) } } ?: remove()
 
+        /**
+         * Remove preference by key
+         */
         fun remove() = sharedPreferences!!.edit { remove(name) }
     }
 }

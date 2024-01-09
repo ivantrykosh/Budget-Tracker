@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.os.IBinder
 import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
@@ -127,8 +128,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                 } else {
                     binding.transactionsDialog.transactionDetailsInputValue.error = null
                 }
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.transactionsDialog.transactionDetailsInputValue.windowToken, 0)
+                hideKeyboard(binding.transactionsDialog.transactionDetailsInputValue.windowToken)
             }
         }
 
@@ -180,15 +180,13 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
 
         binding.transactionsDialog.transactionDetailsInputFromToEdit.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.transactionsDialog.transactionDetailsInputFromTo.windowToken, 0)
+                hideKeyboard(binding.transactionsDialog.transactionDetailsInputFromTo.windowToken)
             }
         }
 
         binding.transactionsDialog.transactionDetailsInputNoteEdit.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.transactionsDialog.transactionDetailsInputNote.windowToken, 0)
+                hideKeyboard(binding.transactionsDialog.transactionDetailsInputNote.windowToken)
             }
         }
 
@@ -197,6 +195,9 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
         }
     }
 
+    /**
+     * On delete transaction click
+     */
     private fun onDeleteTransaction() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete_transaction_question)
@@ -208,131 +209,121 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
             .show()
     }
 
+    /**
+     * Refresh accounts
+     */
     private fun refresh() {
         binding.transactionsError.root.visibility = View.GONE
-        binding.root.isRefreshing = true
-
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        binding.transactionsRecyclerView.visibility = View.GONE
+        binding.transactionsNoTransactionsText.visibility = View.VISIBLE
+        progressStart()
 
         viewModel.getAccounts()
-        viewModel.isLoadingGetAccounts.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                if (viewModel.getAccountsState.value.error.isBlank()) {
-                    if (viewModel.getAccountsState.value.accounts.isNotEmpty()) {
-                        loadTransactions()
-                    } else {
-                        binding.transactionsRecyclerView.visibility = View.GONE
-                        binding.transactionsNoTransactionsText.visibility = View.VISIBLE
-                        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                        binding.root.isRefreshing = false
+        viewModel.getAccountsState.observe(requireActivity()) { getAccounts ->
+            if (!getAccounts.isLoading) {
+
+                progressEnd()
+
+                when (getAccounts.error) {
+                    null -> {
+                        if (getAccounts.accounts.isNotEmpty()) {
+                            loadTransactions()
+                        }
                     }
-                } else {
-                    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                    binding.transactionsRecyclerView.visibility = View.GONE
-                    binding.transactionsNoTransactionsText.visibility = View.VISIBLE
-                    binding.root.isRefreshing = false
-                    if (viewModel.getAccountsState.value.error.startsWith("403") || viewModel.getAccountsState.value.error.startsWith("401") || viewModel.getAccountsState.value.error.contains("JWT", ignoreCase = true)) {
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                         startAuthActivity()
-                    } else if (viewModel.getAccountsState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.transactionsError.root.visibility = View.VISIBLE
-                        binding.transactionsError.errorTitle.text = resources.getString(R.string.error)
-                        binding.transactionsError.errorText.text = viewModel.getAccountsState.value.error
-                    } else {
-                        binding.transactionsError.root.visibility = View.VISIBLE
-                        binding.transactionsError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.transactionsError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
-                binding.root.isRefreshing = false
-                viewModel.isLoadingGetAccounts.removeObservers(requireActivity())
+
+                viewModel.getAccountsState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * Load transactions
+     */
     private fun loadTransactions() {
         binding.transactionsError.root.visibility = View.GONE
+        binding.transactionsRecyclerView.visibility = View.GONE
+        binding.transactionsNoTransactionsText.visibility = View.VISIBLE
 
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressStart()
 
-        viewModel.getTransactions(viewModel.getAccountsState.value.accounts.map { it.accountId }, viewModel.getStartMonth(), viewModel.getEndMonth())
-        viewModel.isLoadingGetTransactions.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        viewModel.getTransactions(viewModel.getAccountsState.value!!.accounts.map { it.accountId }, viewModel.getStartMonth(), viewModel.getEndMonth())
+        viewModel.getTransactionsState.observe(requireActivity()) { getTransactions ->
+            if (!getTransactions.isLoading) {
+                progressEnd()
 
-                if (viewModel.getTransactionsState.value.error.isBlank()) {
-
-                    if (viewModel.getTransactionsState.value.transactions.isEmpty()) {
-                        binding.transactionsRecyclerView.visibility = View.GONE
-                        binding.transactionsNoTransactionsText.visibility = View.VISIBLE
-                    } else {
-                        binding.transactionsRecyclerView.visibility = View.VISIBLE
-                        binding.transactionsNoTransactionsText.visibility = View.GONE
-                        val adapter = TransactionItemAdapter(
-                            requireContext(),
-                            viewModel.getTransactionsState.value.transactions,
-                            viewModel.getTransactionsState.value.transactions.size
-                        )
-                        adapter.setOnTransactionClickListener(this)
-                        binding.transactionsRecyclerView.adapter = adapter
-                        binding.transactionsRecyclerView.setHasFixedSize(true)
+                when (getTransactions.error) {
+                    null -> {
+                        if (getTransactions.transactions.isNotEmpty()) {
+                            binding.transactionsRecyclerView.visibility = View.VISIBLE
+                            binding.transactionsNoTransactionsText.visibility = View.GONE
+                            val adapter = TransactionItemAdapter(
+                                requireContext(),
+                                getTransactions.transactions,
+                                getTransactions.transactions.size
+                            )
+                            adapter.setOnTransactionClickListener(this)
+                            binding.transactionsRecyclerView.adapter = adapter
+                            binding.transactionsRecyclerView.setHasFixedSize(true)
+                        }
                     }
-                } else {
-                    binding.transactionsRecyclerView.visibility = View.GONE
-                    binding.transactionsNoTransactionsText.visibility = View.VISIBLE
-                    binding.root.isRefreshing = false
-                    if (viewModel.getTransactionsState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.getTransactionsState.value.error.startsWith("401") || viewModel.getTransactionsState.value.error.contains("JWT", ignoreCase = true)) {
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                         startAuthActivity()
-                    } else if (viewModel.getTransactionsState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.transactionsError.root.visibility = View.VISIBLE
-                        binding.transactionsError.errorTitle.text = resources.getString(R.string.error)
-                        binding.transactionsError.errorText.text = viewModel.getTransactionsState.value.error
-                    } else {
-                        binding.transactionsError.root.visibility = View.VISIBLE
-                        binding.transactionsError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.transactionsError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
-                binding.root.isRefreshing = false
-                viewModel.isLoadingGetTransactions.removeObservers(requireActivity())
+
+                viewModel.getTransactionsState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * Get transaction by its ID
+     */
     private fun getTransaction(id: String) {
         binding.transactionsError.root.visibility = View.GONE
         binding.transactionsDialog.root.visibility = View.GONE
-        binding.root.isRefreshing = true
 
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressStart()
 
         viewModel.getTransaction(id)
-        viewModel.isLoadingGetTransaction.observe(requireActivity()) { isLoading ->
-            if (!isLoading) {
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                binding.root.isRefreshing = false
+        viewModel.getTransactionState.observe(requireActivity()) { getTransaction ->
+            if (!getTransaction.isLoading) {
+                progressEnd()
 
-                if (viewModel.getTransactionState.value.error.isBlank()) {
-                    if (viewModel.getTransactionState.value.transaction == null) {
-                        binding.transactionsError.root.visibility = View.VISIBLE
-                        binding.transactionsError.errorTitle.text = resources.getString(R.string.error)
-                        binding.transactionsError.errorText.text = resources.getString(R.string.invalid_transaction_id)
+                if (getTransaction.error == null) {
+                    if (getTransaction.transaction == null) {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.invalid_transaction_id))
                     } else {
                         binding.transactionsDialog.root.visibility = View.VISIBLE
 
-                        if (viewModel.getTransactionState.value.transaction!!.value > 0) {
-                            binding.transactionsDialog.transactionDetailsTextFromTo.text = resources.getString(R.string.from)
-                            binding.transactionsDialog.transactionDetailsInputFromTo.hint = resources.getString(R.string.from_optional)
-                            binding.transactionsDialog.transactionDetailsFromToIcon.scaleX = -1f
-                            binding.transactionsDialog.transactionDetailsFromToIcon.scaleY = -1f
+                        if (getTransaction.transaction.value > 0) {
+                            setTextAndScaleForToFromWhom(resources.getString(R.string.from), resources.getString(R.string.from_optional), -1f, -1f)
                         } else {
-                            binding.transactionsDialog.transactionDetailsTextFromTo.text = resources.getString(R.string.to)
-                            binding.transactionsDialog.transactionDetailsInputFromTo.hint = resources.getString(R.string.to_optional)
-                            binding.transactionsDialog.transactionDetailsFromToIcon.scaleX = 1f
-                            binding.transactionsDialog.transactionDetailsFromToIcon.scaleY = 1f
+                            setTextAndScaleForToFromWhom(resources.getString(R.string.to), resources.getString(R.string.to_optional), 1f, 1f)
                         }
 
                         val drawableBackground = binding.transactionsDialog.transactionDetailsBackground.background as GradientDrawable
-                        if (viewModel.getTransactionState.value.transaction!!.value > 0) {
+                        if (getTransaction.transaction.value > 0) {
                             drawableBackground.setColor(Color.GREEN)
                         } else {
                             drawableBackground.setColor(Color.RED)
@@ -340,51 +331,54 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         binding.transactionsDialog.transactionDetailsBackground.background = drawableBackground
 
                         val sign = when {
-                            viewModel.getTransactionState.value.transaction!!.value > 0 -> ""
+                            getTransaction.transaction.value > 0 -> ""
                             else -> "-"
                         }
                         binding.transactionsDialog.transactionDetailsInputValue.prefixText = sign + Constants.CURRENCIES[AppPreferences.currency]
                         binding.transactionsDialog.transactionDetailsInputValueEditText.filters = arrayOf(InputFilter.LengthFilter(13), DecimalDigitsInputFilter(10, 2))
-                        binding.transactionsDialog.transactionDetailsInputValueEditText.setText(viewModel.getTransactionState.value.transaction!!.value.absoluteValue.toString())
+                        binding.transactionsDialog.transactionDetailsInputValueEditText.setText(getTransaction.transaction.value.absoluteValue.toString())
 
-                        binding.transactionsDialog.transactionDetailsInputAccountText.setText(viewModel.getTransactionState.value.transaction!!.accountName)
+                        binding.transactionsDialog.transactionDetailsInputAccountText.setText(getTransaction.transaction.accountName)
                         setAccounts()
                         
-                        binding.transactionsDialog.transactionDetailsInputCategoryText.setText(viewModel.getTransactionState.value.transaction!!.category)
+                        binding.transactionsDialog.transactionDetailsInputCategoryText.setText(getTransaction.transaction.category)
                         val categories = when {
-                            viewModel.getTransactionState.value.transaction!!.value > 0 -> resources.getStringArray(R.array.income_categories)
+                            getTransaction.transaction.value > 0 -> resources.getStringArray(R.array.income_categories)
                             else -> resources.getStringArray(R.array.expense_categories)
                         }
                         val adapterCategory = ArrayAdapter(requireContext(), R.layout.list_item_name_item, categories)
                         (binding.transactionsDialog.transactionDetailsInputCategory.editText as? AutoCompleteTextView)?.setAdapter(adapterCategory)
 
-                        binding.transactionsDialog.transactionDetailsInputDateText.setText(viewModel.reformatDate(viewModel.getTransactionState.value.transaction!!.date))
+                        binding.transactionsDialog.transactionDetailsInputDateText.setText(viewModel.reformatDate(getTransaction.transaction.date))
 
-                        binding.transactionsDialog.transactionDetailsInputFromToEdit.setText(viewModel.getTransactionState.value.transaction!!.toFromWhom)
+                        binding.transactionsDialog.transactionDetailsInputFromToEdit.setText(getTransaction.transaction.toFromWhom)
 
-                        binding.transactionsDialog.transactionDetailsInputNoteEdit.setText(viewModel.getTransactionState.value.transaction!!.note)
+                        binding.transactionsDialog.transactionDetailsInputNoteEdit.setText(getTransaction.transaction.note)
 
                         binding.transactionsDialog.root.requestLayout()
                     }
-                } else {
-                    if (viewModel.getTransactionState.value.error.startsWith("403") || viewModel.getTransactionState.value.error.startsWith("401") || viewModel.getTransactionState.value.error.contains("JWT", ignoreCase = true)) {
+                } else when (getTransaction.error) {
+                    Constants.ErrorStatusCodes.UNAUTHORIZED,
+                    Constants.ErrorStatusCodes.FORBIDDEN,
+                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                         startAuthActivity()
-                    } else if (viewModel.getTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
-                        binding.transactionsError.root.visibility = View.VISIBLE
-                        binding.transactionsError.errorTitle.text = resources.getString(R.string.error)
-                        binding.transactionsError.errorText.text = viewModel.getTransactionState.value.error
-                    } else {
-                        binding.transactionsError.root.visibility = View.VISIBLE
-                        binding.transactionsError.errorTitle.text = resources.getString(R.string.network_error)
-                        binding.transactionsError.errorText.text = resources.getString(R.string.connection_failed_message)
+                    }
+                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                    }
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                     }
                 }
 
-                viewModel.isLoadingGetTransaction.removeObservers(requireActivity())
+                viewModel.getTransactionState.removeObservers(requireActivity())
             }
         }
     }
 
+    /**
+     * Update transaction
+     */
     private fun updateTransaction() {
         binding.transactionsError.root.visibility = View.GONE
         binding.transactionsDialog.transactionDetailsInputValueEditText.clearFocus()
@@ -403,102 +397,98 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
         } else if (binding.transactionsDialog.transactionDetailsInputDateText.text?.isBlank() != false) {
             binding.transactionsDialog.transactionDetailsInputDate.error = resources.getString(R.string.invalid_date)
         } else {
-            val value = when {
-                binding.transactionsDialog.transactionDetailsInputValue.prefixText.toString().contains("-") -> -binding.transactionsDialog.transactionDetailsInputValueEditText.text.toString().toDouble()
-                else -> binding.transactionsDialog.transactionDetailsInputValueEditText.text.toString().toDouble()
-            }
+            val value = binding.transactionsDialog.transactionDetailsInputValueEditText.text.toString().toDouble().absoluteValue
             val transactionDto = viewModel.toTransactionDto(
-                viewModel.getTransactionState.value.transaction?.transactionId,
+                viewModel.getTransactionState.value!!.transaction?.transactionId,
                 binding.transactionsDialog.transactionDetailsInputAccountText.text.toString(),
                 binding.transactionsDialog.transactionDetailsInputCategoryText.text.toString(),
                 value,
-                viewModel.parseToCorrectDate(binding.transactionsDialog.transactionDetailsInputDateText.text.toString()),
+                viewModel.parseStringToDate(binding.transactionsDialog.transactionDetailsInputDateText.text.toString()),
                 binding.transactionsDialog.transactionDetailsInputFromToEdit.text.toString(),
                 binding.transactionsDialog.transactionDetailsInputNoteEdit.text.toString()
             )
             if (transactionDto == null) {
-                binding.transactionsError.root.visibility = View.VISIBLE
-                binding.transactionsError.errorTitle.text = resources.getString(R.string.error)
-                binding.transactionsError.errorText.text = resources.getString(R.string.invalid_account)
+                showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account))
             } else {
-                binding.root.isRefreshing = true
-
-                requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                progressStart()
 
                 viewModel.updateTransaction(transactionDto)
-                viewModel.isLoadingUpdateTransaction.observe(requireActivity()) { isLoading ->
-                    if (!isLoading) {
-                        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                viewModel.updateTransactionState.observe(requireActivity()) { updateTransaction ->
+                    if (!updateTransaction.isLoading) {
+                        progressEnd()
                         binding.transactionsDialog.root.visibility = View.GONE
 
-                        if (viewModel.updateTransactionState.value.error.isBlank()) {
-                            Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_updated), Toast.LENGTH_SHORT).show()
-                            refresh()
-                        } else if (viewModel.updateTransactionState.value.error.contains("Email is not verified", ignoreCase = true) || viewModel.updateTransactionState.value.error.startsWith("401") || viewModel.updateTransactionState.value.error.contains("JWT", ignoreCase = true)) {
-                            startAuthActivity()
-                        } else if (viewModel.updateTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
-                            binding.transactionsError.root.visibility = View.VISIBLE
-                            binding.transactionsError.errorTitle.text = resources.getString(R.string.error)
-                            binding.transactionsError.errorText.text = viewModel.updateTransactionState.value.error
-                        } else {
-                            binding.transactionsError.root.visibility = View.VISIBLE
-                            binding.transactionsError.errorTitle.text = resources.getString(R.string.network_error)
-                            binding.transactionsError.errorText.text = resources.getString(R.string.connection_failed_message)
+                        when (updateTransaction.error) {
+                            null -> {
+                                Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_updated), Toast.LENGTH_SHORT).show()
+                                refresh()
+                            }
+                            Constants.ErrorStatusCodes.UNAUTHORIZED,
+                            Constants.ErrorStatusCodes.FORBIDDEN,
+                            Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
+                                startAuthActivity()
+                            }
+                            Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                                showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                            }
+                            else -> {
+                                showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                            }
                         }
 
-                        binding.root.isRefreshing = false
-                        viewModel.isLoadingUpdateTransaction.removeObservers(requireActivity())
+                        viewModel.updateTransactionState.removeObservers(requireActivity())
                     }
                 }
             }
         }
     }
 
+    /**
+     * Delete transaction
+     */
     private fun deleteTransaction() {
         binding.transactionsError.root.visibility = View.GONE
         binding.transactionsDialog.root.visibility = View.GONE
 
-        if (viewModel.getTransactionState.value.transaction?.transactionId == null) {
-            binding.transactionsError.root.visibility = View.VISIBLE
-            binding.transactionsError.errorTitle.text = resources.getString(R.string.error)
-            binding.transactionsError.errorText.text = resources.getString(R.string.invalid_account_id)
+        if (viewModel.getTransactionState.value?.transaction?.transactionId == null) {
+            showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account_id))
         } else {
-            binding.root.isRefreshing = true
-            requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            progressStart()
 
-            viewModel.deleteTransaction(viewModel.getTransactionState.value.transaction!!.transactionId.toString())
-            viewModel.isLoadingDeleteTransaction.observe(requireActivity()) { isLoading ->
-                if (!isLoading) {
-                    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                    binding.root.isRefreshing = false
-                    if (viewModel.deleteTransactionState.value.error.isBlank()) {
-                        Toast.makeText(requireContext(), R.string.transaction_is_deleted, Toast.LENGTH_SHORT).show()
-                        refresh()
-                    } else {
-                        if (viewModel.deleteTransactionState.value.error.startsWith("403") || viewModel.deleteTransactionState.value.error.startsWith("401") || viewModel.deleteTransactionState.value.error.contains("JWT", ignoreCase = true)) {
+            viewModel.deleteTransaction(viewModel.getTransactionState.value!!.transaction!!.transactionId.toString())
+            viewModel.deleteTransactionState.observe(requireActivity()) { deleteTransaction ->
+                if (!deleteTransaction.isLoading) {
+                    progressEnd()
+
+                    when (deleteTransaction.error) {
+                        null -> {
+                            Toast.makeText(requireContext(), R.string.transaction_is_deleted, Toast.LENGTH_SHORT).show()
+                            refresh()
+                        }
+                        Constants.ErrorStatusCodes.UNAUTHORIZED,
+                        Constants.ErrorStatusCodes.FORBIDDEN,
+                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
                             startAuthActivity()
-                        } else if (viewModel.deleteTransactionState.value.error.contains("HTTP", ignoreCase = true)) {
-                            binding.transactionsError.root.visibility = View.VISIBLE
-                            binding.transactionsError.errorTitle.text =
-                                resources.getString(R.string.error)
-                            binding.transactionsError.errorText.text =
-                                viewModel.deleteTransactionState.value.error
-                        } else {
-                            binding.transactionsError.root.visibility = View.VISIBLE
-                            binding.transactionsError.errorTitle.text =
-                                resources.getString(R.string.network_error)
-                            binding.transactionsError.errorText.text =
-                                resources.getString(R.string.connection_failed_message)
+                        }
+                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
+                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                        }
+                        else -> {
+                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
                         }
                     }
-                    viewModel.isLoadingDeleteTransaction.removeObservers(requireActivity())
+
+                    viewModel.deleteTransactionState.removeObservers(requireActivity())
                 }
             }
         }
     }
 
+    /**
+     * Set accounts to AutoCompleteTextView
+     */
     private fun setAccounts() {
-        val items = viewModel.getAccountsState.value.accounts.map { it.name }
+        val items = viewModel.getAccountsState.value?.accounts?.map { it.name } ?: emptyList()
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item_name_item, items)
         (binding.transactionsDialog.transactionDetailsInputAccount.editText as? AutoCompleteTextView)?.setAdapter(adapter)
     }
@@ -507,10 +497,66 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
         getTransaction(transaction.transactionId.toString())
     }
 
+    /**
+     * Start auth activity
+     */
     private fun startAuthActivity() {
         val intent = Intent(requireActivity(), AuthActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         requireActivity().startActivity(intent)
+    }
+
+    /**
+     * Hide keyboard
+     *
+     * @param windowToken token of window
+     */
+    private fun hideKeyboard(windowToken: IBinder) {
+        val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    }
+
+    /**
+     * Show progress indicator and make screen not touchable
+     */
+    private fun progressStart() {
+        binding.root.isRefreshing = true
+        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    /**
+     * Hide progress indicator and make screen touchable
+     */
+    private fun progressEnd() {
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        binding.root.isRefreshing = false
+    }
+
+    /**
+     * Show error message
+     *
+     * @param title title of message
+     * @param text text of message
+     */
+    private fun showError(title: String, text: String) {
+        binding.transactionsError.root.visibility = View.VISIBLE
+        binding.transactionsError.errorTitle.text = title
+        binding.transactionsError.errorText.text = text
+    }
+
+    /**
+     * Set text, hint and scales for ToFromWhom
+     *
+     * @param text text of view
+     * @param hint hint of input field
+     * @param scaleX scale X for icon
+     * @param scaleY scale Y for icon
+     */
+    private fun setTextAndScaleForToFromWhom(text: String, hint: String, scaleX: Float, scaleY: Float) {
+        binding.transactionsDialog.transactionDetailsTextFromTo.text = text
+        binding.transactionsDialog.transactionDetailsInputFromTo.hint = hint
+        binding.transactionsDialog.transactionDetailsFromToIcon.scaleX = scaleX
+        binding.transactionsDialog.transactionDetailsFromToIcon.scaleY = scaleY
     }
 
     override fun onDestroyView() {
