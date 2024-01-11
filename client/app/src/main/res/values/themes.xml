@@ -49,4 +49,10 @@
     <style name="ChartStyle">
         <item name="android:textColor">@android:color/black</item>
     </style>
+    
+    <style name="DialogTheme" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowBackground">@drawable/dialog_background_light</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:paddingVertical">4dp</item>
+    </style>
 </resources>

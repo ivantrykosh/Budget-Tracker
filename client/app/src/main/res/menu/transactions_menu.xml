@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/transactions_filter"
+        android:icon="@drawable/outline_filter_list_24"
+        android:title="@string/filter"
+        android:iconTintMode="add"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/transactions_refresh"
         android:icon="@drawable/outline_refresh_24"
         android:title="@string/refresh"

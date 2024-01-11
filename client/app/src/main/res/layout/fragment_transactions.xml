@@ -116,8 +116,14 @@
                 tools:listitem="@layout/item_transaction" />
 
             <include
-                android:id="@+id/transactions_dialog"
+                android:id="@+id/transactions_dialog_transaction"
                 layout="@layout/dialog_transaction_details"
+                android:visibility="gone"
+                tools:visibility="gone" />
+
+            <include
+                android:id="@+id/transactions_dialog_filter"
+                layout="@layout/dialog_filter"
                 android:visibility="gone"
                 tools:visibility="visible" />
 

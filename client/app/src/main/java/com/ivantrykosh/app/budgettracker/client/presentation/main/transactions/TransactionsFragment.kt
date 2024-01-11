@@ -1,5 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.transactions
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -23,6 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
+import com.ivantrykosh.app.budgettracker.client.databinding.DialogFilterBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentTransactionsBinding
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
@@ -44,6 +46,8 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
     private var _binding: FragmentTransactionsBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var dialogFilterBinding: DialogFilterBinding
+
     private val viewModel: TransactionsViewModel by viewModels()
 
     private val datePicker =
@@ -51,6 +55,8 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
             .setTitleText("Select date")
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
             .build()
+
+    private lateinit var dialogFilter: Dialog
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,7 +71,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         binding.root.isEnabled = false
-        binding.transactionsDialog.root.visibility = View.GONE
+        binding.transactionsDialogTransaction.root.visibility = View.GONE
 
         binding.transactionsNoTransactionsText.visibility = View.VISIBLE
         binding.transactionsRecyclerView.visibility = View.GONE
@@ -96,103 +102,241 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
         }
 
         binding.transactionsTopAppBar.setOnMenuItemClickListener { menuItem ->
-            binding.transactionsDialog.root.visibility = View.GONE
+            binding.transactionsDialogTransaction.root.visibility = View.GONE
             when (menuItem.itemId) {
                 R.id.transactions_refresh -> {
                     refresh()
+                    true
+                }
+                R.id.transactions_filter -> {
+                    showFilters()
                     true
                 }
                 else -> false
             }
         }
 
-        binding.transactionsDialog.transactionDetailsTextCancel.setOnClickListener {
-            binding.transactionsDialog.root.visibility = View.GONE
+        binding.transactionsDialogTransaction.transactionDetailsTextCancel.setOnClickListener {
+            binding.transactionsDialogTransaction.root.visibility = View.GONE
             refresh()
         }
 
-        binding.transactionsDialog.transactionDetailsDeleteTransaction.setOnClickListener {
-            binding.transactionsDialog.root.visibility = View.GONE
+        binding.transactionsDialogTransaction.transactionDetailsDeleteTransaction.setOnClickListener {
+            binding.transactionsDialogTransaction.root.visibility = View.GONE
             onDeleteTransaction()
         }
 
-        binding.transactionsDialog.transactionDetailsTextOk.setOnClickListener {
-            binding.transactionsDialog.root.visibility = View.GONE
+        binding.transactionsDialogTransaction.transactionDetailsTextOk.setOnClickListener {
+            binding.transactionsDialogTransaction.root.visibility = View.GONE
             updateTransaction()
         }
 
-        binding.transactionsDialog.transactionDetailsInputValueEditText.setOnFocusChangeListener { _, hasFocus ->
+        binding.transactionsDialogTransaction.transactionDetailsInputValueEditText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkValue(binding.transactionsDialog.transactionDetailsInputValueEditText.text.toString())) {
-                    binding.transactionsDialog.transactionDetailsInputValue.error = resources.getString(R.string.invalid_value)
+                if (!viewModel.checkValue(binding.transactionsDialogTransaction.transactionDetailsInputValueEditText.text.toString())) {
+                    binding.transactionsDialogTransaction.transactionDetailsInputValue.error = resources.getString(R.string.invalid_value)
                 } else {
-                    binding.transactionsDialog.transactionDetailsInputValue.error = null
+                    binding.transactionsDialogTransaction.transactionDetailsInputValue.error = null
                 }
-                hideKeyboard(binding.transactionsDialog.transactionDetailsInputValue.windowToken)
+                hideKeyboard(binding.transactionsDialogTransaction.transactionDetailsInputValue.windowToken)
             }
         }
 
-        binding.transactionsDialog.transactionDetailsInputAccountText.setOnFocusChangeListener { _, hasFocus ->
+        binding.transactionsDialogTransaction.transactionDetailsInputAccountText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (binding.transactionsDialog.transactionDetailsInputAccountText.text.isBlank()) {
-                    binding.transactionsDialog.transactionDetailsInputAccount.error = resources.getString(R.string.invalid_account)
+                if (binding.transactionsDialogTransaction.transactionDetailsInputAccountText.text.isBlank()) {
+                    binding.transactionsDialogTransaction.transactionDetailsInputAccount.error = resources.getString(R.string.invalid_account)
                 } else {
-                    binding.transactionsDialog.transactionDetailsInputAccount.error = null
-                }
-            }
-        }
-
-        binding.transactionsDialog.transactionDetailsInputCategoryText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (binding.transactionsDialog.transactionDetailsInputCategoryText.text.isBlank()) {
-                    binding.transactionsDialog.transactionDetailsInputCategory.error = resources.getString(R.string.invalid_category)
-                } else {
-                    binding.transactionsDialog.transactionDetailsInputCategory.error = null
+                    binding.transactionsDialogTransaction.transactionDetailsInputAccount.error = null
                 }
             }
         }
 
-        binding.transactionsDialog.transactionDetailsInputDateText.keyListener = null
-        binding.transactionsDialog.transactionDetailsInputDateText.setOnFocusChangeListener { _, isFocus ->
+        binding.transactionsDialogTransaction.transactionDetailsInputCategoryText.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                if (binding.transactionsDialogTransaction.transactionDetailsInputCategoryText.text.isBlank()) {
+                    binding.transactionsDialogTransaction.transactionDetailsInputCategory.error = resources.getString(R.string.invalid_category)
+                } else {
+                    binding.transactionsDialogTransaction.transactionDetailsInputCategory.error = null
+                }
+            }
+        }
+
+        binding.transactionsDialogTransaction.transactionDetailsInputDateText.keyListener = null
+        binding.transactionsDialogTransaction.transactionDetailsInputDateText.setOnFocusChangeListener { _, isFocus ->
             if (isFocus) {
                 if (!datePicker.isAdded) {
                     datePicker.show(parentFragmentManager, "datePicker")
                 }
             } else {
-                if (binding.transactionsDialog.transactionDetailsInputDateText.text?.isBlank() != false) {
-                    binding.transactionsDialog.transactionDetailsInputDate.error = resources.getString(R.string.invalid_date)
+                if (binding.transactionsDialogTransaction.transactionDetailsInputDateText.text?.isBlank() != false) {
+                    binding.transactionsDialogTransaction.transactionDetailsInputDate.error = resources.getString(R.string.invalid_date)
                 } else {
-                    binding.transactionsDialog.transactionDetailsInputDate.error = null
+                    binding.transactionsDialogTransaction.transactionDetailsInputDate.error = null
                 }
             }
         }
-        binding.transactionsDialog.transactionDetailsInputDateText.setOnClickListener {
+        binding.transactionsDialogTransaction.transactionDetailsInputDateText.setOnClickListener {
             if (!datePicker.isAdded) {
                 datePicker.show(parentFragmentManager, "datePicker")
             }
         }
         datePicker.addOnPositiveButtonClickListener {
-            binding.transactionsDialog.transactionDetailsInputDateText.setText(
+            binding.transactionsDialogTransaction.transactionDetailsInputDateText.setText(
                 SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(
                     Date(datePicker.selection!!)
                 ))
         }
 
-        binding.transactionsDialog.transactionDetailsInputFromToEdit.setOnFocusChangeListener { _, hasFocus ->
+        binding.transactionsDialogTransaction.transactionDetailsInputFromToEdit.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                hideKeyboard(binding.transactionsDialog.transactionDetailsInputFromTo.windowToken)
+                hideKeyboard(binding.transactionsDialogTransaction.transactionDetailsInputFromTo.windowToken)
             }
         }
 
-        binding.transactionsDialog.transactionDetailsInputNoteEdit.setOnFocusChangeListener { _, hasFocus ->
+        binding.transactionsDialogTransaction.transactionDetailsInputNoteEdit.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                hideKeyboard(binding.transactionsDialog.transactionDetailsInputNote.windowToken)
+                hideKeyboard(binding.transactionsDialogTransaction.transactionDetailsInputNote.windowToken)
             }
         }
 
         binding.transactionsError.errorOk.setOnClickListener {
             binding.transactionsError.root.visibility = View.GONE
         }
+
+        dialogFilter = Dialog(requireContext(), R.style.DialogTheme)
+        dialogFilterBinding = DialogFilterBinding.inflate(layoutInflater)
+        dialogFilter.setContentView(dialogFilterBinding.root)
+        dialogFilter.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        val types = resources.getStringArray(R.array.transaction_types)
+        val adapter = ArrayAdapter(requireContext(), R.layout.list_item_name_item, types)
+        (dialogFilterBinding.filterInputTransactionType.editText as? AutoCompleteTextView)?.setAdapter(adapter)
+        dialogFilterBinding.filterInputTransactionTypeText.setText(types[0], false)
+        dialogFilterBinding.filterInputTransactionTypeText.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                if (dialogFilterBinding.filterInputTransactionTypeText.text.isBlank()) {
+                    dialogFilterBinding.filterInputTransactionType.error = resources.getString(R.string.invalid_transaction_type)
+                } else {
+                    dialogFilterBinding.filterInputTransactionTypeText.error = null
+                }
+            }
+        }
+//        dialogFilterBinding.filterInputTransactionTypeText.setOnItemClickListener { _, _, _, _ ->
+//            val transactionType = when (dialogFilterBinding.filterInputTransactionTypeText.text.toString()) {
+//                resources.getString(R.string.incomes) -> 1
+//                resources.getString(R.string.expenses) -> -1
+//                else -> 0
+//            }
+//            viewModel.setTransactionType(transactionType)
+//        }
+
+        dialogFilterBinding.filterInputAccountText.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                if (dialogFilterBinding.filterInputAccountText.text.isBlank()) {
+                    dialogFilterBinding.filterInputAccount.error = resources.getString(R.string.invalid_account)
+                } else {
+                    dialogFilterBinding.filterInputAccountText.error = null
+                }
+            }
+        }
+        var accountPosition = 0
+        dialogFilterBinding.filterInputAccountText.setOnItemClickListener { _, _, position, _ ->
+//            val account = when (position) {
+//                0 -> null
+//                else -> dialogFilterBinding.filterInputAccountText.text.toString()
+//            }
+//            viewModel.setAccount(account)
+            accountPosition = position
+        }
+
+//        dialogFilterBinding.filterCheckboxDate.setOnCheckedChangeListener { _, isChecked ->
+//            viewModel.setIsDateChecked(isChecked)
+//        }
+
+//        dialogFilterBinding.filterCheckboxValue.setOnCheckedChangeListener { _, isChecked ->
+//            viewModel.setIsValueChecked(isChecked)
+//        }
+
+        dialogFilterBinding.filterButtonCancel.setOnClickListener {
+//            dialogFilterBinding.root.visibility = View.GONE
+            dialogFilter.hide()
+        }
+
+        dialogFilterBinding.filterButtonOk.setOnClickListener {
+//            dialogFilterBinding.root.visibility = View.GONE
+            dialogFilter.hide()
+
+            val transactionType = when (dialogFilterBinding.filterInputTransactionTypeText.text.toString()) {
+                resources.getString(R.string.incomes) -> 1
+                resources.getString(R.string.expenses) -> -1
+                else -> 0
+            }
+            viewModel.setTransactionType(transactionType)
+
+            val account = when (accountPosition) {
+                0 -> null
+                else -> dialogFilterBinding.filterInputAccountText.text.toString()
+            }
+            viewModel.setAccount(account)
+
+            viewModel.setIsDateChecked(dialogFilterBinding.filterCheckboxDate.isChecked)
+            viewModel.setIsValueChecked(dialogFilterBinding.filterCheckboxValue.isChecked)
+
+            refresh()
+        }
+
+//        viewModel.currentTransactionType.observe(requireActivity()) { type ->
+//            val transactionType = when {
+//                type > 0 -> resources.getString(R.string.incomes)
+//                type < 0 -> resources.getString(R.string.expenses)
+//                else -> resources.getString(R.string.all)
+//            }
+//            dialogFilterBinding.filterInputTransactionTypeText.setText(transactionType, false)
+//        }
+//        viewModel.currentAccount.observe(requireActivity()) { account ->
+//            val accountName = when (account) {
+//                null -> resources.getString(R.string.select_all)
+//                else -> account
+//            }
+//            dialogFilterBinding.filterInputAccountText.setText(accountName, false)
+//        }
+//        viewModel.isDateChecked.observe(requireActivity()) {
+//            dialogFilterBinding.filterCheckboxDate.isChecked = it
+//        }
+//        viewModel.isValueChecked.observe(requireActivity()) {
+//            dialogFilterBinding.filterCheckboxValue.isChecked = it
+//        }
+    }
+
+    /**
+     * Show filters for transactions
+     */
+    private fun showFilters() {
+        binding.transactionsError.root.visibility = View.GONE
+        binding.transactionsDialogTransaction.root.visibility = View.GONE
+//        dialogFilterBinding.root.visibility = View.VISIBLE
+
+        val transactionType = when {
+            (viewModel.currentTransactionType.value ?: 0) > 0 -> resources.getString(R.string.incomes)
+            (viewModel.currentTransactionType.value ?: 0) < 0 -> resources.getString(R.string.expenses)
+            else -> resources.getString(R.string.all)
+        }
+        dialogFilterBinding.filterInputTransactionTypeText.setText(transactionType, false)
+        val accountName = when (viewModel.currentAccount.value) {
+            null -> resources.getString(R.string.select_all)
+            else -> viewModel.currentAccount.value
+        }
+        dialogFilterBinding.filterInputAccountText.setText(accountName, false)
+        dialogFilterBinding.filterCheckboxDate.isChecked = viewModel.isDateChecked.value ?: false
+        dialogFilterBinding.filterCheckboxValue.isChecked = viewModel.isValueChecked.value ?: false
+
+        dialogFilter.show()
+
+        val items: MutableList<String> = viewModel.getAccountsState.value?.accounts?.map { it.name }?.toMutableList() ?: mutableListOf()
+        items.add(0, resources.getString(R.string.select_all))
+        val adapter = ArrayAdapter(requireContext(), R.layout.list_item_name_item, items)
+        (dialogFilterBinding.filterInputAccount.editText as? AutoCompleteTextView)?.setAdapter(adapter)
     }
 
     /**
@@ -301,7 +445,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
      */
     private fun getTransaction(id: String) {
         binding.transactionsError.root.visibility = View.GONE
-        binding.transactionsDialog.root.visibility = View.GONE
+        binding.transactionsDialogTransaction.root.visibility = View.GONE
 
         progressStart()
 
@@ -314,7 +458,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                     if (getTransaction.transaction == null) {
                         showError(resources.getString(R.string.error), resources.getString(R.string.invalid_transaction_id))
                     } else {
-                        binding.transactionsDialog.root.visibility = View.VISIBLE
+                        binding.transactionsDialogTransaction.root.visibility = View.VISIBLE
 
                         if (getTransaction.transaction.value > 0) {
                             setTextAndScaleForToFromWhom(resources.getString(R.string.from), resources.getString(R.string.from_optional), -1f, -1f)
@@ -322,40 +466,40 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                             setTextAndScaleForToFromWhom(resources.getString(R.string.to), resources.getString(R.string.to_optional), 1f, 1f)
                         }
 
-                        val drawableBackground = binding.transactionsDialog.transactionDetailsBackground.background as GradientDrawable
+                        val drawableBackground = binding.transactionsDialogTransaction.transactionDetailsBackground.background as GradientDrawable
                         if (getTransaction.transaction.value > 0) {
                             drawableBackground.setColor(Color.GREEN)
                         } else {
                             drawableBackground.setColor(Color.RED)
                         }
-                        binding.transactionsDialog.transactionDetailsBackground.background = drawableBackground
+                        binding.transactionsDialogTransaction.transactionDetailsBackground.background = drawableBackground
 
                         val sign = when {
                             getTransaction.transaction.value > 0 -> ""
                             else -> "-"
                         }
-                        binding.transactionsDialog.transactionDetailsInputValue.prefixText = sign + Constants.CURRENCIES[AppPreferences.currency]
-                        binding.transactionsDialog.transactionDetailsInputValueEditText.filters = arrayOf(InputFilter.LengthFilter(13), DecimalDigitsInputFilter(10, 2))
-                        binding.transactionsDialog.transactionDetailsInputValueEditText.setText(getTransaction.transaction.value.absoluteValue.toString())
+                        binding.transactionsDialogTransaction.transactionDetailsInputValue.prefixText = sign + Constants.CURRENCIES[AppPreferences.currency]
+                        binding.transactionsDialogTransaction.transactionDetailsInputValueEditText.filters = arrayOf(InputFilter.LengthFilter(13), DecimalDigitsInputFilter(10, 2))
+                        binding.transactionsDialogTransaction.transactionDetailsInputValueEditText.setText(getTransaction.transaction.value.absoluteValue.toString())
 
-                        binding.transactionsDialog.transactionDetailsInputAccountText.setText(getTransaction.transaction.accountName)
+                        binding.transactionsDialogTransaction.transactionDetailsInputAccountText.setText(getTransaction.transaction.accountName)
                         setAccounts()
                         
-                        binding.transactionsDialog.transactionDetailsInputCategoryText.setText(getTransaction.transaction.category)
+                        binding.transactionsDialogTransaction.transactionDetailsInputCategoryText.setText(getTransaction.transaction.category)
                         val categories = when {
                             getTransaction.transaction.value > 0 -> resources.getStringArray(R.array.income_categories)
                             else -> resources.getStringArray(R.array.expense_categories)
                         }
                         val adapterCategory = ArrayAdapter(requireContext(), R.layout.list_item_name_item, categories)
-                        (binding.transactionsDialog.transactionDetailsInputCategory.editText as? AutoCompleteTextView)?.setAdapter(adapterCategory)
+                        (binding.transactionsDialogTransaction.transactionDetailsInputCategory.editText as? AutoCompleteTextView)?.setAdapter(adapterCategory)
 
-                        binding.transactionsDialog.transactionDetailsInputDateText.setText(viewModel.reformatDate(getTransaction.transaction.date))
+                        binding.transactionsDialogTransaction.transactionDetailsInputDateText.setText(viewModel.reformatDate(getTransaction.transaction.date))
 
-                        binding.transactionsDialog.transactionDetailsInputFromToEdit.setText(getTransaction.transaction.toFromWhom)
+                        binding.transactionsDialogTransaction.transactionDetailsInputFromToEdit.setText(getTransaction.transaction.toFromWhom)
 
-                        binding.transactionsDialog.transactionDetailsInputNoteEdit.setText(getTransaction.transaction.note)
+                        binding.transactionsDialogTransaction.transactionDetailsInputNoteEdit.setText(getTransaction.transaction.note)
 
-                        binding.transactionsDialog.root.requestLayout()
+                        binding.transactionsDialogTransaction.root.requestLayout()
                     }
                 } else when (getTransaction.error) {
                     Constants.ErrorStatusCodes.UNAUTHORIZED,
@@ -381,31 +525,31 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
      */
     private fun updateTransaction() {
         binding.transactionsError.root.visibility = View.GONE
-        binding.transactionsDialog.transactionDetailsInputValueEditText.clearFocus()
-        binding.transactionsDialog.transactionDetailsInputAccountText.clearFocus()
-        binding.transactionsDialog.transactionDetailsInputCategoryText.clearFocus()
-        binding.transactionsDialog.transactionDetailsInputDateText.clearFocus()
-        binding.transactionsDialog.transactionDetailsInputFromToEdit.clearFocus()
-        binding.transactionsDialog.transactionDetailsInputNoteEdit.clearFocus()
+        binding.transactionsDialogTransaction.transactionDetailsInputValueEditText.clearFocus()
+        binding.transactionsDialogTransaction.transactionDetailsInputAccountText.clearFocus()
+        binding.transactionsDialogTransaction.transactionDetailsInputCategoryText.clearFocus()
+        binding.transactionsDialogTransaction.transactionDetailsInputDateText.clearFocus()
+        binding.transactionsDialogTransaction.transactionDetailsInputFromToEdit.clearFocus()
+        binding.transactionsDialogTransaction.transactionDetailsInputNoteEdit.clearFocus()
 
-        if (!viewModel.checkValue(binding.transactionsDialog.transactionDetailsInputValueEditText.text.toString())) {
-            binding.transactionsDialog.transactionDetailsInputValue.error = resources.getString(R.string.invalid_value)
-        } else if (binding.transactionsDialog.transactionDetailsInputAccountText.text.isBlank()) {
-            binding.transactionsDialog.transactionDetailsInputAccount.error = resources.getString(R.string.invalid_account)
-        } else if (binding.transactionsDialog.transactionDetailsInputCategoryText.text.isBlank()){
-            binding.transactionsDialog.transactionDetailsInputCategory.error = resources.getString(R.string.invalid_category)
-        } else if (binding.transactionsDialog.transactionDetailsInputDateText.text?.isBlank() != false) {
-            binding.transactionsDialog.transactionDetailsInputDate.error = resources.getString(R.string.invalid_date)
+        if (!viewModel.checkValue(binding.transactionsDialogTransaction.transactionDetailsInputValueEditText.text.toString())) {
+            binding.transactionsDialogTransaction.transactionDetailsInputValue.error = resources.getString(R.string.invalid_value)
+        } else if (binding.transactionsDialogTransaction.transactionDetailsInputAccountText.text.isBlank()) {
+            binding.transactionsDialogTransaction.transactionDetailsInputAccount.error = resources.getString(R.string.invalid_account)
+        } else if (binding.transactionsDialogTransaction.transactionDetailsInputCategoryText.text.isBlank()){
+            binding.transactionsDialogTransaction.transactionDetailsInputCategory.error = resources.getString(R.string.invalid_category)
+        } else if (binding.transactionsDialogTransaction.transactionDetailsInputDateText.text?.isBlank() != false) {
+            binding.transactionsDialogTransaction.transactionDetailsInputDate.error = resources.getString(R.string.invalid_date)
         } else {
-            val value = binding.transactionsDialog.transactionDetailsInputValueEditText.text.toString().toDouble().absoluteValue
+            val value = binding.transactionsDialogTransaction.transactionDetailsInputValueEditText.text.toString().toDouble().absoluteValue
             val transactionDto = viewModel.toTransactionDto(
                 viewModel.getTransactionState.value!!.transaction?.transactionId,
-                binding.transactionsDialog.transactionDetailsInputAccountText.text.toString(),
-                binding.transactionsDialog.transactionDetailsInputCategoryText.text.toString(),
+                binding.transactionsDialogTransaction.transactionDetailsInputAccountText.text.toString(),
+                binding.transactionsDialogTransaction.transactionDetailsInputCategoryText.text.toString(),
                 value,
-                viewModel.parseStringToDate(binding.transactionsDialog.transactionDetailsInputDateText.text.toString()),
-                binding.transactionsDialog.transactionDetailsInputFromToEdit.text.toString(),
-                binding.transactionsDialog.transactionDetailsInputNoteEdit.text.toString()
+                viewModel.parseStringToDate(binding.transactionsDialogTransaction.transactionDetailsInputDateText.text.toString()),
+                binding.transactionsDialogTransaction.transactionDetailsInputFromToEdit.text.toString(),
+                binding.transactionsDialogTransaction.transactionDetailsInputNoteEdit.text.toString()
             )
             if (transactionDto == null) {
                 showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account))
@@ -416,7 +560,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                 viewModel.updateTransactionState.observe(requireActivity()) { updateTransaction ->
                     if (!updateTransaction.isLoading) {
                         progressEnd()
-                        binding.transactionsDialog.root.visibility = View.GONE
+                        binding.transactionsDialogTransaction.root.visibility = View.GONE
 
                         when (updateTransaction.error) {
                             null -> {
@@ -448,7 +592,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
      */
     private fun deleteTransaction() {
         binding.transactionsError.root.visibility = View.GONE
-        binding.transactionsDialog.root.visibility = View.GONE
+        binding.transactionsDialogTransaction.root.visibility = View.GONE
 
         if (viewModel.getTransactionState.value?.transaction?.transactionId == null) {
             showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account_id))
@@ -490,7 +634,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
     private fun setAccounts() {
         val items = viewModel.getAccountsState.value?.accounts?.map { it.name } ?: emptyList()
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item_name_item, items)
-        (binding.transactionsDialog.transactionDetailsInputAccount.editText as? AutoCompleteTextView)?.setAdapter(adapter)
+        (binding.transactionsDialogTransaction.transactionDetailsInputAccount.editText as? AutoCompleteTextView)?.setAdapter(adapter)
     }
 
     override fun onTransactionClick(transaction: Transaction) {
@@ -553,10 +697,10 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
      * @param scaleY scale Y for icon
      */
     private fun setTextAndScaleForToFromWhom(text: String, hint: String, scaleX: Float, scaleY: Float) {
-        binding.transactionsDialog.transactionDetailsTextFromTo.text = text
-        binding.transactionsDialog.transactionDetailsInputFromTo.hint = hint
-        binding.transactionsDialog.transactionDetailsFromToIcon.scaleX = scaleX
-        binding.transactionsDialog.transactionDetailsFromToIcon.scaleY = scaleY
+        binding.transactionsDialogTransaction.transactionDetailsTextFromTo.text = text
+        binding.transactionsDialogTransaction.transactionDetailsInputFromTo.hint = hint
+        binding.transactionsDialogTransaction.transactionDetailsFromToIcon.scaleX = scaleX
+        binding.transactionsDialogTransaction.transactionDetailsFromToIcon.scaleY = scaleY
     }
 
     override fun onDestroyView() {

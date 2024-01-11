@@ -64,6 +64,55 @@ class TransactionsViewModel @Inject constructor(
         SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(date)
     }
 
+    private val _currentTransactionType = MutableLiveData(0)
+    val currentTransactionType: LiveData<Int> = _currentTransactionType
+
+    private val _currentAccount = MutableLiveData<String?>(null)
+    val currentAccount: LiveData<String?> = _currentAccount
+
+    private val _isDateChecked = MutableLiveData(true)
+    val isDateChecked: LiveData<Boolean> = _isDateChecked
+
+    private val _isValueChecked = MutableLiveData(false)
+    val isValueChecked: LiveData<Boolean> = _isValueChecked
+
+
+    /**
+     * Set current transaction type for filter dialog
+     *
+     * @param type transaction type
+     */
+    fun setTransactionType(type: Int) {
+        _currentTransactionType.value = type
+    }
+
+    /**
+     * Set current account for filter dialog
+     *
+     * @param account account. If null, then all accounts are selected
+     */
+    fun setAccount(account: String?) {
+        _currentAccount.value = account
+    }
+
+    /**
+     * Set date checking for filter dialog
+     *
+     * @param isDateChecked is date checked
+     */
+    fun setIsDateChecked(isDateChecked: Boolean) {
+        _isDateChecked.value = isDateChecked
+    }
+
+    /**
+     * Set value checking for filter dialog
+     *
+     * @param isValueChecked is value checked
+     */
+    fun setIsValueChecked(isValueChecked: Boolean) {
+        _isValueChecked.value = isValueChecked
+    }
+
     /**
      * Parse date to string
      */
@@ -282,7 +331,7 @@ class TransactionsViewModel @Inject constructor(
                             date = transactionDto.date
                         )
                     } ?: emptyList()
-                    _getTransactionsState.value = GetTransactionsState(transactions = transactions)
+                    _getTransactionsState.value = GetTransactionsState(transactions = filterTransactions(transactions))
                 }
                 is Resource.Error -> {
                     _getTransactionsState.value = GetTransactionsState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
@@ -292,6 +341,32 @@ class TransactionsViewModel @Inject constructor(
                 }
             }
         }.launchIn(viewModelScope)
+    }
+
+    /**
+     * Filter transactions by type and account, sort by date and value
+     *
+     * @param transactions transactions to sort
+     */
+    private fun filterTransactions(transactions: List<Transaction>): List<Transaction> {
+        val transactionsFilterByTypes = when {
+            (_currentTransactionType.value ?: 0) > 0 -> transactions.filter { it.value > 0 }
+            (_currentTransactionType.value ?: 0) < 0 -> transactions.filter { it.value < 0 }
+            else -> transactions
+        }
+        val transactionsFilterByAccount = when (_currentAccount.value) {
+            null -> transactionsFilterByTypes
+            else -> transactionsFilterByTypes.filter { it.accountName == _currentAccount.value }
+        }
+        val transactionSortByDate = when (_isDateChecked.value) {
+            true -> transactionsFilterByAccount.sortedByDescending { it.date }
+            else -> transactionsFilterByAccount
+        }
+        val transactionSortByValue = when (_isValueChecked.value) {
+            true -> transactionSortByDate.sortedByDescending { it.value }
+            else -> transactionSortByDate
+        }
+        return transactionSortByValue
     }
 
     /**
