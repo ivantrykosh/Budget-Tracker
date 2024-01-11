@@ -244,18 +244,6 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <include
-                android:id="@+id/my_profile_change_password_dialog"
-                layout="@layout/dialog_change_password"
-                android:visibility="gone"
-                tools:visibility="gone" />
-
-            <include
-                android:id="@+id/my_profile_password_dialog"
-                layout="@layout/dialog_password"
-                android:visibility="gone"
-                tools:visibility="gone" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include

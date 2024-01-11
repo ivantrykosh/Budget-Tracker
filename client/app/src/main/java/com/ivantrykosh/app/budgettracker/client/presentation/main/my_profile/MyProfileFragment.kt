@@ -1,5 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.my_profile
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -15,6 +16,8 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.Constants
+import com.ivantrykosh.app.budgettracker.client.databinding.DialogChangePasswordBinding
+import com.ivantrykosh.app.budgettracker.client.databinding.DialogPasswordBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentMyProfileBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
@@ -29,7 +32,15 @@ class MyProfileFragment : Fragment() {
     private var _binding: FragmentMyProfileBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var dialogChangePasswordBinding: DialogChangePasswordBinding
+
+    private lateinit var dialogPasswordBinding: DialogPasswordBinding
+
     private val viewModel: MyProfileViewModel by viewModels()
+
+    private lateinit var dialogChangePassword: Dialog
+
+    private lateinit var dialogPassword: Dialog
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -101,72 +112,81 @@ class MyProfileFragment : Fragment() {
             binding.myProfileError.root.visibility = View.GONE
         }
 
+        dialogPassword = Dialog(requireContext(), R.style.DialogTheme)
+        dialogPasswordBinding = DialogPasswordBinding.inflate(layoutInflater)
+        dialogPassword.setContentView(dialogPasswordBinding.root)
+        dialogPassword.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
         // Listeners for password dialog
-        binding.myProfilePasswordDialog.passwordEditTextInputPassword.setOnFocusChangeListener { _, hasFocus ->
+        dialogPasswordBinding.passwordEditTextInputPassword.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkPassword(binding.myProfilePasswordDialog.passwordEditTextInputPassword.text.toString())) {
-                    binding.myProfilePasswordDialog.passwordTextInputPassword.error = resources.getString(R.string.invalid_password)
+                if (!viewModel.checkPassword(dialogPasswordBinding.passwordEditTextInputPassword.text.toString())) {
+                    dialogPasswordBinding.passwordTextInputPassword.error = resources.getString(R.string.invalid_password)
                 } else {
-                    binding.myProfilePasswordDialog.passwordTextInputPassword.error = null
+                    dialogPasswordBinding.passwordTextInputPassword.error = null
                 }
-                hideKeyboard(binding.myProfilePasswordDialog.passwordTextInputPassword.windowToken)
+                hideKeyboard(dialogPasswordBinding.passwordTextInputPassword.windowToken)
             }
         }
 
-        binding.myProfilePasswordDialog.passwordTextOk.setOnClickListener {
-            binding.myProfilePasswordDialog.passwordEditTextInputPassword.clearFocus()
+        dialogPasswordBinding.passwordButtonOk.setOnClickListener {
+            dialogPasswordBinding.passwordEditTextInputPassword.clearFocus()
 
-            if (!viewModel.checkPassword(binding.myProfilePasswordDialog.passwordEditTextInputPassword.text.toString())) {
-                binding.myProfilePasswordDialog.passwordTextInputPassword.error = resources.getString(R.string.invalid_password)
+            if (!viewModel.checkPassword(dialogPasswordBinding.passwordEditTextInputPassword.text.toString())) {
+                dialogPasswordBinding.passwordTextInputPassword.error = resources.getString(R.string.invalid_password)
             } else {
-                deleteAll(binding.myProfilePasswordDialog.passwordEditTextInputPassword.text.toString())
-                binding.myProfilePasswordDialog.root.visibility = View.GONE
+                deleteAll(dialogPasswordBinding.passwordEditTextInputPassword.text.toString())
+                dialogPassword.hide()
             }
         }
 
-        binding.myProfilePasswordDialog.changePasswordTextCancel.setOnClickListener {
-            binding.myProfilePasswordDialog.root.visibility = View.GONE
+        dialogPasswordBinding.passwordButtonCancel.setOnClickListener {
+            dialogPassword.hide()
         }
 
-        // Listeners for change password dialog
-        binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.setOnFocusChangeListener { _, hasFocus ->
+        dialogChangePassword = Dialog(requireContext(), R.style.DialogTheme)
+        dialogChangePasswordBinding = DialogChangePasswordBinding.inflate(layoutInflater)
+        dialogChangePassword.setContentView(dialogChangePasswordBinding.root)
+        dialogChangePassword.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        dialogChangePasswordBinding.changePasswordEditTextInputPassword.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString())) {
-                    binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = resources.getString(R.string.invalid_password)
+                if (!viewModel.checkPassword(dialogChangePasswordBinding.changePasswordEditTextInputPassword.text.toString())) {
+                    dialogChangePasswordBinding.changePasswordTextInputPassword.error = resources.getString(R.string.invalid_password)
                 } else {
-                    binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = null
+                    dialogChangePasswordBinding.changePasswordTextInputPassword.error = null
                 }
-                hideKeyboard(binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.windowToken)
+                hideKeyboard(dialogChangePasswordBinding.changePasswordTextInputPassword.windowToken)
             }
         }
 
-        binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.setOnFocusChangeListener { _, hasFocus ->
+        dialogChangePasswordBinding.changePasswordEditTextInputNewPassword.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())) {
-                    binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = resources.getString(R.string.invalid_password)
+                if (!viewModel.checkPassword(dialogChangePasswordBinding.changePasswordEditTextInputNewPassword.text.toString())) {
+                    dialogChangePasswordBinding.changePasswordTextInputNewPassword.error = resources.getString(R.string.invalid_password)
                 } else {
-                    binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = null
+                    dialogChangePasswordBinding.changePasswordTextInputNewPassword.error = null
                 }
-                hideKeyboard(binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.windowToken)
+                hideKeyboard(dialogChangePasswordBinding.changePasswordTextInputNewPassword.windowToken)
             }
         }
 
-        binding.myProfileChangePasswordDialog.changePasswordTextOk.setOnClickListener {
-            binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.clearFocus()
-            binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.clearFocus()
+        dialogChangePasswordBinding.changePasswordButtonOk.setOnClickListener {
+            dialogChangePasswordBinding.changePasswordEditTextInputPassword.clearFocus()
+            dialogChangePasswordBinding.changePasswordEditTextInputNewPassword.clearFocus()
 
-            if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString())) {
-                binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = resources.getString(R.string.invalid_password)
-            } else if (!viewModel.checkPassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())) {
-                binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = resources.getString(R.string.invalid_password)
+            if (!viewModel.checkPassword(dialogChangePasswordBinding.changePasswordEditTextInputPassword.text.toString())) {
+                dialogChangePasswordBinding.changePasswordTextInputPassword.error = resources.getString(R.string.invalid_password)
+            } else if (!viewModel.checkPassword(dialogChangePasswordBinding.changePasswordEditTextInputNewPassword.text.toString())) {
+                dialogChangePasswordBinding.changePasswordTextInputNewPassword.error = resources.getString(R.string.invalid_password)
             } else {
-                changePassword(binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text.toString(), binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text.toString())
-                binding.myProfileChangePasswordDialog.root.visibility = View.GONE
+                changePassword(dialogChangePasswordBinding.changePasswordEditTextInputPassword.text.toString(), dialogChangePasswordBinding.changePasswordEditTextInputNewPassword.text.toString())
+                dialogChangePassword.hide()
             }
         }
 
-        binding.myProfileChangePasswordDialog.changePasswordTextCancel.setOnClickListener {
-            binding.myProfileChangePasswordDialog.root.visibility = View.GONE
+        dialogChangePasswordBinding.changePasswordButtonCancel.setOnClickListener {
+            dialogChangePassword.hide()
         }
     }
 
@@ -174,7 +194,6 @@ class MyProfileFragment : Fragment() {
      * Get user
      */
     private fun getUser() {
-        binding.myProfileChangePasswordDialog.root.visibility = View.GONE
         binding.myProfileError.root.visibility = View.GONE
         progressStart()
 
@@ -210,12 +229,12 @@ class MyProfileFragment : Fragment() {
      */
     private fun onChangePassword() {
         binding.myProfileError.root.visibility = View.GONE
-        binding.myProfileChangePasswordDialog.root.visibility = View.VISIBLE
+        dialogChangePassword.show()
 
-        binding.myProfileChangePasswordDialog.changePasswordTextInputPassword.error = null
-        binding.myProfileChangePasswordDialog.changePasswordTextInputNewPassword.error = null
-        binding.myProfileChangePasswordDialog.changePasswordEditTextInputPassword.text = null
-        binding.myProfileChangePasswordDialog.changePasswordEditTextInputNewPassword.text = null
+        dialogChangePasswordBinding.changePasswordTextInputPassword.error = null
+        dialogChangePasswordBinding.changePasswordTextInputNewPassword.error = null
+        dialogChangePasswordBinding.changePasswordEditTextInputPassword.text = null
+        dialogChangePasswordBinding.changePasswordEditTextInputNewPassword.text = null
     }
 
     /**
@@ -240,11 +259,7 @@ class MyProfileFragment : Fragment() {
 
                     when (changePassword.error) {
                         null -> {
-                            showDefaultDialog(
-                                resources.getString(R.string.password_was_changed),
-                                resources.getString(R.string.password_was_changed),
-                                resources.getString(R.string.ok)
-                            )
+                            Toast.makeText(requireContext(), resources.getString(R.string.password_was_changed), Toast.LENGTH_SHORT).show()
                         }
                         Constants.ErrorStatusCodes.BAD_REQUEST -> {
                             showError(resources.getString(R.string.error), resources.getString(R.string.incorrect_password))
@@ -298,11 +313,7 @@ class MyProfileFragment : Fragment() {
 
                 when (resetPassword.error) {
                     null -> {
-                        showDefaultDialog(
-                            resources.getString(R.string.reset_password_title),
-                            resources.getString(R.string.reset_password_message),
-                            resources.getString(R.string.ok)
-                        )
+                        Toast.makeText(requireContext(), resources.getString(R.string.reset_password_message), Toast.LENGTH_LONG).show()
                     }
                     Constants.ErrorStatusCodes.UNAUTHORIZED -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.invalid_email))
@@ -336,10 +347,10 @@ class MyProfileFragment : Fragment() {
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
 
                 binding.myProfileError.root.visibility = View.GONE
-                binding.myProfilePasswordDialog.root.visibility = View.VISIBLE
+                dialogPassword.show()
 
-                binding.myProfilePasswordDialog.passwordTextInputPassword.error = null
-                binding.myProfilePasswordDialog.passwordEditTextInputPassword.text = null
+                dialogPasswordBinding.passwordTextInputPassword.error = null
+                dialogPasswordBinding.passwordEditTextInputPassword.text = null
             }
             .setNegativeButton(resources.getString(R.string.no)) { _, _ -> }
             .show()
@@ -382,22 +393,6 @@ class MyProfileFragment : Fragment() {
                 viewModel.deleteUserState.removeObservers(requireActivity())
             }
         }
-    }
-
-
-    /**
-     * Show default dialog
-     *
-     * @param title title of dialog
-     * @param message message of dialog
-     * @param posButton name of positive button
-     */
-    private fun showDefaultDialog(title: String, message: String, posButton: String) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(posButton) { _, _ -> }
-            .show()
     }
 
     /**

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/error"
-    style="@style/BackgroundTheme"
+    style="@style/BackgroundBottomTheme"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -25,6 +25,7 @@
             android:id="@+id/error_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="16sp"
             android:layout_marginStart="16dp"
             app:layout_constraintStart_toEndOf="@id/error_image"
             app:layout_constraintTop_toTopOf="parent"
@@ -32,9 +33,10 @@
 
         <TextView
             android:id="@+id/error_text"
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:textSize="16sp"
             tools:text="@string/connection_failed_message"
             app:layout_constraintStart_toEndOf="@id/error_image"
             app:layout_constraintTop_toBottomOf="@id/error_title" />
@@ -44,6 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ok"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -51,11 +54,4 @@
             android:clickable="true" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        style="@style/LineBackgroundTheme" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

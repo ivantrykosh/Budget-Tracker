@@ -1,5 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.accounts
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -18,6 +19,8 @@ import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
+import com.ivantrykosh.app.budgettracker.client.databinding.DialogAccountDetailsBinding
+import com.ivantrykosh.app.budgettracker.client.databinding.DialogCreateAccountBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentAccountsBinding
 import com.ivantrykosh.app.budgettracker.client.domain.model.Account
 import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
@@ -34,7 +37,15 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
     private var _binding: FragmentAccountsBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var dialogAccountDetailsBinding: DialogAccountDetailsBinding
+
+    private lateinit var dialogCreateAccountBinding: DialogCreateAccountBinding
+
     private val viewModel: AccountsViewModel by viewModels()
+
+    private lateinit var dialogAccountDetails: Dialog
+
+    private lateinit var dialogCreateAccount: Dialog
 
     private fun getFormat(): DecimalFormat {
         val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
@@ -56,8 +67,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         binding.root.isEnabled = false
-        binding.accountDialog.root.visibility = View.GONE
-        binding.createAccountDialog.root.visibility = View.GONE
 
         binding.accountsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.accountsRecyclerView.adapter = AccountItemAdapter(requireContext(), emptyList())
@@ -69,7 +78,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
         }
 
         binding.accountsTopAppBar.setOnMenuItemClickListener { menuItem ->
-            binding.accountDialog.root.visibility = View.GONE
             when (menuItem.itemId) {
                 R.id.accounts_refresh -> {
                     refresh()
@@ -79,118 +87,128 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
             }
         }
 
+        dialogCreateAccount = Dialog(requireContext(), R.style.DialogTheme)
+        dialogCreateAccountBinding = DialogCreateAccountBinding.inflate(layoutInflater)
+        dialogCreateAccount.setContentView(dialogCreateAccountBinding.root)
+        dialogCreateAccount.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        dialogAccountDetails = Dialog(requireContext(), R.style.DialogTheme)
+        dialogAccountDetailsBinding = DialogAccountDetailsBinding.inflate(layoutInflater)
+        dialogAccountDetails.setContentView(dialogAccountDetailsBinding.root)
+        dialogAccountDetails.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
         binding.accountsButtonAddAccount.setOnClickListener {
-            binding.accountDialog.root.visibility = View.GONE
-            binding.createAccountDialog.root.visibility = View.VISIBLE
-            binding.createAccountDialog.createAccountInputNameEditText.text = null
-            binding.createAccountDialog.createAccountEditTextInputEmail1.text = null
-            binding.createAccountDialog.createAccountEditTextInputEmail2.text = null
-            binding.createAccountDialog.createAccountEditTextInputEmail3.text = null
+            binding.accountsError.root.visibility = View.GONE
+            dialogCreateAccount.show()
+            dialogCreateAccountBinding.createAccountInputNameEditText.text = null
+            dialogCreateAccountBinding.createAccountEditTextInputEmail1.text = null
+            dialogCreateAccountBinding.createAccountEditTextInputEmail2.text = null
+            dialogCreateAccountBinding.createAccountEditTextInputEmail3.text = null
         }
 
-        binding.accountDialog.accountDetailsTextCancel.setOnClickListener {
-            binding.accountDialog.root.visibility = View.GONE
+        dialogAccountDetailsBinding.accountDetailsButtonCancel.setOnClickListener {
+            dialogAccountDetails.hide()
             refresh()
         }
 
-        binding.createAccountDialog.createAccountTextCancel.setOnClickListener {
-            binding.createAccountDialog.root.visibility = View.GONE
-            refresh()
-        }
-
-        binding.createAccountDialog.createAccountTextOk.setOnClickListener {
-            createAccount()
-        }
-
-        binding.accountDialog.accountDetailsDeleteAccount.setOnClickListener {
+        dialogAccountDetailsBinding.accountDetailsButtonDeleteAccount.setOnClickListener {
             onDeleteAccount()
         }
 
-        binding.accountDialog.accountDetailsTextOk.setOnClickListener {
+        dialogAccountDetailsBinding.accountDetailsButtonOk.setOnClickListener {
             updateAccount()
         }
 
-        binding.accountDialog.accountDetailsInputNameEditText.setOnFocusChangeListener { _, hasFocus ->
+        dialogAccountDetailsBinding.accountDetailsInputNameEditText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkName(binding.accountDialog.accountDetailsInputNameEditText.text.toString())) {
-                    binding.accountDialog.accountDetailsInputName.error = resources.getString(R.string.invalid_account_name)
+                if (!viewModel.checkName(dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString())) {
+                    dialogAccountDetailsBinding.accountDetailsInputName.error = resources.getString(R.string.invalid_account_name)
                 } else {
-                    binding.accountDialog.accountDetailsInputName.error = null
+                    dialogAccountDetailsBinding.accountDetailsInputName.error = null
                 }
-                hideKeyboard(binding.accountDialog.accountDetailsInputNameEditText.windowToken)
+                hideKeyboard(dialogAccountDetailsBinding.accountDetailsInputNameEditText.windowToken)
             }
         }
 
-        binding.accountDialog.accountDetailsEditTextInputEmail1.setOnFocusChangeListener { _, hasFocus ->
+        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkEmail(binding.accountDialog.accountDetailsEditTextInputEmail1.text.toString())) {
-                    binding.accountDialog.accountDetailsTextInputEmail1.error = resources.getString(R.string.invalid_email)
+                if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.text.toString())) {
+                    dialogAccountDetailsBinding.accountDetailsTextInputEmail1.error = resources.getString(R.string.invalid_email)
                 } else {
-                    binding.accountDialog.accountDetailsTextInputEmail1.error = null
+                    dialogAccountDetailsBinding.accountDetailsTextInputEmail1.error = null
                 }
-                hideKeyboard(binding.accountDialog.accountDetailsEditTextInputEmail1.windowToken)
+                hideKeyboard(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.windowToken)
             }
         }
-        binding.accountDialog.accountDetailsEditTextInputEmail2.setOnFocusChangeListener { _, hasFocus ->
+        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkEmail(binding.accountDialog.accountDetailsEditTextInputEmail2.text.toString())) {
-                    binding.accountDialog.accountDetailsTextInputEmail2.error = resources.getString(R.string.invalid_email)
+                if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.text.toString())) {
+                    dialogAccountDetailsBinding.accountDetailsTextInputEmail2.error = resources.getString(R.string.invalid_email)
                 } else {
-                    binding.accountDialog.accountDetailsTextInputEmail2.error = null
+                    dialogAccountDetailsBinding.accountDetailsTextInputEmail2.error = null
                 }
-                hideKeyboard(binding.accountDialog.accountDetailsEditTextInputEmail2.windowToken)
+                hideKeyboard(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.windowToken)
             }
         }
-        binding.accountDialog.accountDetailsEditTextInputEmail3.setOnFocusChangeListener { _, hasFocus ->
+        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkEmail(binding.accountDialog.accountDetailsEditTextInputEmail3.text.toString())) {
-                    binding.accountDialog.accountDetailsTextInputEmail3.error = resources.getString(R.string.invalid_email)
+                if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.text.toString())) {
+                    dialogAccountDetailsBinding.accountDetailsTextInputEmail3.error = resources.getString(R.string.invalid_email)
                 } else {
-                    binding.accountDialog.accountDetailsTextInputEmail3.error = null
+                    dialogAccountDetailsBinding.accountDetailsTextInputEmail3.error = null
                 }
-                hideKeyboard(binding.accountDialog.accountDetailsEditTextInputEmail3.windowToken)
-            }
-        }
-
-        binding.createAccountDialog.createAccountInputNameEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkName(binding.createAccountDialog.createAccountInputNameEditText.text.toString())) {
-                    binding.createAccountDialog.createAccountInputName.error = resources.getString(R.string.invalid_account_name)
-                } else {
-                    binding.createAccountDialog.createAccountInputName.error = null
-                }
-                hideKeyboard(binding.createAccountDialog.createAccountInputNameEditText.windowToken)
+                hideKeyboard(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.windowToken)
             }
         }
 
-        binding.createAccountDialog.createAccountEditTextInputEmail1.setOnFocusChangeListener { _, hasFocus ->
+        dialogCreateAccountBinding.createAccountButtonCancel.setOnClickListener {
+            dialogCreateAccount.hide()
+            refresh()
+        }
+
+        dialogCreateAccountBinding.createAccountButtonOk.setOnClickListener {
+            createAccount()
+        }
+
+        dialogCreateAccountBinding.createAccountInputNameEditText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkEmail(binding.createAccountDialog.createAccountEditTextInputEmail1.text.toString())) {
-                    binding.createAccountDialog.createAccountTextInputEmail1.error = resources.getString(R.string.invalid_email)
+                if (!viewModel.checkName(dialogCreateAccountBinding.createAccountInputNameEditText.text.toString())) {
+                    dialogCreateAccountBinding.createAccountInputName.error = resources.getString(R.string.invalid_account_name)
                 } else {
-                    binding.createAccountDialog.createAccountTextInputEmail1.error = null
+                    dialogCreateAccountBinding.createAccountInputName.error = null
                 }
-                hideKeyboard(binding.createAccountDialog.createAccountEditTextInputEmail1.windowToken)
+                hideKeyboard(dialogCreateAccountBinding.createAccountInputNameEditText.windowToken)
             }
         }
-        binding.createAccountDialog.createAccountEditTextInputEmail2.setOnFocusChangeListener { _, hasFocus ->
+
+        dialogCreateAccountBinding.createAccountEditTextInputEmail1.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkEmail(binding.createAccountDialog.createAccountEditTextInputEmail2.text.toString())) {
-                    binding.createAccountDialog.createAccountTextInputEmail2.error = resources.getString(R.string.invalid_email)
+                if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail1.text.toString())) {
+                    dialogCreateAccountBinding.createAccountTextInputEmail1.error = resources.getString(R.string.invalid_email)
                 } else {
-                    binding.createAccountDialog.createAccountTextInputEmail2.error = null
+                    dialogCreateAccountBinding.createAccountTextInputEmail1.error = null
                 }
-                hideKeyboard(binding.createAccountDialog.createAccountEditTextInputEmail2.windowToken)
+                hideKeyboard(dialogCreateAccountBinding.createAccountEditTextInputEmail1.windowToken)
             }
         }
-        binding.createAccountDialog.createAccountEditTextInputEmail3.setOnFocusChangeListener { _, hasFocus ->
+        dialogCreateAccountBinding.createAccountEditTextInputEmail2.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkEmail(binding.createAccountDialog.createAccountEditTextInputEmail3.text.toString())) {
-                    binding.createAccountDialog.createAccountTextInputEmail3.error = resources.getString(R.string.invalid_email)
+                if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail2.text.toString())) {
+                    dialogCreateAccountBinding.createAccountTextInputEmail2.error = resources.getString(R.string.invalid_email)
                 } else {
-                    binding.createAccountDialog.createAccountTextInputEmail3.error = null
+                    dialogCreateAccountBinding.createAccountTextInputEmail2.error = null
                 }
-                hideKeyboard(binding.createAccountDialog.createAccountEditTextInputEmail3.windowToken)
+                hideKeyboard(dialogCreateAccountBinding.createAccountEditTextInputEmail2.windowToken)
+            }
+        }
+        dialogCreateAccountBinding.createAccountEditTextInputEmail3.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail3.text.toString())) {
+                    dialogCreateAccountBinding.createAccountTextInputEmail3.error = resources.getString(R.string.invalid_email)
+                } else {
+                    dialogCreateAccountBinding.createAccountTextInputEmail3.error = null
+                }
+                hideKeyboard(dialogCreateAccountBinding.createAccountEditTextInputEmail3.windowToken)
             }
         }
 
@@ -207,6 +225,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
             .setTitle(R.string.delete_account_question)
             .setMessage(R.string.delete_account_question_message)
             .setPositiveButton(R.string.yes) { _, _ ->
+                dialogAccountDetails.hide()
                 deleteAccount()
             }
             .setNegativeButton(R.string.no) { _, _ -> }
@@ -218,7 +237,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
      */
     private fun refresh() {
         progressStart()
-        hideDialogs()
+        binding.accountsError.root.visibility = View.GONE
 
         viewModel.getUser()
         viewModel.getUserState.observe(requireActivity()) { getUser ->
@@ -252,7 +271,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
      */
     private fun refreshAccounts() {
         progressStart()
-        hideDialogs()
+        binding.accountsError.root.visibility = View.GONE
 
         viewModel.getAccounts()
         viewModel.getAccountsState.observe(requireActivity()) { getAccounts ->
@@ -292,8 +311,8 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
      * Get account
      */
     private fun getAccount(id: String) {
+        binding.accountsError.root.visibility = View.GONE
         progressStart()
-        hideDialogs()
 
         viewModel.getAccount(id)
         viewModel.getAccountState.observe(requireActivity()) { getAccount ->
@@ -304,34 +323,32 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                     if (getAccount.account == null) {
                         showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account_id))
                     } else {
-                        binding.accountDialog.root.visibility = View.VISIBLE
-                        binding.accountDialog.accountDetailsIncomesValue.text = getFormat().format(getAccount.account.incomesSum)
-                        binding.accountDialog.accountDetailsExpensesValue.text = getFormat().format(getAccount.account.expensesSum)
-                        binding.accountDialog.accountDetailsTotalValue.text = getFormat().format(getAccount.account.incomesSum.plus(getAccount.account.expensesSum))
-                        binding.accountDialog.accountDetailsInputNameEditText.setText(getAccount.account.name)
-                        binding.accountDialog.accountDetailsEmailsLayout.visibility = View.GONE
-                        binding.accountDialog.accountDetailsDeleteAccount.visibility = View.GONE
+                        dialogAccountDetails.show()
+                        dialogAccountDetailsBinding.accountDetailsIncomesValue.text = getFormat().format(getAccount.account.incomesSum)
+                        dialogAccountDetailsBinding.accountDetailsExpensesValue.text = getFormat().format(getAccount.account.expensesSum)
+                        dialogAccountDetailsBinding.accountDetailsTotalValue.text = getFormat().format(getAccount.account.incomesSum.plus(getAccount.account.expensesSum))
+                        dialogAccountDetailsBinding.accountDetailsInputNameEditText.setText(getAccount.account.name)
+                        dialogAccountDetailsBinding.accountDetailsOwnerLayout.visibility = View.GONE
                         if (getAccount.account.userId == (viewModel.getUserState.value?.user?.userId ?: -1)) {
-                            binding.accountDialog.accountDetailsEmailsLayout.visibility = View.VISIBLE
-                            binding.accountDialog.accountDetailsDeleteAccount.visibility = View.VISIBLE
-                            binding.accountDialog.accountDetailsInputNameEditText.isFocusableInTouchMode = true
-                            binding.accountDialog.accountDetailsInputNameEditText.isFocusable = true
-                            binding.accountDialog.accountDetailsTextInputEmail1.error = null
-                            binding.accountDialog.accountDetailsEditTextInputEmail1.setText(
+                            dialogAccountDetailsBinding.accountDetailsOwnerLayout.visibility = View.VISIBLE
+                            dialogAccountDetailsBinding.accountDetailsInputNameEditText.isFocusableInTouchMode = true
+                            dialogAccountDetailsBinding.accountDetailsInputNameEditText.isFocusable = true
+                            dialogAccountDetailsBinding.accountDetailsTextInputEmail1.error = null
+                            dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.setText(
                                 getAccount.account.email2
                             )
-                            binding.accountDialog.accountDetailsTextInputEmail2.error = null
-                            binding.accountDialog.accountDetailsEditTextInputEmail2.setText(
+                            dialogAccountDetailsBinding.accountDetailsTextInputEmail2.error = null
+                            dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.setText(
                                 getAccount.account.email3
                             )
-                            binding.accountDialog.accountDetailsTextInputEmail3.error = null
-                            binding.accountDialog.accountDetailsEditTextInputEmail3.setText(
+                            dialogAccountDetailsBinding.accountDetailsTextInputEmail3.error = null
+                            dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.setText(
                                 getAccount.account.email4
                             )
                         } else {
-                            binding.accountDialog.accountDetailsInputNameEditText.isFocusable = false
+                            dialogAccountDetailsBinding.accountDetailsInputNameEditText.isFocusable = false
                         }
-                        binding.accountDialog.root.requestLayout()
+                        dialogAccountDetailsBinding.root.requestLayout()
                     }
                 } else {
                     when (getAccount.error) {
@@ -354,26 +371,29 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
         }
     }
 
+    /**
+     * Create account
+     */
     private fun createAccount() {
         clearFocusOfCreateAccountFields()
 
-        if (!viewModel.checkName(binding.createAccountDialog.createAccountInputNameEditText.text.toString())) {
-            binding.createAccountDialog.createAccountInputName.error = resources.getString(R.string.invalid_account_name)
-        } else if (!viewModel.checkEmail(binding.createAccountDialog.createAccountEditTextInputEmail1.text.toString())) {
-            binding.createAccountDialog.createAccountTextInputEmail1.error = resources.getString(R.string.invalid_email)
-        } else if (!viewModel.checkEmail(binding.createAccountDialog.createAccountEditTextInputEmail2.text.toString())) {
-            binding.createAccountDialog.createAccountTextInputEmail2.error = resources.getString(R.string.invalid_email)
-        } else if (!viewModel.checkEmail(binding.createAccountDialog.createAccountEditTextInputEmail3.text.toString())) {
-            binding.createAccountDialog.createAccountTextInputEmail3.error = resources.getString(R.string.invalid_email)
+        if (!viewModel.checkName(dialogCreateAccountBinding.createAccountInputNameEditText.text.toString())) {
+            dialogCreateAccountBinding.createAccountInputName.error = resources.getString(R.string.invalid_account_name)
+        } else if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail1.text.toString())) {
+            dialogCreateAccountBinding.createAccountTextInputEmail1.error = resources.getString(R.string.invalid_email)
+        } else if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail2.text.toString())) {
+            dialogCreateAccountBinding.createAccountTextInputEmail2.error = resources.getString(R.string.invalid_email)
+        } else if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail3.text.toString())) {
+            dialogCreateAccountBinding.createAccountTextInputEmail3.error = resources.getString(R.string.invalid_email)
         } else {
             progressStart()
-            binding.createAccountDialog.root.visibility = View.GONE
+            dialogCreateAccount.hide()
 
             val changeAccountDto = ChangeAccountDto(
-                binding.createAccountDialog.createAccountInputNameEditText.text.toString(),
-                binding.createAccountDialog.createAccountEditTextInputEmail1.text.toString(),
-                binding.createAccountDialog.createAccountEditTextInputEmail2.text.toString(),
-                binding.createAccountDialog.createAccountEditTextInputEmail3.text.toString()
+                dialogCreateAccountBinding.createAccountInputNameEditText.text.toString(),
+                dialogCreateAccountBinding.createAccountEditTextInputEmail1.text.toString(),
+                dialogCreateAccountBinding.createAccountEditTextInputEmail2.text.toString(),
+                dialogCreateAccountBinding.createAccountEditTextInputEmail3.text.toString()
             )
             viewModel.createAccount(changeAccountDto)
             viewModel.createAccountState.observe(requireActivity()) { createAccount ->
@@ -410,27 +430,30 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
         }
     }
 
+    /**
+     * Update account
+     */
     private fun updateAccount() {
         if ((viewModel.getAccountState.value?.account?.userId ?: 0) == viewModel.getUserState.value?.user?.userId) {
             clearFocusOfUpdateAccountFields()
 
-            if (!viewModel.checkName(binding.accountDialog.accountDetailsInputNameEditText.text.toString())) {
-                binding.accountDialog.accountDetailsInputName.error = resources.getString(R.string.invalid_account_name)
-            } else if (!viewModel.checkEmail(binding.accountDialog.accountDetailsEditTextInputEmail1.text.toString())) {
-                binding.accountDialog.accountDetailsTextInputEmail1.error = resources.getString(R.string.invalid_email)
-            } else if (!viewModel.checkEmail(binding.accountDialog.accountDetailsEditTextInputEmail2.text.toString())) {
-                binding.accountDialog.accountDetailsTextInputEmail2.error = resources.getString(R.string.invalid_email)
-            } else if (!viewModel.checkEmail(binding.accountDialog.accountDetailsEditTextInputEmail3.text.toString())) {
-                binding.accountDialog.accountDetailsTextInputEmail3.error = resources.getString(R.string.invalid_email)
+            if (!viewModel.checkName(dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString())) {
+                dialogAccountDetailsBinding.accountDetailsInputName.error = resources.getString(R.string.invalid_account_name)
+            } else if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.text.toString())) {
+                dialogAccountDetailsBinding.accountDetailsTextInputEmail1.error = resources.getString(R.string.invalid_email)
+            } else if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.text.toString())) {
+                dialogAccountDetailsBinding.accountDetailsTextInputEmail2.error = resources.getString(R.string.invalid_email)
+            } else if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.text.toString())) {
+                dialogAccountDetailsBinding.accountDetailsTextInputEmail3.error = resources.getString(R.string.invalid_email)
             } else {
                 progressStart()
-                binding.accountDialog.root.visibility = View.GONE
+                dialogAccountDetails.hide()
 
                 val changeAccountDto = ChangeAccountDto(
-                    binding.accountDialog.accountDetailsInputNameEditText.text.toString(),
-                    binding.accountDialog.accountDetailsEditTextInputEmail1.text.toString(),
-                    binding.accountDialog.accountDetailsEditTextInputEmail2.text.toString(),
-                    binding.accountDialog.accountDetailsEditTextInputEmail3.text.toString()
+                    dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString(),
+                    dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.text.toString(),
+                    dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.text.toString(),
+                    dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.text.toString()
                 )
                 viewModel.updateAccount(viewModel.getAccountState.value?.account?.accountId.toString(), changeAccountDto)
                 viewModel.updateAccountState.observe(requireActivity()) { updateAccount ->
@@ -466,13 +489,14 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                 }
             }
         } else {
-            binding.accountDialog.root.visibility = View.GONE
+            dialogAccountDetails.hide()
         }
     }
 
+    /**
+     * Delete account
+     */
     private fun deleteAccount() {
-        hideDialogs()
-
         if (viewModel.getAccountState.value?.account?.accountId == null) {
             binding.accountsError.root.visibility = View.VISIBLE
             binding.accountsError.errorTitle.text = resources.getString(R.string.error)
@@ -536,20 +560,20 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
      * Clear focus of create account name and emails fields
      */
     private fun clearFocusOfCreateAccountFields() {
-        binding.createAccountDialog.createAccountInputNameEditText.clearFocus()
-        binding.createAccountDialog.createAccountEditTextInputEmail1.clearFocus()
-        binding.createAccountDialog.createAccountEditTextInputEmail2.clearFocus()
-        binding.createAccountDialog.createAccountEditTextInputEmail3.clearFocus()
+        dialogCreateAccountBinding.createAccountInputNameEditText.clearFocus()
+        dialogCreateAccountBinding.createAccountEditTextInputEmail1.clearFocus()
+        dialogCreateAccountBinding.createAccountEditTextInputEmail2.clearFocus()
+        dialogCreateAccountBinding.createAccountEditTextInputEmail3.clearFocus()
     }
 
     /**
      * Clear focus of update account name and emails fields
      */
     private fun clearFocusOfUpdateAccountFields() {
-        binding.accountDialog.accountDetailsInputNameEditText.clearFocus()
-        binding.accountDialog.accountDetailsEditTextInputEmail1.clearFocus()
-        binding.accountDialog.accountDetailsEditTextInputEmail2.clearFocus()
-        binding.accountDialog.accountDetailsEditTextInputEmail3.clearFocus()
+        dialogAccountDetailsBinding.accountDetailsInputNameEditText.clearFocus()
+        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.clearFocus()
+        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.clearFocus()
+        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.clearFocus()
     }
 
     /**
@@ -558,15 +582,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
     private fun progressStart() {
         binding.root.isRefreshing = true
         requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-    }
-
-    /**
-     * Hide dialogs
-     */
-    private fun hideDialogs() {
-        binding.accountsError.root.visibility = View.GONE
-        binding.accountDialog.root.visibility = View.GONE
-        binding.createAccountDialog.root.visibility = View.GONE
     }
 
     /**

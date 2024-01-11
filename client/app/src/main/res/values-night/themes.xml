@@ -43,4 +43,10 @@
         <item name="android:paddingHorizontal">16dp</item>
         <item name="android:paddingVertical">4dp</item>
     </style>
+
+    <style name="TransactionDialogTheme" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowBackground">@drawable/dialog_background_dark</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
 </resources>
