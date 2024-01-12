@@ -249,7 +249,11 @@
         <include
             android:id="@+id/my_profile_error"
             layout="@layout/error"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:visibility="gone"
-            tools:visibility="gone" />
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

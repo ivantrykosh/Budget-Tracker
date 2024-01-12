@@ -11,7 +11,7 @@
         android:id="@+id/pdf_layout_app_icon"
         android:layout_width="75px"
         android:layout_height="75px"
-        android:src="@mipmap/ic_launcher"
+        android:src="@mipmap/ic_launcher_foreground"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
