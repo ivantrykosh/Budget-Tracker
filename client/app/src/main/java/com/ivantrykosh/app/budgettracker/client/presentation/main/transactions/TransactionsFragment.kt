@@ -343,7 +343,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
                     }
                     else -> {
-                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
                 }
 
@@ -391,7 +391,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
                     }
                     else -> {
-                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
                 }
 
@@ -470,7 +470,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
                     }
                     else -> {
-                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
                 }
 
@@ -535,7 +535,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                                 showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
                             }
                             else -> {
-                                showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                                showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                             }
                         }
 
@@ -576,7 +576,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                             showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
                         }
                         else -> {
-                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occured))
+                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                         }
                     }
 

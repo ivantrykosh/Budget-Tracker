@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="balance_for">Баланс за %s</string>
+    <string name="main_incomes_text">Доходи:</string>
+    <string name="main_expenses_text">Витрати:</string>
+    <string name="main_total_text">Загалом:</string>
+    <string name="last_incomes">Останні доходи</string>
+    <string name="last_expenses">Останні витрати</string>
+    <string name="add_expense">Додати витрату</string>
+    <string name="add_income">Додати дохід</string>
+    <string name="overview">Огляд</string>
+    <string name="reports">Звіти</string>
+    <string name="transactions">Транзакції</string>
+    <string name="settings">Налаштування</string>
+    <string name="new_income">Новий дохід</string>
+    <string name="value">Значення</string>
+    <string name="network_error">Помилка мережі</string>
+    <string name="sing_up">Зареєструватися</string>
+    <string name="login">Увійти</string>
+    <string name="email">Електронна адреса</string>
+    <string name="password">Пароль</string>
+    <string name="send_confirmation_email">"Відправити лист з підтвердженням "</string>
+    <string name="confirm_email_message">Лист було відправлено. Будь ласка, підтвердьте свою електронну адресу</string>
+    <string name="forgot_password">Забули пароль?</string>
+    <string name="ok">ОК</string>
+    <string name="confirm_email_title">Підтвердити електронну адресу</string>
+    <string name="reset_password_title">Пароль було скинуто</string>
+    <string name="reset_password_message">Ваш пароль було скинуто. Новий пароль відправлено на вашу електронну адресу</string>
+    <string name="reset_password_question_title">Скинути пароль?</string>
+    <string name="reset_password_question_message">Ви хочете скинути пароль?</string>
+    <string name="yes">ТАК</string>
+    <string name="no">НІ</string>
+    <string name="invalid_email">Неправильна електронна адреса</string>
+    <string name="invalid_password"><![CDATA[Неправильний пароль. Пароль повинен містити 8–32 символи: a–z, A–Z, 0–9, і один із символів @$!%*#?&]]></string>
+    <string name="connection_failed">Не вдалося з\'єднатися</string>
+    <string name="connection_failed_message">Неможливо підключитися до сервера. Перевірте ваше Інтернет з\'єднання</string>
+    <string name="email_is_used">Електронна пошта уже використовується</string>
+    <string name="incorrect_email_password">Неправильний логін або пароль</string>
+    <string name="confirm_email_error_title">Електронна пошта не підтверджена</string>
+    <string name="confirm_email_error_message">Ваша електронна пошта не підтверджена</string>
+    <string name="confirm_email_error_message_with_question">Ваша електронна пошта не підтверджена. Ви хочете підтвердити її?</string>
+    <string name="email_confirmed_title">Електронна адреса уже підтверджена</string>
+    <string name="email_confirmed_message">Ваша електронна адреса уже підтверджена</string>
+    <string name="no_last_incomes">Останні доходи відсутні</string>
+    <string name="no_last_expenses">Останні витрати відсутні</string>
+    <string name="error">Помилка</string>
+    <string name="my_profile">Мій профіль</string>
+    <string name="log_out">Вийти</string>
+    <string name="accounts">Рахунки</string>
+    <string name="category_report">Категоріальний звіт</string>
+    <string name="time_report">Часовий звіт</string>
+    <string name="pdf_report">PDF звіт</string>
+    <string name="account">Рахунок</string>
+    <string name="category">Категорія</string>
+    <string name="date">Дата</string>
+    <string name="from">Від</string>
+    <string name="from_optional">Від (необов\'язково)</string>
+    <string name="note">Нотатка</string>
+    <string name="note_optional">Нотатка (необов\'язково)</string>
+    <string name="invalid_value">Значення не може бути 0</string>
+    <string name="no_accounts">Ви не маєте рахунків. Вам треба його створити</string>
+    <string name="invalid_account">Рахунок не можу бути пустим</string>
+    <string name="invalid_category">Категорія не може бути пустою</string>
+    <string name="invalid_date">Дата не може бути пустою</string>
+    <string name="transaction_is_added">Транзакцію додано</string>
+    <string name="to">До</string>
+    <string name="to_optional">До (необо\'язково)</string>
+    <string name="change_password">Змінити пароль</string>
+    <string name="reset_password">Скинути пароль</string>
+    <string name="delete_all_data">Видалити всі дані</string>
+    <string name="no_email">Не знайдено електронної пошти</string>
+    <string name="new_password">Новий пароль</string>
+    <string name="cancel">Скасувати</string>
+    <string name="invalid_new_password"><![CDATA[IНеправильний новий пароль. Він повинен містити 8–32 символів: a–z, A–Z, 0–9, і один із символів @$!%*#?&]]></string>
+    <string name="password_was_changed">Пароль було змінено</string>
+    <string name="delete_all_data_question_title">Видалити всі дані?</string>
+    <string name="delete_all_data_question_message">Ви справді хочете видалити всі дані (рахунки, транзакції, профіль)?</string>
+    <string name="data_was_deleted">Дані було видалено</string>
+    <string name="incorrect_password">Неправильний пароль</string>
+    <string name="refresh">Оновити</string>
+    <string name="add_account">Додати рахунок</string>
+    <string name="account_details">Деталі рахунку</string>
+    <string name="account_name">Назва рахунку</string>
+    <string name="total">Загалом</string>
+    <string name="incomes">Доходи</string>
+    <string name="expenses">Витрати</string>
+    <string name="users">Користувачі</string>
+    <string name="delete_account">Видалити рахунок</string>
+    <string name="you_do_not_have_any_accounts">Ви не маєте жодних рахунків</string>
+    <string name="invalid_account_id">Некоректний ID рахунку</string>
+    <string name="invalid_account_name">Некоректне ім\'я рахунку</string>
+    <string name="create_account">Створити новий рахунок</string>
+    <string name="account_was_created">Рахунок було створено</string>
+    <string name="account_was_updated">Рахунок було оновлено</string>
+    <string name="account_was_deleted">Рахунок було видалено</string>
+    <string name="delete_account_question">Видалити рахунок?</string>
+    <string name="delete_account_question_message">Ви хочете видалити рахунок та його транзакції?</string>
+    <string name="invalid_account_data">Назва рахунку має бути унікальною і електронні адреси користувачів повинні існувати</string>
+    <string name="transaction_details">Деталі транзакції</string>
+    <string name="delete_transaction">Видалити транзакцію</string>
+    <string name="no_transactions">Транзакцій немає</string>
+    <string name="invalid_transaction_id">Некоректний ID транзакції</string>
+    <string name="delete_transaction_question">Видалити транзакцію?</string>
+    <string name="delete_transaction_question_message">Ви хочете видалити цю транзакцію?</string>
+    <string name="transaction_is_updated">Транзакцію оновлено</string>
+    <string name="transaction_is_deleted">Транзакцію видалено</string>
+    <string name="invalid_user_email">Користувач уже має рахунок з цією назвою</string>
+    <string name="type">Тип</string>
+    <string name="from_date">З</string>
+    <string name="to_date">По</string>
+    <string name="show_report">Показати звіт</string>
+    <string name="all">Всі</string>
+    <string name="invalid_transaction_type">Тип транзакцій не може бути пустим</string>
+    <string name="date_range">Проміжок</string>
+    <string name="invalid_dates">Дати не можуть бути пустими</string>
+    <string name="select_all">Вибрати всі</string>
+    <string name="period">Період</string>
+    <string name="invalid_period">Період не може бути пустим</string>
+    <string name="download_report">Завантажити звіт</string>
+    <string name="report_for">Звіт за %s</string>
+    <string name="last_transactions">Останні транзакції</string>
+    <string name="report_saved_successful">Звіт було збережено у папці програми</string>
+    <string name="report_saved_fail">Не вдалося зберегти звіт</string>
+    <string name="transaction_type_by_categories">%s за категоріями</string>
+    <string name="transaction_type_by_date">%s за датами</string>
+    <string name="currency">Валюта</string>
+    <string name="date_format">Формат дати</string>
+    <string name="daily_reminder">Нагадування</string>
+    <string name="set_time">Встановити час</string>
+    <string name="delete_reminder">Видалити нагадування</string>
+    <string name="delete_data">Видалити дані</string>
+    <string name="support_and_feedback">Підтримка та відгуки</string>
+    <string name="daily_reminder_title">Додайте нові транзакції</string>
+    <string name="daily_reminder_message">Не забудьте додати нові транзакції сьогодні</string>
+    <string name="invalid_currency">Валюта не може бути пустою</string>
+    <string name="invalid_date_format">Формат дати не може бути пустим</string>
+    <string name="support_and_feedback_message">Для підтримки та відгуку пишіть сюди: trykoshivan4@gmail.com</string>
+    <string name="delete_data_question_title">Видалити дані?</string>
+    <string name="delete_data_question_message">Ви справді хочете видалити дані (рахунку та транзакції)?</string>
+    <string name="all_data_was_deleted">Всі дані було видалено</string>
+    <string name="any_problems_question">Якісь проблеми?</string>
+    <string name="any_problems_message">Маєте якісь проблеми? Будь ласка, напишіть мені: trykoshivan4@gmail.com</string>
+    <string name="input_password">Введіть пароль</string>
+    <string name="unexpected_error_occurred">Неочікувана помилка</string>
+    <string name="filter">Фільтр</string>
+    <string name="filter_by">Фільтрувати за</string>
+    <string name="sort_by">Сортувати за</string>
+
+    <string-array name="income_categories">
+        <item>Фінансовий дохід</item>
+        <item>Зарплата</item>
+        <item>Разова робота</item>
+        <item>Пенсія</item>
+        <item>Особисті заощадження</item>
+        <item>Інший дохід</item>
+    </string-array>
+
+    <string-array name="expense_categories">
+        <item>Їжа/Напої</item>
+        <item>Покупки</item>
+        <item>Транспорт</item>
+        <item>Розваги</item>
+        <item>Дім</item>
+        <item>Сім\'я</item>
+        <item>Здоров\'я/Спорт</item>
+        <item>Домашні улюбленці</item>
+        <item>Подорожі</item>
+        <item>Інші витрати</item>
+    </string-array>
+
+    <string-array name="transaction_types">
+        <item>Всі</item>
+        <item>Доходи</item>
+        <item>Витрати</item>
+    </string-array>
+
+    <string-array name="period_types">
+        <item>День</item>
+        <item>Тиждень</item>
+        <item>Місяць</item>
+        <item>Рік</item>
+    </string-array>
+</resources>

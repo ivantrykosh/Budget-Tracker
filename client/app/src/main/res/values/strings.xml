@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Budgetracker</string>
+    <string name="app_name" translatable="false">Budgetracker</string>
     <string name="balance_for">Balance for %s</string>
     <string name="main_incomes_text">Incomes:</string>
     <string name="main_expenses_text">Expenses:</string>
@@ -14,17 +14,17 @@
     <string name="settings">Settings</string>
     <string name="new_income">New income</string>
     <string name="value">Value</string>
-    <string name="title_activity_login">LoginActivity</string>
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="title_activity_login" translatable="false">LoginActivity</string>
+    <string name="first_fragment_label" translatable="false">First Fragment</string>
+    <string name="second_fragment_label" translatable="false">Second Fragment</string>
+    <string name="next" translatable="false">Next</string>
+    <string name="previous" translatable="false">Previous</string>
     <string name="network_error">Network error</string>
     <string name="sing_up">Sing Up</string>
     <string name="login">Login</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="send_confirmation_email">Send Confirmation Email</string>
     <string name="confirm_email_message">Confirmation email was sent. Please, confirm your email address</string>
     <string name="forgot_password">Forgot password?</string>
@@ -125,12 +125,12 @@
     <string name="download_report">Download report</string>
     <string name="report_for">Report for %s</string>
     <string name="last_transactions">Last transactions</string>
-    <string name="report_name">Report_%s</string>
+    <string name="report_name" translatable="false">Report_%s</string>
     <string name="report_saved_successful">Report was saved to app folder</string>
     <string name="report_saved_fail">Failed to save report</string>
     <string name="transaction_type_by_categories">%s by categories</string>
     <string name="transaction_type_by_date">%s by date</string>
-    <string name="pdf_report_file_name">Report_%s.pdf</string>
+    <string name="pdf_report_file_name" translatable="false">Report_%s.pdf</string>
     <string name="currency">Currency</string>
     <string name="date_format">Date format</string>
     <string name="daily_reminder">Daily reminder</string>
@@ -149,7 +149,7 @@
     <string name="any_problems_question">Any problems?</string>
     <string name="any_problems_message">Dou you have any problems? Please, contact me: trykoshivan4@gmail.com</string>
     <string name="input_password">Input password</string>
-    <string name="unexpected_error_occured">Unexpected error occured</string>
+    <string name="unexpected_error_occurred">Unexpected error occurred</string>
     <string name="filter">Filter</string>
     <string name="filter_by">Filter by</string>
     <string name="sort_by">Sort by</string>
