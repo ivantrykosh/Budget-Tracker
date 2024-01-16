@@ -87,7 +87,7 @@ class CreateTimeReportFragment : Fragment(), OnChartValueSelectedListener {
             toast?.cancel()
             toast = Toast.makeText(
                 requireContext(),
-                "Selected Date: $selectedDate, Value: $selectedValue",
+                resources.getString(R.string.date_and_value, selectedDate, selectedValue.toString()),
                 Toast.LENGTH_SHORT
             )
             toast?.show()

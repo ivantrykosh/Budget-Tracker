@@ -153,6 +153,7 @@
     <string name="filter">Filter</string>
     <string name="filter_by">Filter by</string>
     <string name="sort_by">Sort by</string>
+    <string name="date_and_value">Selected date: %s, Value: %s</string>
 
     <string-array name="income_categories">
         <item>Financial income</item>

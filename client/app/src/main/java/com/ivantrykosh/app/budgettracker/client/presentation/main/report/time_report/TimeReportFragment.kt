@@ -260,7 +260,7 @@ class TimeReportFragment : Fragment() {
                             if (getTransactions.transactions.isEmpty()) {
                                 Toast.makeText(requireContext(), resources.getString(R.string.no_transactions), Toast.LENGTH_SHORT).show()
                             } else {
-                                findNavController().navigate(R.id.action_categoryReportFragment_to_createdCategoryReport)
+                                findNavController().navigate(R.id.action_timeReportFragment_to_createdTimeReportFragment)
                             }
                         }
                         Constants.ErrorStatusCodes.UNAUTHORIZED,

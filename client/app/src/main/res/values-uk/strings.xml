@@ -145,6 +145,7 @@
     <string name="filter">Фільтр</string>
     <string name="filter_by">Фільтрувати за</string>
     <string name="sort_by">Сортувати за</string>
+    <string name="date_and_value">Обрана дата: %s, Значення: %s</string>
 
     <string-array name="income_categories">
         <item>Фінансовий дохід</item>
