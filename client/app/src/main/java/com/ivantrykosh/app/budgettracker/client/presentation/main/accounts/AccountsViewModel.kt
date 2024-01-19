@@ -4,22 +4,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
+import com.ivantrykosh.app.budgettracker.client.domain.model.AccountEntity
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.create_account.CreateAccountUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.delete_account.DeleteAccountUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_account.GetAccountUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.update_account.UpdateAccountUseCase
-import com.ivantrykosh.app.budgettracker.client.domain.use_case.user.get_user.GetUserUseCase
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.GetAccountsState
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.CreateAccountState
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.DeleteAccountState
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.GetAccountState
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.UpdateAccountState
-import com.ivantrykosh.app.budgettracker.client.presentation.main.my_profile.state.GetUserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -30,21 +27,12 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class AccountsViewModel @Inject constructor(
-    private val getUserUseCase: GetUserUseCase,
     private val getAccountsUseCase: GetAccountsUseCase,
     private val getAccountUseCase: GetAccountUseCase,
     private val createAccountUseCase: CreateAccountUseCase,
     private val updateAccountUseCase: UpdateAccountUseCase,
     private val deleteAccountUseCase: DeleteAccountUseCase,
 ) : ViewModel() {
-
-    companion object {
-        private const val EMAIL_REGEX =
-            "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
-    }
-
-    private val _getUserState = MutableLiveData(GetUserState())
-    val getUserState: LiveData<GetUserState> = _getUserState
 
     private val _getAccountsState = MutableLiveData(GetAccountsState())
     val getAccountsState: LiveData<GetAccountsState> = _getAccountsState
@@ -64,122 +52,17 @@ class AccountsViewModel @Inject constructor(
     /**
      * Check account name
      */
-    fun checkName(name: String): Boolean {
-        return name.isNotBlank() && name.length < 25
-    }
-
-    /**
-     * Check email
-     */
-    fun checkEmail(email: String?): Boolean {
-        return email.isNullOrBlank() || (email.length <= 320 && email.matches(Regex(EMAIL_REGEX)))
-    }
-
-    /**
-     * Get user
-     */
-    fun getUser() {
-        AppPreferences.jwtToken?.let { token ->
-            getUser(token)
-        } ?: run {
-            _getUserState.value = GetUserState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Get user accounts
-     */
-    fun getAccounts() {
-        AppPreferences.jwtToken?.let { token ->
-            getAccounts(token)
-        } ?: run {
-            _getAccountsState.value = GetAccountsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Get account by ID
-     *
-     * @param id account ID to get
-     */
-    fun getAccount(id: String) {
-        AppPreferences.jwtToken?.let { token ->
-            getAccount(token, id)
-        } ?: run {
-            _getAccountState.value = GetAccountState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Create account with ChangeAccountDto
-     *
-     * @param changeAccountDto ChangeAccountDto instance to create account
-     */
-    fun createAccount(changeAccountDto: ChangeAccountDto) {
-        AppPreferences.jwtToken?.let { token ->
-            createAccount(token, changeAccountDto)
-        } ?: run {
-            _createAccountState.value = CreateAccountState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Update account with ID and ChangeAccountDto
-     *
-     * @param id account ID to update
-     * @param changeAccountDto ChangeAccountDto instance to create account
-     */
-    fun updateAccount(id: String, changeAccountDto: ChangeAccountDto) {
-        AppPreferences.jwtToken?.let { token ->
-            updateAccount(token, id, changeAccountDto)
-        } ?: run {
-            _updateAccountState.value = UpdateAccountState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Delete account by ID
-     *
-     * @param id account ID to delete
-     */
-    fun deleteAccount(id: String) {
-        AppPreferences.jwtToken?.let { token ->
-            deleteAccount(token, id)
-        } ?: run {
-            _deleteAccountState.value = DeleteAccountState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Get user by JWT
-     *
-     * @param token user JWT
-     */
-    private fun getUser(token: String) {
-        _getUserState.value = GetUserState(isLoading = true)
-        getUserUseCase(token).onEach {result ->
-            when (result) {
-                is Resource.Success -> {
-                    _getUserState.value = GetUserState(user = result.data)
-                }
-                is Resource.Error -> {
-                    _getUserState.value = GetUserState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
-                }
-                is Resource.Loading -> {
-                    _getUserState.value = GetUserState(isLoading = true)
-                }
-            }
-        }.launchIn(viewModelScope)
+    fun checkName(name: String, id: Long = 0): Boolean {
+        return name.isNotBlank() && name.length < 25 && _getAccountsState.value!!.accounts.none { it.name == name && it.accountId != id }
     }
 
     /**
      * Get user accounts by JWT
      *
-     * @param token user JWT
      */
-    private fun getAccounts(token: String) {
+    fun getAccounts() {
         _getAccountsState.value = GetAccountsState(isLoading = true)
-        getAccountsUseCase(token).onEach {result ->
+        getAccountsUseCase().onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     _getAccountsState.value = GetAccountsState(accounts = result.data ?: emptyList())
@@ -197,12 +80,11 @@ class AccountsViewModel @Inject constructor(
     /**
      * Get account by ID
      *
-     * @param token user JWT
      * @param id account ID to get
      */
-    private fun getAccount(token: String, id: String) {
+    fun getAccount(id: Long) {
         _getAccountState.value = GetAccountState(isLoading = true)
-        getAccountUseCase(token, id).onEach {result ->
+        getAccountUseCase(id).onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     _getAccountState.value = GetAccountState(account = result.data)
@@ -220,36 +102,15 @@ class AccountsViewModel @Inject constructor(
     /**
      * Create account with ChangeAccountDto
      *
-     * @param token user JWT
-     * @param changeAccountDto ChangeAccountDto instance to create account
+     * @param name ChangeAccountDto instance to create account
      */
-    private fun createAccount(token: String, changeAccountDto: ChangeAccountDto) {
+    fun createAccount(name: String) {
         _createAccountState.value = CreateAccountState(isLoading = true)
-        if (!checkName(changeAccountDto.name)) {
-            _createAccountState.value = CreateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
-        } else if (!checkEmail(changeAccountDto.email2)) {
-            _createAccountState.value = CreateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
-        } else if (!checkEmail(changeAccountDto.email3)) {
-            _createAccountState.value = CreateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
-        } else if (!checkEmail(changeAccountDto.email4)) {
+        if (!checkName(name)) {
             _createAccountState.value = CreateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
         } else {
-            val newAccountDto = ChangeAccountDto(
-                name = changeAccountDto.name,
-                email2 = when {
-                    changeAccountDto.email2.isNullOrBlank() -> null
-                    else -> changeAccountDto.email2
-                },
-                email3 = when {
-                    changeAccountDto.email3.isNullOrBlank() -> null
-                    else -> changeAccountDto.email3
-                },
-                email4 = when {
-                    changeAccountDto.email4.isNullOrBlank() -> null
-                    else -> changeAccountDto.email4
-                }
-            )
-            createAccountUseCase(token, newAccountDto).onEach { result ->
+            val newAccount = AccountEntity(name = name)
+            createAccountUseCase(newAccount).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         _createAccountState.value = CreateAccountState()
@@ -268,39 +129,16 @@ class AccountsViewModel @Inject constructor(
     /**
      * Update account with ID and ChangeAccountDto
      *
-     * @param token user JWT
      * @param id account ID to update
-     * @param changeAccountDto ChangeAccountDto instance to create account
+     * @param name ChangeAccountDto instance to create account
      */
-    private fun updateAccount(token: String, id: String, changeAccountDto: ChangeAccountDto) {
+    fun updateAccount(id: Long, name: String) {
         _updateAccountState.value = UpdateAccountState(isLoading = true)
-        if (id.isBlank()) {
-            _updateAccountState.value = UpdateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
-        } else if (!checkName(changeAccountDto.name)) {
-            _updateAccountState.value = UpdateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
-        } else if (!checkEmail(changeAccountDto.email2)) {
-            _updateAccountState.value = UpdateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
-        } else if (!checkEmail(changeAccountDto.email3)) {
-            _updateAccountState.value = UpdateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
-        } else if (!checkEmail(changeAccountDto.email4)) {
+        if (!checkName(name, id)) {
             _updateAccountState.value = UpdateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
         } else {
-            val newAccountDto = ChangeAccountDto(
-                name = changeAccountDto.name,
-                email2 = when {
-                    changeAccountDto.email2.isNullOrBlank() -> null
-                    else -> changeAccountDto.email2
-                },
-                email3 = when {
-                    changeAccountDto.email3.isNullOrBlank() -> null
-                    else -> changeAccountDto.email3
-                },
-                email4 = when {
-                    changeAccountDto.email4.isNullOrBlank() -> null
-                    else -> changeAccountDto.email4
-                }
-            )
-            updateAccountUseCase(token, id, newAccountDto).onEach { result ->
+            val newAccount = AccountEntity(id, name)
+            updateAccountUseCase(newAccount).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         _updateAccountState.value = UpdateAccountState()
@@ -319,12 +157,11 @@ class AccountsViewModel @Inject constructor(
     /**
      * Delete account by ID
      *
-     * @param token user JWT
      * @param id account ID to delete
      */
-    private fun deleteAccount(token: String, id: String) {
+    fun deleteAccount(id: Long) {
         _deleteAccountState.value = DeleteAccountState(isLoading = true)
-        deleteAccountUseCase(token, id).onEach {result ->
+        deleteAccountUseCase(id).onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     _deleteAccountState.value = DeleteAccountState()

@@ -1,6 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.pdf_report
 
-import android.content.Intent
+import android.Manifest
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,7 +24,6 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentPdfReportBinding
-import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
@@ -195,14 +196,6 @@ class PdfReportFragment : Fragment() {
                             setAccounts()
                         }
                     }
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
@@ -268,14 +261,6 @@ class PdfReportFragment : Fragment() {
                                 inflateLayout()
                             }
                         }
-                        Constants.ErrorStatusCodes.UNAUTHORIZED,
-                        Constants.ErrorStatusCodes.FORBIDDEN,
-                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                            startAuthActivity()
-                        }
-                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                        }
                         else -> {
                             showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                         }
@@ -285,15 +270,6 @@ class PdfReportFragment : Fragment() {
                 }
             }
         }
-    }
-
-    /**
-     * Start auth activity
-     */
-    private fun startAuthActivity() {
-        val intent = Intent(requireActivity(), AuthActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        requireActivity().startActivity(intent)
     }
 
     /**
@@ -371,8 +347,7 @@ class PdfReportFragment : Fragment() {
         barChartLegend.orientation = Legend.LegendOrientation.VERTICAL
         barChartLegend.form = Legend.LegendForm.SQUARE
         barChartLegend.setDrawInside(true)
-        barChartLegend.isWordWrapEnabled = true
-        barChartLegend.textSize = 4f
+        barChartLegend.textSize = 3f
 
 
         val lineData = viewModel.getLineData()

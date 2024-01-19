@@ -17,13 +17,12 @@ class DeleteAccountUseCase @Inject constructor(
     /**
      * Invoke delete account use case with token and id
      *
-     * @param token user's JWT
      * @param id account id to delete
      */
-    operator fun invoke(token: String, id: String): Flow<Resource<String>> = flow {
+    operator fun invoke(id: Long): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.deleteAccount("Bearer $token", id)
+            repository.deleteAccount(id)
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))

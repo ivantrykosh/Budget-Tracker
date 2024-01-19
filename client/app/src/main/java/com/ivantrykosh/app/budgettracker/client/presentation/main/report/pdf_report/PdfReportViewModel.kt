@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.pdf.PdfDocument
+import android.os.Environment
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,7 +21,6 @@ import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transactions_between_dates.GetTransactionsBetweenDates
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.GetAccountsState
@@ -59,7 +59,7 @@ class PdfReportViewModel @Inject constructor(
     private val _getTransactionsState = MutableLiveData(GetTransactionsState())
     val getTransactionsState: LiveData<GetTransactionsState> = _getTransactionsState
 
-    private val _dateRange = MutableLiveData(Pair(Date(), Date()))
+    private val _dateRange = MutableLiveData(Pair(getStartOfDay(Date()), getEndOfDay(Date())))
     val dateRange: LiveData<String> = _dateRange.map { range ->
         SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(range.first) +
                 " - " +
@@ -76,6 +76,33 @@ class PdfReportViewModel @Inject constructor(
     val maxTimeValue
         get() = _maxTimeValue * 1.15f
 
+    /**
+     * Get start of day
+     */
+    private fun getStartOfDay(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        return calendar.time
+    }
+
+    /**
+     * Get end of day
+     */
+    private fun getEndOfDay(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+
+        return calendar.time
+    }
 
     /**
      * Set period
@@ -84,7 +111,7 @@ class PdfReportViewModel @Inject constructor(
      */
     fun setPeriod(period: Period) {
         this.period = period
-        _dateRange.value = getDates(_dateRange.value?.first ?: Date(), _dateRange.value?.second ?: Date())
+        _dateRange.value = getDates(getStartOfDay(_dateRange.value?.first ?: Date()), getEndOfDay(_dateRange.value?.second ?: Date()))
     }
 
     /**
@@ -94,7 +121,7 @@ class PdfReportViewModel @Inject constructor(
      * @param secondDate second date
      */
     fun updateDateRange(firstDate: Date, secondDate: Date) {
-        _dateRange.value = getDates(firstDate, secondDate)
+        _dateRange.value = getDates(getStartOfDay(firstDate), getEndOfDay(secondDate))
     }
 
     /**
@@ -146,15 +173,6 @@ class PdfReportViewModel @Inject constructor(
     }
 
     /**
-     * Parse date to string
-     *
-     * @param date date to parse
-     */
-    private fun reformatDate(date: Date): String {
-        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
-    }
-
-    /**
      * Parse date to user format string
      *
      * @param date date to parse
@@ -177,38 +195,11 @@ class PdfReportViewModel @Inject constructor(
     }
 
     /**
-     * Get user accounts
+     * Get account using JWT
      */
     fun getAccounts() {
-        AppPreferences.jwtToken?.let { token ->
-            getAccounts(token)
-        } ?: run {
-            _getAccountsState.value = GetAccountsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Get transaction by account IDs and type
-     *
-     * @param accountIds IDs of accounts
-     * @param type type of transactions
-     */
-    fun getTransactions(accountIds: List<Long>, type: Int) {
-        AppPreferences.jwtToken?.let { token ->
-            getTransactions(token, accountIds, reformatDate(_dateRange.value?.first ?: Date()), reformatDate(_dateRange.value?.second ?: Date()), type)
-        } ?: run {
-            _getTransactionsState.value = GetTransactionsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Get account using JWT
-     *
-     * @param token user JWT
-     */
-    private fun getAccounts(token: String) {
         _getAccountsState.value = GetAccountsState(isLoading = true)
-        getAccountsUseCase(token).onEach {result ->
+        getAccountsUseCase().onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     _getAccountsState.value = GetAccountsState(accounts = result.data ?: emptyList())
@@ -226,15 +217,12 @@ class PdfReportViewModel @Inject constructor(
     /**
      * Get transaction using JWT and account IDs, start and end date and type
      *
-     * @param token user JWT
      * @param accountIds IDs of accounts
-     * @param startDate start date
-     * @param endDate end date
      * @param type transaction type
      */
-    private fun getTransactions(token: String, accountIds: List<Long>, startDate: String, endDate: String, type: Int) {
+    fun getTransactions(accountIds: List<Long>, type: Int) {
         _getTransactionsState.value = GetTransactionsState(isLoading = true)
-        getTransactionsBetweenDatesUseCase(token, accountIds, startDate, endDate).onEach {result ->
+        getTransactionsBetweenDatesUseCase(accountIds, _dateRange.value!!.first, _dateRange.value!!.second).onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     val transactions = result.data?.filter {
@@ -243,14 +231,6 @@ class PdfReportViewModel @Inject constructor(
                             type < 0 -> { it.value < 0 }
                             else -> { true }
                         }
-                    }?.map { transactionDto ->
-                        Transaction(
-                            transactionId = transactionDto.transactionId,
-                            accountName = _getAccountsState.value!!.accounts.filter { it.accountId == transactionDto.accountId }.map { it.name }.first(),
-                            category = transactionDto.category,
-                            value = transactionDto.value,
-                            date = transactionDto.date
-                        )
                     } ?: emptyList()
                     _getTransactionsState.value = GetTransactionsState(transactions = transactions)
                 }
@@ -437,7 +417,7 @@ class PdfReportViewModel @Inject constructor(
             val fileName = context.resources.getString(R.string.pdf_report_file_name, System.currentTimeMillis().toString())
 
             try {
-                val directory = File(context.getExternalFilesDir(null), context.resources.getString(R.string.reports))
+                val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 saveToPdf(pdfDocument, directory, fileName)
 
                 pdfDocument.close()

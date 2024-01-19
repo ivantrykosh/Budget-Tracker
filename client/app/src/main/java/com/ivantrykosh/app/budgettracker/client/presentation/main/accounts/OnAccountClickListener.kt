@@ -1,6 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.accounts
 
-import com.ivantrykosh.app.budgettracker.client.domain.model.Account
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubAccount
 
 /**
  * Interface for account click listener
@@ -11,5 +11,5 @@ interface OnAccountClickListener {
      *
      * @param account clicked account
      */
-    fun onAccountClick(account: Account)
+    fun onAccountClick(account: SubAccount)
 }

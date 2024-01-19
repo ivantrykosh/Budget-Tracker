@@ -23,13 +23,6 @@ object AppPreferences {
     }
 
     /**
-     * JWT preference
-     */
-    var jwtToken: String?
-        get() = Key.JWT_TOKEN.getString()
-        set(value) = Key.JWT_TOKEN.setString(value)
-
-    /**
      * Currency preference
      */
     var currency: String?
@@ -54,7 +47,7 @@ object AppPreferences {
      * App preferences
      */
     private enum class Key {
-        JWT_TOKEN, CURRENCY, DATE_FORMAT, REMINDER_TIME;
+        CURRENCY, DATE_FORMAT, REMINDER_TIME;
 
         /**
          * Get string from preferences by key

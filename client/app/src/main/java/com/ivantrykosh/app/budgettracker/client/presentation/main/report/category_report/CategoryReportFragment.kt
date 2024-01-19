@@ -1,6 +1,5 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.category_report
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +16,6 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentCategoryReportBinding
-import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
@@ -159,14 +157,6 @@ class CategoryReportFragment : Fragment() {
                             setAccounts()
                         }
                     }
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
@@ -229,14 +219,6 @@ class CategoryReportFragment : Fragment() {
                                 findNavController().navigate(R.id.action_categoryReportFragment_to_createdCategoryReport)
                             }
                         }
-                        Constants.ErrorStatusCodes.UNAUTHORIZED,
-                        Constants.ErrorStatusCodes.FORBIDDEN,
-                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                            startAuthActivity()
-                        }
-                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                        }
                         else -> {
                             showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                         }
@@ -246,15 +228,6 @@ class CategoryReportFragment : Fragment() {
                 }
             }
         }
-    }
-
-    /**
-     * Start auth activity
-     */
-    private fun startAuthActivity() {
-        val intent = Intent(requireActivity(), AuthActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        requireActivity().startActivity(intent)
     }
 
     /**

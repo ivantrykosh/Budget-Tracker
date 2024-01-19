@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
+import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.create_transaction.CreateTransactionUseCase
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.GetAccountsState
@@ -70,24 +70,13 @@ class AddTransactionViewModel @Inject constructor(
     }
 
     /**
-     * Get user accounts
-     */
-    fun getAccounts() {
-        AppPreferences.jwtToken?.let { token ->
-            getAccounts(token)
-        } ?: run {
-            _getAccountsState.value = GetAccountsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
      * Get user accounts with JWT
      *
      * @param token user JWT
      */
-    private fun getAccounts(token: String) {
+    fun getAccounts() {
         _getAccountsState.value = GetAccountsState(isLoading = true)
-        getAccountsUseCase(token).onEach { result ->
+        getAccountsUseCase().onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     _getAccountsState.value = GetAccountsState(accounts = result.data ?: emptyList())
@@ -112,11 +101,10 @@ class AddTransactionViewModel @Inject constructor(
      * @param toFromWhom to from/whom information
      * @param note note of transaction
      */
-    fun createTransactionDto(accountName: String, category: String, value: Double, date: String, toFromWhom: String, note: String): TransactionDto? {
+    fun createTransactionDto(accountName: String, category: String, value: Double, date: String, toFromWhom: String, note: String): Transaction? {
         return try {
-            val accountId = _getAccountsState.value?.accounts?.first { it.name == accountName }?.accountId ?: -1
-            TransactionDto(
-                transactionId = null,
+            val accountId = _getAccountsState.value!!.accounts.first { it.name == accountName }.accountId
+            Transaction(
                 accountId = accountId,
                 category = category,
                 value = value,
@@ -130,27 +118,13 @@ class AddTransactionViewModel @Inject constructor(
     }
 
     /**
-     * Create transaction with provided TransactionDto
-     *
-     * @param transactionDto TransactionDto instance
-     */
-    fun createTransaction(transactionDto: TransactionDto) {
-        AppPreferences.jwtToken?.let { token ->
-            createTransaction(token, transactionDto)
-        } ?: run {
-            _createTransactionState.value = CreateTransactionState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
      * Create transaction with JWT and TransactionDto
      *
-     * @param token user JWT
-     * @param transactionDto TransactionDto instance
+     * @param transaction TransactionDto instance
      */
-    private fun createTransaction(token: String, transactionDto: TransactionDto) {
+    fun createTransaction(transaction: Transaction) {
         _createTransactionState.value = CreateTransactionState(isLoading = true)
-        createTransactionUseCase(token, transactionDto).onEach { result ->
+        createTransactionUseCase(transaction).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _createTransactionState.value = CreateTransactionState()

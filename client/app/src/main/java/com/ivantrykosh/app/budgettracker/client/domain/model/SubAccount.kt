@@ -1,11 +1,7 @@
 package com.ivantrykosh.app.budgettracker.client.domain.model
 
-/**
- * Account model
- */
-data class Account(
+data class SubAccount(
     val accountId: Long,
-    val userId: Long,
     val name: String,
     val total: Double
 )

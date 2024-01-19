@@ -2,7 +2,6 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.transactions
 
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -27,8 +26,7 @@ import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.DialogFilterBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.DialogTransactionDetailsBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentTransactionsBinding
-import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
-import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubTransaction
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.AccountItemAdapter
 import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.TransactionItemAdapter
@@ -334,14 +332,6 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                             loadTransactions()
                         }
                     }
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
@@ -382,14 +372,6 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                             binding.transactionsRecyclerView.setHasFixedSize(true)
                         }
                     }
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
@@ -403,7 +385,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
     /**
      * Get transaction by its ID
      */
-    private fun getTransaction(id: String) {
+    private fun getTransaction(id: Long) {
         binding.transactionsError.root.visibility = View.GONE
 
         progressStart()
@@ -441,7 +423,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         dialogTransactionDetailsBinding.transactionDetailsInputValueEditText.filters = arrayOf(InputFilter.LengthFilter(13), DecimalDigitsInputFilter(10, 2))
                         dialogTransactionDetailsBinding.transactionDetailsInputValueEditText.setText(getTransaction.transaction.value.absoluteValue.toString())
 
-                        dialogTransactionDetailsBinding.transactionDetailsInputAccountText.setText(getTransaction.transaction.accountName)
+                        dialogTransactionDetailsBinding.transactionDetailsInputAccountText.setText(viewModel.getAccountNameById(getTransaction.transaction.accountId))
                         setAccounts()
                         
                         dialogTransactionDetailsBinding.transactionDetailsInputCategoryText.setText(getTransaction.transaction.category)
@@ -461,14 +443,6 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         dialogTransactionDetailsBinding.root.requestLayout()
                     }
                 } else when (getTransaction.error) {
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
@@ -501,8 +475,8 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
             dialogTransactionDetailsBinding.transactionDetailsInputDate.error = resources.getString(R.string.invalid_date)
         } else {
             val value = dialogTransactionDetailsBinding.transactionDetailsInputValueEditText.text.toString().toDouble().absoluteValue
-            val transactionDto = viewModel.toTransactionDto(
-                viewModel.getTransactionState.value!!.transaction?.transactionId,
+            val transactionDto = viewModel.toTransaction(
+                viewModel.getTransactionState.value!!.transaction!!.transactionId,
                 dialogTransactionDetailsBinding.transactionDetailsInputAccountText.text.toString(),
                 dialogTransactionDetailsBinding.transactionDetailsInputCategoryText.text.toString(),
                 value,
@@ -525,14 +499,6 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                             null -> {
                                 Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_updated), Toast.LENGTH_SHORT).show()
                                 refresh()
-                            }
-                            Constants.ErrorStatusCodes.UNAUTHORIZED,
-                            Constants.ErrorStatusCodes.FORBIDDEN,
-                            Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                                startAuthActivity()
-                            }
-                            Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                                showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
                             }
                             else -> {
                                 showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
@@ -557,7 +523,7 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
         } else {
             progressStart()
 
-            viewModel.deleteTransaction(viewModel.getTransactionState.value!!.transaction!!.transactionId.toString())
+            viewModel.deleteTransaction(viewModel.getTransactionState.value!!.transaction!!.transactionId)
             viewModel.deleteTransactionState.observe(requireActivity()) { deleteTransaction ->
                 if (!deleteTransaction.isLoading) {
                     progressEnd()
@@ -566,14 +532,6 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
                         null -> {
                             Toast.makeText(requireContext(), R.string.transaction_is_deleted, Toast.LENGTH_SHORT).show()
                             refresh()
-                        }
-                        Constants.ErrorStatusCodes.UNAUTHORIZED,
-                        Constants.ErrorStatusCodes.FORBIDDEN,
-                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                            startAuthActivity()
-                        }
-                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
                         }
                         else -> {
                             showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
@@ -595,17 +553,8 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
         (dialogTransactionDetailsBinding.transactionDetailsInputAccount.editText as? AutoCompleteTextView)?.setAdapter(adapter)
     }
 
-    override fun onTransactionClick(transaction: Transaction) {
-        getTransaction(transaction.transactionId.toString())
-    }
-
-    /**
-     * Start auth activity
-     */
-    private fun startAuthActivity() {
-        val intent = Intent(requireActivity(), AuthActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        requireActivity().startActivity(intent)
+    override fun onTransactionClick(transaction: SubTransaction) {
+        getTransaction(transaction.transactionId)
     }
 
     /**

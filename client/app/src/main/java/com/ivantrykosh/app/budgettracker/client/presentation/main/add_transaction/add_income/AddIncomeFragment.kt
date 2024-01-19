@@ -1,7 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction.add_income
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
 import android.text.InputFilter
@@ -21,7 +20,6 @@ import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentAddIncomeBinding
-import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.add_transaction.AddTransactionViewModel
 import com.ivantrykosh.app.budgettracker.client.presentation.main.filter.DecimalDigitsInputFilter
 import dagger.hilt.android.AndroidEntryPoint
@@ -160,18 +158,10 @@ class AddIncomeFragment : Fragment() {
                 when (getAccounts.error) {
                     null -> {
                         if (getAccounts.accounts.isEmpty()) {
-                            showError(resources.getString(R.string.error), resources.getString(R.string.no_accounts))
+                            Toast.makeText(requireContext(), resources.getString(R.string.no_accounts), Toast.LENGTH_SHORT).show()
                         } else {
                             setAccounts()
                         }
-                    }
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
                     }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
@@ -233,14 +223,6 @@ class AddIncomeFragment : Fragment() {
                                 Toast.makeText(requireContext(), resources.getString(R.string.transaction_is_added), Toast.LENGTH_SHORT).show()
                                 findNavController().navigate(R.id.action_addIncomeFragment_to_overviewFragment)
                             }
-                            Constants.ErrorStatusCodes.UNAUTHORIZED,
-                            Constants.ErrorStatusCodes.FORBIDDEN,
-                            Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                                startAuthActivity()
-                            }
-                            Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                                showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                            }
                             else -> {
                                 showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                             }
@@ -251,15 +233,6 @@ class AddIncomeFragment : Fragment() {
                 }
             }
         }
-    }
-
-    /**
-     * Start auth activity
-     */
-    private fun startAuthActivity() {
-        val intent = Intent(requireActivity(), AuthActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        requireActivity().startActivity(intent)
     }
 
     /**

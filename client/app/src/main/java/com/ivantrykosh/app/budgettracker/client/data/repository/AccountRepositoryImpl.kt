@@ -1,9 +1,9 @@
 package com.ivantrykosh.app.budgettracker.client.data.repository
 
-import com.ivantrykosh.app.budgettracker.client.data.remote.AccountApi
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AccountDto
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.AccountWithAccountUsersDto
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
+import com.ivantrykosh.app.budgettracker.client.data.dao.AccountDao
+import com.ivantrykosh.app.budgettracker.client.domain.model.AccountEntity
+import com.ivantrykosh.app.budgettracker.client.domain.model.FullAccount
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubAccount
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountRepository
 import javax.inject.Inject
 
@@ -11,65 +11,56 @@ import javax.inject.Inject
  * Account repository implementation
  */
 class AccountRepositoryImpl @Inject constructor(
-    private val api: AccountApi
+    private val dao: AccountDao
 ) : AccountRepository {
 
     /**
      * Create account with token and request
      *
-     * @param token user's JWT
-     * @param request ChangeAccountDto request
+     * @param account ChangeAccountDto request
      */
-    override suspend fun createAccount(token: String, request: ChangeAccountDto) {
-        return api.createAccount(token, request)
+    override suspend fun createAccount(account: AccountEntity) {
+        return dao.insertAccount(account)
     }
 
     /**
      * Get account with token and id
      *
-     * @param token user's JWT
      * @param id Account ID to get
      */
-    override suspend fun getAccount(token: String, id: String): AccountWithAccountUsersDto {
-        return api.getAccount(token, id)
+    override suspend fun getAccount(id: Long): FullAccount {
+        return dao.getAccount(id)
     }
 
     /**
      * Get all accounts with token
-     *
-     * @param token user's JWT
      */
-    override suspend fun getAllAccounts(token: String): List<AccountDto> {
-        return api.getAllAccounts(token)
+    override suspend fun getAllAccounts(): List<SubAccount> {
+        return dao.getAccounts()
     }
 
     /**
      * Update account with token, id and request
      *
-     * @param token user's JWT
-     * @param id Account ID to get
-     * @param request ChangeAccountDto request
+     * @param account ChangeAccountDto request
      */
-    override suspend fun updateAccount(token: String, id: String, request: ChangeAccountDto) {
-        return api.updateAccount(token, id, request)
+    override suspend fun updateAccount(account: AccountEntity) {
+        return dao.updateAccount(account)
     }
 
     /**
      * Delete account with token and id
      *
-     * @param token user's JWT
      * @param id Account ID to delete
      */
-    override suspend fun deleteAccount(token: String, id: String) {
-        return api.deleteAccount(token, id)
+    override suspend fun deleteAccount(id: Long) {
+        return dao.deleteAccount(id)
     }
 
     /**
      * Delete all accounts with token
-     *
-     * @param token user's JWT
      */
-    override suspend fun deleteAllAccounts(token: String) {
-        return api.deleteAllAccounts(token)
+    override suspend fun deleteAllAccounts() {
+        return dao.deleteAllAccounts()
     }
 }

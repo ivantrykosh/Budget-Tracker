@@ -4,10 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubTransaction
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transactions_between_dates.GetTransactionsBetweenDates
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state.GetAccountsState
@@ -15,9 +14,8 @@ import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.s
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
+import java.util.Date
 import javax.inject.Inject
 
 /**
@@ -38,57 +36,38 @@ class OverviewViewModel @Inject constructor(
     /**
      * Get start of month
      */
-    fun getStartMonth(): String {
+    fun getStartMonth(): Date {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
 
-        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+        return calendar.time
     }
 
     /**
      * Get end of month
      */
-    fun getEndMonth(): String {
+    fun getEndMonth(): Date {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
 
-        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
-    }
-
-    /**
-     * Get all accounts
-     */
-    fun getAccounts() {
-        AppPreferences.jwtToken?.let { token ->
-            getAccounts(token)
-        } ?: run {
-            _getAccountsState.value = GetAccountsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Get transactions between dates and with provided account IDs
-     *
-     * @param accountIds IDs of accounts
-     * @param startDate start date
-     * @param endDate end date
-     */
-    fun getTransactions(accountIds: List<Long>, startDate: String, endDate: String) {
-        AppPreferences.jwtToken?.let { token ->
-            getTransactions(token, accountIds, startDate, endDate)
-        } ?: run {
-            _getTransactionsState.value = GetTransactionsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
+        return calendar.time
     }
 
     /**
      * Get accounts with JWT
      *
-     * @param token user JWT
      */
-    private fun getAccounts(token: String) {
+    fun getAccounts() {
         _getAccountsState.value = GetAccountsState(isLoading = true)
-        getAccountsUseCase(token).onEach { result ->
+        getAccountsUseCase().onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _getAccountsState.value = GetAccountsState(accounts = result.data ?: emptyList())
@@ -106,26 +85,16 @@ class OverviewViewModel @Inject constructor(
     /**
      * Get transactions with JWT, account IDs and between dates
      *
-     * @param token user JWT
      * @param accountIds IDs of accounts
      * @param startDate start date
      * @param endDate end date
      */
-    private fun getTransactions(token: String, accountIds: List<Long>, startDate: String, endDate: String) {
+    fun getTransactions(accountIds: List<Long>, startDate: Date, endDate: Date) {
         _getTransactionsState.value = GetTransactionsState(isLoading = true)
-        getTransactionsBetweenDates(token, accountIds, startDate, endDate).onEach {result ->
+        getTransactionsBetweenDates(accountIds, startDate, endDate).onEach {result ->
             when (result) {
                 is Resource.Success -> {
-                    val transactions = result.data?.map { transactionDto ->
-                        Transaction(
-                            transactionId = transactionDto.transactionId,
-                            accountName = _getAccountsState.value!!.accounts.filter { it.accountId == transactionDto.accountId }.map { it.name }.first(),
-                            category = transactionDto.category,
-                            value = transactionDto.value,
-                            date = transactionDto.date
-                        )
-                    } ?: emptyList()
-                    _getTransactionsState.value = GetTransactionsState(transactions = transactions)
+                    _getTransactionsState.value = GetTransactionsState(transactions = result.data ?: emptyList())
                 }
                 is Resource.Error -> {
                     _getTransactionsState.value = GetTransactionsState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
@@ -140,14 +109,14 @@ class OverviewViewModel @Inject constructor(
     /**
      * Get incomes
      */
-    fun getIncomes(): List<Transaction> {
+    fun getIncomes(): List<SubTransaction> {
         return getTransactionsState.value?.transactions?.filter { it.value > 0.0 } ?: emptyList()
     }
 
     /**
      * Get expenses
      */
-    fun getExpenses(): List<Transaction> {
+    fun getExpenses(): List<SubTransaction> {
         return getTransactionsState.value?.transactions?.filter { it.value < 0.0 } ?: emptyList()
     }
 

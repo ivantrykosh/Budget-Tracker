@@ -2,7 +2,7 @@ package com.ivantrykosh.app.budgettracker.client.domain.use_case.account.update_
 
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
+import com.ivantrykosh.app.budgettracker.client.domain.model.AccountEntity
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,14 +18,12 @@ class UpdateAccountUseCase @Inject constructor(
     /**
      * Invoke update account use case with token, id and changeAccountDto
      *
-     * @param token user's JWT
-     * @param id account id to update
-     * @param changeAccountDto account data
+     * @param account account data
      */
-    operator fun invoke(token: String, id: String, changeAccountDto: ChangeAccountDto): Flow<Resource<String>> = flow {
+    operator fun invoke(account: AccountEntity): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.updateAccount("Bearer $token", id, changeAccountDto)
+            repository.updateAccount(account)
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))

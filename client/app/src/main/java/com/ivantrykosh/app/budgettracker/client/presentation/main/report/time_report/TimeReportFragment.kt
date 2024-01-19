@@ -1,6 +1,5 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.time_report
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,9 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.ivantrykosh.app.budgettracker.client.R
-import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentTimeReportBinding
-import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
@@ -190,14 +187,6 @@ class TimeReportFragment : Fragment() {
                             setAccounts()
                         }
                     }
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
@@ -263,14 +252,6 @@ class TimeReportFragment : Fragment() {
                                 findNavController().navigate(R.id.action_timeReportFragment_to_createdTimeReportFragment)
                             }
                         }
-                        Constants.ErrorStatusCodes.UNAUTHORIZED,
-                        Constants.ErrorStatusCodes.FORBIDDEN,
-                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                            startAuthActivity()
-                        }
-                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                        }
                         else -> {
                             showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                         }
@@ -280,15 +261,6 @@ class TimeReportFragment : Fragment() {
                 }
             }
         }
-    }
-
-    /**
-     * Start auth activity
-     */
-    private fun startAuthActivity() {
-        val intent = Intent(requireActivity(), AuthActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        requireActivity().startActivity(intent)
     }
 
     /**

@@ -2,7 +2,6 @@ package com.ivantrykosh.app.budgettracker.client.presentation.main.accounts
 
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
 import android.view.LayoutInflater
@@ -18,12 +17,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
 import com.ivantrykosh.app.budgettracker.client.databinding.DialogAccountDetailsBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.DialogCreateAccountBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentAccountsBinding
-import com.ivantrykosh.app.budgettracker.client.domain.model.Account
-import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubAccount
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.AccountItemAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,7 +68,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
         binding.accountsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.accountsRecyclerView.adapter = AccountItemAdapter(requireContext(), emptyList())
 
-        refresh()
+        refreshAccounts()
 
         binding.accountsTopAppBar.setNavigationOnClickListener {
             (activity as MainActivity).openDrawer()
@@ -80,7 +77,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
         binding.accountsTopAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.accounts_refresh -> {
-                    refresh()
+                    refreshAccounts()
                     true
                 }
                 else -> false
@@ -101,14 +98,12 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
             binding.accountsError.root.visibility = View.GONE
             dialogCreateAccount.show()
             dialogCreateAccountBinding.createAccountInputNameEditText.text = null
-            dialogCreateAccountBinding.createAccountEditTextInputEmail1.text = null
-            dialogCreateAccountBinding.createAccountEditTextInputEmail2.text = null
-            dialogCreateAccountBinding.createAccountEditTextInputEmail3.text = null
+            dialogCreateAccountBinding.createAccountInputName.error = null
         }
 
         dialogAccountDetailsBinding.accountDetailsButtonCancel.setOnClickListener {
             dialogAccountDetails.hide()
-            refresh()
+            refreshAccounts()
         }
 
         dialogAccountDetailsBinding.accountDetailsButtonDeleteAccount.setOnClickListener {
@@ -121,7 +116,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
 
         dialogAccountDetailsBinding.accountDetailsInputNameEditText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!viewModel.checkName(dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString())) {
+                if (!viewModel.checkName(dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString(), viewModel.getAccountState.value?.account?.accountId ?: 0)) {
                     dialogAccountDetailsBinding.accountDetailsInputName.error = resources.getString(R.string.invalid_account_name)
                 } else {
                     dialogAccountDetailsBinding.accountDetailsInputName.error = null
@@ -130,40 +125,9 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
             }
         }
 
-        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.text.toString())) {
-                    dialogAccountDetailsBinding.accountDetailsTextInputEmail1.error = resources.getString(R.string.invalid_email)
-                } else {
-                    dialogAccountDetailsBinding.accountDetailsTextInputEmail1.error = null
-                }
-                hideKeyboard(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.windowToken)
-            }
-        }
-        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.text.toString())) {
-                    dialogAccountDetailsBinding.accountDetailsTextInputEmail2.error = resources.getString(R.string.invalid_email)
-                } else {
-                    dialogAccountDetailsBinding.accountDetailsTextInputEmail2.error = null
-                }
-                hideKeyboard(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.windowToken)
-            }
-        }
-        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.text.toString())) {
-                    dialogAccountDetailsBinding.accountDetailsTextInputEmail3.error = resources.getString(R.string.invalid_email)
-                } else {
-                    dialogAccountDetailsBinding.accountDetailsTextInputEmail3.error = null
-                }
-                hideKeyboard(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.windowToken)
-            }
-        }
-
         dialogCreateAccountBinding.createAccountButtonCancel.setOnClickListener {
             dialogCreateAccount.hide()
-            refresh()
+            refreshAccounts()
         }
 
         dialogCreateAccountBinding.createAccountButtonOk.setOnClickListener {
@@ -178,37 +142,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                     dialogCreateAccountBinding.createAccountInputName.error = null
                 }
                 hideKeyboard(dialogCreateAccountBinding.createAccountInputNameEditText.windowToken)
-            }
-        }
-
-        dialogCreateAccountBinding.createAccountEditTextInputEmail1.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail1.text.toString())) {
-                    dialogCreateAccountBinding.createAccountTextInputEmail1.error = resources.getString(R.string.invalid_email)
-                } else {
-                    dialogCreateAccountBinding.createAccountTextInputEmail1.error = null
-                }
-                hideKeyboard(dialogCreateAccountBinding.createAccountEditTextInputEmail1.windowToken)
-            }
-        }
-        dialogCreateAccountBinding.createAccountEditTextInputEmail2.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail2.text.toString())) {
-                    dialogCreateAccountBinding.createAccountTextInputEmail2.error = resources.getString(R.string.invalid_email)
-                } else {
-                    dialogCreateAccountBinding.createAccountTextInputEmail2.error = null
-                }
-                hideKeyboard(dialogCreateAccountBinding.createAccountEditTextInputEmail2.windowToken)
-            }
-        }
-        dialogCreateAccountBinding.createAccountEditTextInputEmail3.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail3.text.toString())) {
-                    dialogCreateAccountBinding.createAccountTextInputEmail3.error = resources.getString(R.string.invalid_email)
-                } else {
-                    dialogCreateAccountBinding.createAccountTextInputEmail3.error = null
-                }
-                hideKeyboard(dialogCreateAccountBinding.createAccountEditTextInputEmail3.windowToken)
             }
         }
 
@@ -233,41 +166,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
     }
 
     /**
-     * Refresh user
-     */
-    private fun refresh() {
-        progressStart()
-        binding.accountsError.root.visibility = View.GONE
-
-        viewModel.getUser()
-        viewModel.getUserState.observe(requireActivity()) { getUser ->
-            if (!getUser.isLoading) {
-                progressEnd()
-
-                if (getUser.user != null) {
-                    refreshAccounts()
-                }
-                else when (getUser.error) {
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
-                    else -> {
-                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
-                    }
-                }
-
-                viewModel.getUserState.removeObservers(requireActivity())
-            }
-        }
-    }
-
-    /**
-     * Refresh accounts
+     * refreshAccounts accounts
      */
     private fun refreshAccounts() {
         progressStart()
@@ -289,14 +188,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                             Toast.makeText(requireContext(), R.string.you_do_not_have_any_accounts, Toast.LENGTH_SHORT).show()
                         }
                     }
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
@@ -310,7 +201,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
     /**
      * Get account
      */
-    private fun getAccount(id: String) {
+    private fun getAccount(id: Long) {
         binding.accountsError.root.visibility = View.GONE
         progressStart()
 
@@ -324,42 +215,15 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                         showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account_id))
                     } else {
                         dialogAccountDetails.show()
+                        dialogAccountDetailsBinding.accountDetailsInputName.error = null
                         dialogAccountDetailsBinding.accountDetailsIncomesValue.text = getFormat().format(getAccount.account.incomesSum)
                         dialogAccountDetailsBinding.accountDetailsExpensesValue.text = getFormat().format(getAccount.account.expensesSum)
                         dialogAccountDetailsBinding.accountDetailsTotalValue.text = getFormat().format(getAccount.account.incomesSum.plus(getAccount.account.expensesSum))
                         dialogAccountDetailsBinding.accountDetailsInputNameEditText.setText(getAccount.account.name)
-                        dialogAccountDetailsBinding.accountDetailsOwnerLayout.visibility = View.GONE
-                        if (getAccount.account.userId == (viewModel.getUserState.value?.user?.userId ?: -1)) {
-                            dialogAccountDetailsBinding.accountDetailsOwnerLayout.visibility = View.VISIBLE
-                            dialogAccountDetailsBinding.accountDetailsInputNameEditText.isFocusableInTouchMode = true
-                            dialogAccountDetailsBinding.accountDetailsInputNameEditText.isFocusable = true
-                            dialogAccountDetailsBinding.accountDetailsTextInputEmail1.error = null
-                            dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.setText(
-                                getAccount.account.email2
-                            )
-                            dialogAccountDetailsBinding.accountDetailsTextInputEmail2.error = null
-                            dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.setText(
-                                getAccount.account.email3
-                            )
-                            dialogAccountDetailsBinding.accountDetailsTextInputEmail3.error = null
-                            dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.setText(
-                                getAccount.account.email4
-                            )
-                        } else {
-                            dialogAccountDetailsBinding.accountDetailsInputNameEditText.isFocusable = false
-                        }
                         dialogAccountDetailsBinding.root.requestLayout()
                     }
                 } else {
                     when (getAccount.error) {
-                        Constants.ErrorStatusCodes.UNAUTHORIZED,
-                        Constants.ErrorStatusCodes.FORBIDDEN,
-                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                            startAuthActivity()
-                        }
-                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                        }
                         else -> {
                             showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                         }
@@ -379,23 +243,11 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
 
         if (!viewModel.checkName(dialogCreateAccountBinding.createAccountInputNameEditText.text.toString())) {
             dialogCreateAccountBinding.createAccountInputName.error = resources.getString(R.string.invalid_account_name)
-        } else if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail1.text.toString())) {
-            dialogCreateAccountBinding.createAccountTextInputEmail1.error = resources.getString(R.string.invalid_email)
-        } else if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail2.text.toString())) {
-            dialogCreateAccountBinding.createAccountTextInputEmail2.error = resources.getString(R.string.invalid_email)
-        } else if (!viewModel.checkEmail(dialogCreateAccountBinding.createAccountEditTextInputEmail3.text.toString())) {
-            dialogCreateAccountBinding.createAccountTextInputEmail3.error = resources.getString(R.string.invalid_email)
         } else {
             progressStart()
             dialogCreateAccount.hide()
 
-            val changeAccountDto = ChangeAccountDto(
-                dialogCreateAccountBinding.createAccountInputNameEditText.text.toString(),
-                dialogCreateAccountBinding.createAccountEditTextInputEmail1.text.toString(),
-                dialogCreateAccountBinding.createAccountEditTextInputEmail2.text.toString(),
-                dialogCreateAccountBinding.createAccountEditTextInputEmail3.text.toString()
-            )
-            viewModel.createAccount(changeAccountDto)
+            viewModel.createAccount(dialogCreateAccountBinding.createAccountInputNameEditText.text.toString())
             viewModel.createAccountState.observe(requireActivity()) { createAccount ->
                 if (!createAccount.isLoading) {
                     progressEnd()
@@ -403,21 +255,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                     when (createAccount.error) {
                         null -> {
                             Toast.makeText(requireContext(), resources.getString(R.string.account_was_created), Toast.LENGTH_SHORT).show()
-                            refresh()
-                        }
-                        Constants.ErrorStatusCodes.BAD_REQUEST -> {
-                            showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account_data))
-                        }
-                        Constants.ErrorStatusCodes.CONFLICT -> {
-                            showError(resources.getString(R.string.error), resources.getString(R.string.invalid_user_email))
-                        }
-                        Constants.ErrorStatusCodes.UNAUTHORIZED,
-                        Constants.ErrorStatusCodes.FORBIDDEN,
-                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                            startAuthActivity()
-                        }
-                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
+                            refreshAccounts()
                         }
                         else -> {
                             showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
@@ -434,62 +272,32 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
      * Update account
      */
     private fun updateAccount() {
-        if ((viewModel.getAccountState.value?.account?.userId ?: 0) == viewModel.getUserState.value?.user?.userId) {
-            clearFocusOfUpdateAccountFields()
+        clearFocusOfUpdateAccountFields()
 
-            if (!viewModel.checkName(dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString())) {
-                dialogAccountDetailsBinding.accountDetailsInputName.error = resources.getString(R.string.invalid_account_name)
-            } else if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.text.toString())) {
-                dialogAccountDetailsBinding.accountDetailsTextInputEmail1.error = resources.getString(R.string.invalid_email)
-            } else if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.text.toString())) {
-                dialogAccountDetailsBinding.accountDetailsTextInputEmail2.error = resources.getString(R.string.invalid_email)
-            } else if (!viewModel.checkEmail(dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.text.toString())) {
-                dialogAccountDetailsBinding.accountDetailsTextInputEmail3.error = resources.getString(R.string.invalid_email)
-            } else {
-                progressStart()
-                dialogAccountDetails.hide()
+        if (!viewModel.checkName(dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString(), viewModel.getAccountState.value?.account?.accountId ?: 0)) {
+            dialogAccountDetailsBinding.accountDetailsInputName.error = resources.getString(R.string.invalid_account_name)
+        } else {
+            progressStart()
+            dialogAccountDetails.hide()
 
-                val changeAccountDto = ChangeAccountDto(
-                    dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString(),
-                    dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.text.toString(),
-                    dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.text.toString(),
-                    dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.text.toString()
-                )
-                viewModel.updateAccount(viewModel.getAccountState.value?.account?.accountId.toString(), changeAccountDto)
-                viewModel.updateAccountState.observe(requireActivity()) { updateAccount ->
-                    if (!updateAccount.isLoading) {
-                        progressEnd()
+            viewModel.updateAccount(viewModel.getAccountState.value!!.account!!.accountId, dialogAccountDetailsBinding.accountDetailsInputNameEditText.text.toString())
+            viewModel.updateAccountState.observe(requireActivity()) { updateAccount ->
+                if (!updateAccount.isLoading) {
+                    progressEnd()
 
-                        when (updateAccount.error) {
-                            null -> {
-                                Toast.makeText(requireContext(), resources.getString(R.string.account_was_updated), Toast.LENGTH_SHORT).show()
-                                refresh()
-                            }
-                            Constants.ErrorStatusCodes.BAD_REQUEST -> {
-                                showError(resources.getString(R.string.error), resources.getString(R.string.invalid_account_data))
-                            }
-                            Constants.ErrorStatusCodes.CONFLICT -> {
-                                showError(resources.getString(R.string.error), resources.getString(R.string.invalid_user_email))
-                            }
-                            Constants.ErrorStatusCodes.UNAUTHORIZED,
-                            Constants.ErrorStatusCodes.FORBIDDEN,
-                            Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                                startAuthActivity()
-                            }
-                            Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                                showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                            }
-                            else -> {
-                                showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
-                            }
+                    when (updateAccount.error) {
+                        null -> {
+                            Toast.makeText(requireContext(), resources.getString(R.string.account_was_updated), Toast.LENGTH_SHORT).show()
+                            refreshAccounts()
                         }
-
-                        viewModel.updateAccountState.removeObservers(requireActivity())
+                        else -> {
+                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
+                        }
                     }
+
+                    viewModel.updateAccountState.removeObservers(requireActivity())
                 }
             }
-        } else {
-            dialogAccountDetails.hide()
         }
     }
 
@@ -497,53 +305,30 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
      * Delete account
      */
     private fun deleteAccount() {
-        if (viewModel.getAccountState.value?.account?.accountId == null) {
-            binding.accountsError.root.visibility = View.VISIBLE
-            binding.accountsError.errorTitle.text = resources.getString(R.string.error)
-            binding.accountsError.errorText.text = resources.getString(R.string.invalid_account_id)
-        } else {
-            progressStart()
+        progressStart()
 
-            viewModel.deleteAccount(viewModel.getAccountState.value?.account!!.accountId.toString())
-            viewModel.deleteAccountState.observe(requireActivity()) { deleteAccount ->
-                if (!deleteAccount.isLoading) {
-                    progressEnd()
+        viewModel.deleteAccount(viewModel.getAccountState.value?.account!!.accountId)
+        viewModel.deleteAccountState.observe(requireActivity()) { deleteAccount ->
+            if (!deleteAccount.isLoading) {
+                progressEnd()
 
-                    when (deleteAccount.error) {
-                        null -> {
-                            Toast.makeText(requireContext(), resources.getString(R.string.account_was_deleted), Toast.LENGTH_SHORT).show()
-                            refresh()
-                        }
-                        Constants.ErrorStatusCodes.UNAUTHORIZED,
-                        Constants.ErrorStatusCodes.FORBIDDEN,
-                        Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                            startAuthActivity()
-                        }
-                        Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                            showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                        }
-                        else -> {
-                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
-                        }
+                when (deleteAccount.error) {
+                    null -> {
+                        Toast.makeText(requireContext(), resources.getString(R.string.account_was_deleted), Toast.LENGTH_SHORT).show()
+                        refreshAccounts()
                     }
-
-                    viewModel.deleteAccountState.removeObservers(requireActivity())
+                    else -> {
+                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
+                    }
                 }
+
+                viewModel.deleteAccountState.removeObservers(requireActivity())
             }
         }
     }
 
-    override fun onAccountClick(account: Account) {
-        getAccount(account.accountId.toString())
-    }
-
-    /**
-     * Start auth activity
-     */
-    private fun startAuthActivity() {
-        val intent = Intent(requireActivity(), AuthActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        requireActivity().startActivity(intent)
+    override fun onAccountClick(account: SubAccount) {
+        getAccount(account.accountId)
     }
 
     /**
@@ -561,9 +346,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
      */
     private fun clearFocusOfCreateAccountFields() {
         dialogCreateAccountBinding.createAccountInputNameEditText.clearFocus()
-        dialogCreateAccountBinding.createAccountEditTextInputEmail1.clearFocus()
-        dialogCreateAccountBinding.createAccountEditTextInputEmail2.clearFocus()
-        dialogCreateAccountBinding.createAccountEditTextInputEmail3.clearFocus()
     }
 
     /**
@@ -571,9 +353,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
      */
     private fun clearFocusOfUpdateAccountFields() {
         dialogAccountDetailsBinding.accountDetailsInputNameEditText.clearFocus()
-        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail1.clearFocus()
-        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail2.clearFocus()
-        dialogAccountDetailsBinding.accountDetailsEditTextInputEmail3.clearFocus()
     }
 
     /**

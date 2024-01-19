@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.Constants
-import com.ivantrykosh.app.budgettracker.client.presentation.splash_screen.SplashScreenActivity
+import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 
 /**
  * Daily reminder receiver
@@ -39,7 +39,7 @@ class DailyReminderReceiver : BroadcastReceiver() {
     private fun showNotification(context: Context, title: String, content: String) {
         Log.d("DailyReminderReceiver", "Start show notification")
         // Create an explicit intent for the SplashScreenActivity
-        val mainIntent = Intent(context, SplashScreenActivity::class.java)
+        val mainIntent = Intent(context, MainActivity::class.java)
         mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_IMMUTABLE)
 

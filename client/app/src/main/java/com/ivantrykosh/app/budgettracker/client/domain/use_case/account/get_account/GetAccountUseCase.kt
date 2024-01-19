@@ -2,8 +2,7 @@ package com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_acc
 
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.toAccountDetails
-import com.ivantrykosh.app.budgettracker.client.domain.model.AccountDetails
+import com.ivantrykosh.app.budgettracker.client.domain.model.FullAccount
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,13 +18,12 @@ class GetAccountUseCase @Inject constructor(
     /**
      * Invoke get account use case with token and id
      *
-     * @param token user's JWT
      * @param id account id to get
      */
-    operator fun invoke(token: String, id: String): Flow<Resource<AccountDetails>> = flow {
+    operator fun invoke(id: Long): Flow<Resource<FullAccount>> = flow {
         try {
             emit(Resource.Loading())
-            val result = repository.getAccount("Bearer $token", id).toAccountDetails()
+            val result = repository.getAccount(id)
             emit(Resource.Success(result))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))

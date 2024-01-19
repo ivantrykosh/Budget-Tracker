@@ -10,17 +10,6 @@ object Constants {
     const val PREFERENCES = "Budgetracker"
 
     /**
-     * Object with API URLs
-     */
-    object URL {
-        const val BASE_URL = "http://192.168.1.11:8080/"
-        const val AUTH_URL = "api/v1/auth/"
-        const val USER_URL = "api/v1/users/"
-        const val ACCOUNT_URL = "api/v1/accounts/"
-        const val TRANSACTION_URL = "api/v1/transactions/"
-    }
-
-    /**
      * Available currencies and theirs symbols
      */
     val CURRENCIES = mapOf("USD" to "$", "UAH" to "₴", "EUR" to "€")

@@ -2,7 +2,7 @@ package com.ivantrykosh.app.budgettracker.client.domain.use_case.account.create_
 
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.ChangeAccountDto
+import com.ivantrykosh.app.budgettracker.client.domain.model.AccountEntity
 import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,13 +18,12 @@ class CreateAccountUseCase @Inject constructor(
     /**
      * Invoke create account use case with token and ChangeAccountDto request
      *
-     * @param token user's JWT
-     * @param request request to create account
+     * @param account request to create account
      */
-    operator fun invoke(token: String, request: ChangeAccountDto): Flow<Resource<String>> = flow {
+    operator fun invoke(account: AccountEntity): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.createAccount("Bearer $token", request)
+            repository.createAccount(account)
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))

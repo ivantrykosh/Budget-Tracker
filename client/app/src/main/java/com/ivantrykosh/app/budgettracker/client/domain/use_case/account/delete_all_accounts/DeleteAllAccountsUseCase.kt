@@ -16,13 +16,11 @@ class DeleteAllAccountsUseCase @Inject constructor(
 ) {
     /**
      * Invoke delete all accounts use case with token
-     *
-     * @param token user's JWT
      */
-    operator fun invoke(token: String): Flow<Resource<String>> = flow {
+    operator fun invoke(): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.deleteAllAccounts("Bearer $token")
+            repository.deleteAllAccounts()
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))

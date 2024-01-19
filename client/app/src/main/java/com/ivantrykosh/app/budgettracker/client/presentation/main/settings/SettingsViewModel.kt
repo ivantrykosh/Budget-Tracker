@@ -174,24 +174,11 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Delete all accounts
+     * Delete all account with JWT
      */
     fun deleteAllAccounts() {
-        AppPreferences.jwtToken?.let { token ->
-            deleteAllAccounts(token)
-        } ?: run {
-            _deleteAllAccountsState.value = GetAccountsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Delete all account with JWT
-     *
-     * @param token user JWT
-     */
-    private fun deleteAllAccounts(token: String) {
         _deleteAllAccountsState.value = GetAccountsState(isLoading = true)
-        deleteAllAccountsUseCase(token).onEach {result ->
+        deleteAllAccountsUseCase().onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     _deleteAllAccountsState.value = GetAccountsState()

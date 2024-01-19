@@ -94,7 +94,7 @@
     <string name="delete_account">Delete account</string>
     <string name="you_do_not_have_any_accounts">You do not have any accounts</string>
     <string name="invalid_account_id">Invalid account ID</string>
-    <string name="invalid_account_name">Invalid account name</string>
+    <string name="invalid_account_name">Account name has to be unique</string>
     <string name="create_account">Create new account</string>
     <string name="account_was_created">Account was created</string>
     <string name="account_was_updated">Account was updated</string>
@@ -126,7 +126,7 @@
     <string name="report_for">Report for %s</string>
     <string name="last_transactions">Last transactions</string>
     <string name="report_name" translatable="false">Report_%s</string>
-    <string name="report_saved_successful">Report was saved to app folder</string>
+    <string name="report_saved_successful">Report was saved to Downloads</string>
     <string name="report_saved_fail">Failed to save report</string>
     <string name="transaction_type_by_categories">%s by categories</string>
     <string name="transaction_type_by_date">%s by date</string>

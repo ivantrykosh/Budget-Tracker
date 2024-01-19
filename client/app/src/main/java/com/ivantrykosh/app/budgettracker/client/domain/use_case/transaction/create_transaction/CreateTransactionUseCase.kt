@@ -2,7 +2,7 @@ package com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.cre
 
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
+import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,13 +18,12 @@ class CreateTransactionUseCase @Inject constructor(
     /**
      * Invoke create transaction use case with token and transactionDto
      *
-     * @param token user's JWT
-     * @param transactionDto transaction data
+     * @param transaction transaction data
      */
-    operator fun invoke(token: String, transactionDto: TransactionDto): Flow<Resource<String>> = flow {
+    operator fun invoke(transaction: Transaction): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.createTransaction("Bearer $token", transactionDto)
+            repository.createTransaction(transaction)
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))

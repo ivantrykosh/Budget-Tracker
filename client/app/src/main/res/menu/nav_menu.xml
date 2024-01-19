@@ -4,16 +4,6 @@
     tools:showIn="navigation_view">
 
     <group
-        android:id="@+id/menu_top"
-        android:checkableBehavior="single">
-
-        <item
-            android:id="@+id/nav_my_profile"
-            android:icon="@drawable/outline_account_circle_24"
-            android:title="@string/my_profile" />
-    </group>
-
-    <group
         android:id="@+id/menu_main"
         android:checkableBehavior="single">
 
@@ -68,15 +58,5 @@
             android:id="@+id/nav_settings"
             android:icon="@drawable/outline_settings_24"
             android:title="@string/settings" />
-    </group>
-
-    <group
-        android:id="@+id/menu_logout"
-        android:checkableBehavior="single">
-
-        <item
-            android:id="@+id/nav_logout"
-            android:icon="@drawable/outline_logout_24"
-            android:title="@string/log_out" />
     </group>
 </menu>

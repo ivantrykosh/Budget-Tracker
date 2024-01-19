@@ -1,7 +1,6 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.settings
 
 import android.Manifest
-import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
@@ -21,9 +20,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.ivantrykosh.app.budgettracker.client.R
-import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentSettingsBinding
-import com.ivantrykosh.app.budgettracker.client.presentation.auth.AuthActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -220,14 +217,6 @@ class SettingsFragment : Fragment() {
                     null -> {
                         Toast.makeText(requireContext(), resources.getString(R.string.data_was_deleted), Toast.LENGTH_LONG).show()
                     }
-                    Constants.ErrorStatusCodes.UNAUTHORIZED,
-                    Constants.ErrorStatusCodes.FORBIDDEN,
-                    Constants.ErrorStatusCodes.TOKEN_NOT_FOUND -> {
-                        startAuthActivity()
-                    }
-                    Constants.ErrorStatusCodes.NETWORK_ERROR -> {
-                        showError(resources.getString(R.string.network_error), resources.getString(R.string.connection_failed_message))
-                    }
                     else -> {
                         showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                     }
@@ -236,15 +225,6 @@ class SettingsFragment : Fragment() {
                 viewModel.deleteAllAccountsState.removeObservers(requireActivity())
             }
         }
-    }
-
-    /**
-     * Start auth activity
-     */
-    private fun startAuthActivity() {
-        val intent = Intent(requireActivity(), AuthActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        requireActivity().startActivity(intent)
     }
 
     /**

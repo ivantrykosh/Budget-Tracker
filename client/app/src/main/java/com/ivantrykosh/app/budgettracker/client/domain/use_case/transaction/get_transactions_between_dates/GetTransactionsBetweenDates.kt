@@ -2,7 +2,7 @@ package com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get
 
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubTransaction
 import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,15 +19,14 @@ class GetTransactionsBetweenDates @Inject constructor(
     /**
      * Invoke get transactions between dates use case with token and accountIds, startDate and endDate
      *
-     * @param token user's JWT
      * @param accountIds account IDs by which transaction are get
      * @param startDate start date to get transactions
      * @param endDate end date to get transactions
      */
-    operator fun invoke(token: String, accountIds: List<Long>, startDate: String, endDate: String): Flow<Resource<List<TransactionDto>>> = flow {
+    operator fun invoke(accountIds: List<Long>, startDate: Date, endDate: Date): Flow<Resource<List<SubTransaction>>> = flow {
         try {
             emit(Resource.Loading())
-            val result = repository.getTransactionByAllAccountAndDateBetween("Bearer $token", accountIds, startDate, endDate)
+            val result = repository.getTransactionByAllAccountAndDateBetween(accountIds, startDate, endDate)
             emit(Resource.Success(result))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))

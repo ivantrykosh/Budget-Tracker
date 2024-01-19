@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
-import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubTransaction
 import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.OnTransactionClickListener
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -20,7 +20,7 @@ import java.util.Locale
  */
 class TransactionItemAdapter(
     private val context: Context,
-    private val dataset: List<Transaction>,
+    private val dataset: List<SubTransaction>,
     private val size: Int,
     private val maxSize: Int = size
 ) : RecyclerView.Adapter<TransactionItemAdapter.TransactionItemViewHolder>() {
@@ -63,7 +63,7 @@ class TransactionItemAdapter(
         val item = dataset[position]
         holder.category.text = item.category
         holder.value.text = format.format(item.value)
-        holder.account.text = item.accountName
+        holder.account.text = item.name
         holder.date.text = SimpleDateFormat(AppPreferences.dateFormat, Locale.getDefault()).format(item.date)
         if (item.value > 0) {
             holder.color.setBackgroundResource(R.color.green)

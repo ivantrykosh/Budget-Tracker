@@ -88,7 +88,7 @@
     <string name="delete_account">Видалити рахунок</string>
     <string name="you_do_not_have_any_accounts">Ви не маєте жодних рахунків</string>
     <string name="invalid_account_id">Некоректний ID рахунку</string>
-    <string name="invalid_account_name">Некоректне ім\'я рахунку</string>
+    <string name="invalid_account_name">Ім\'я рахунку повинне бути унікальним</string>
     <string name="create_account">Створити новий рахунок</string>
     <string name="account_was_created">Рахунок було створено</string>
     <string name="account_was_updated">Рахунок було оновлено</string>
@@ -119,7 +119,7 @@
     <string name="download_report">Завантажити звіт</string>
     <string name="report_for">Звіт за %s</string>
     <string name="last_transactions">Останні транзакції</string>
-    <string name="report_saved_successful">Звіт було збережено у папці програми</string>
+    <string name="report_saved_successful">Звіт було збережено у завантаженнях</string>
     <string name="report_saved_fail">Не вдалося зберегти звіт</string>
     <string name="transaction_type_by_categories">%s за категоріями</string>
     <string name="transaction_type_by_date">%s за датами</string>

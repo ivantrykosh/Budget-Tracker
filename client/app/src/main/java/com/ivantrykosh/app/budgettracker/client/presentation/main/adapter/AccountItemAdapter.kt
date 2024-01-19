@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ivantrykosh.app.budgettracker.client.R
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
-import com.ivantrykosh.app.budgettracker.client.domain.model.Account
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubAccount
 import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.OnAccountClickListener
 import java.text.DecimalFormat
 
@@ -18,7 +18,7 @@ import java.text.DecimalFormat
  */
 class AccountItemAdapter(
     private val context: Context,
-    private val dataset: List<Account>,
+    private val dataset: List<SubAccount>,
 ) : RecyclerView.Adapter<AccountItemAdapter.AccountItemViewHolder>() {
 
     private var clickListener: OnAccountClickListener? = null

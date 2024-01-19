@@ -8,9 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
-import com.ivantrykosh.app.budgettracker.client.data.remote.dto.TransactionDto
+import com.ivantrykosh.app.budgettracker.client.domain.model.SubTransaction
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
-import com.ivantrykosh.app.budgettracker.client.domain.model.TransactionDetails
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.account.get_accounts.GetAccountsUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.delete_transaction.DeleteTransactionUseCase
 import com.ivantrykosh.app.budgettracker.client.domain.use_case.transaction.get_transaction.GetTransactionUseCase
@@ -150,23 +149,32 @@ class TransactionsViewModel @Inject constructor(
     /**
      * Get start of month
      */
-    fun getStartMonth(): String {
+    fun getStartMonth(): Date {
         val calendar = Calendar.getInstance()
         calendar.time = _currentDate.value ?: Date()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
 
-        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+        return calendar.time
     }
 
     /**
      * Get end of month
      */
-    fun getEndMonth(): String {
+    fun getEndMonth(): Date {
         val calendar = Calendar.getInstance()
         calendar.time = _currentDate.value ?: Date()
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
 
-        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+        return calendar.time
     }
 
     /**
@@ -205,10 +213,10 @@ class TransactionsViewModel @Inject constructor(
      * @param toFromWhom to from/whom information
      * @param note note of transaction
      */
-    fun toTransactionDto(id: Long?, accountName: String, category: String, value: Double, date: Date, toFromWhom: String, note: String): TransactionDto? {
+    fun toTransaction(id: Long, accountName: String, category: String, value: Double, date: Date, toFromWhom: String, note: String): Transaction? {
         return try {
             val accountId = _getAccountsState.value?.accounts?.first { it.name == accountName }?.accountId ?: -1
-            TransactionDto(
+            Transaction(
                 transactionId = id,
                 accountId = accountId,
                 category = category,
@@ -222,79 +230,16 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Get user accounts
-     */
-    fun getAccounts() {
-        AppPreferences.jwtToken?.let { token ->
-            getAccounts(token)
-        } ?: run {
-            _getAccountsState.value = GetAccountsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Get transactions between dates and with provided account IDs
-     *
-     * @param accountIds IDs of accounts
-     * @param startDate start date
-     * @param endDate end date
-     */
-    fun getTransactions(accountIds: List<Long>, startDate: String, endDate: String) {
-        AppPreferences.jwtToken?.let { token ->
-            getTransactions(token, accountIds, startDate, endDate)
-        } ?: run {
-            _getTransactionsState.value = GetTransactionsState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Get transaction with ID
-     *
-     * @param id ID of transaction
-     */
-    fun getTransaction(id: String) {
-        AppPreferences.jwtToken?.let { token ->
-            getTransaction(token, id)
-        } ?: run {
-            _getTransactionState.value = GetTransactionState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Update transaction with TransactionDto
-     *
-     * @param transactionDto TransactionDto instance
-     */
-    fun updateTransaction(transactionDto: TransactionDto) {
-        AppPreferences.jwtToken?.let { token ->
-            updateTransaction(token, transactionDto)
-        } ?: run {
-            _updateTransactionState.value = UpdateTransactionState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
-    }
-
-    /**
-     * Delete transaction with ID
-     *
-     * @param id ID of transaction
-     */
-    fun deleteTransaction(id: String) {
-        AppPreferences.jwtToken?.let { token ->
-            deleteTransaction(token, id)
-        } ?: run {
-            _deleteTransactionState.value = DeleteTransactionState(error = Constants.ErrorStatusCodes.TOKEN_NOT_FOUND)
-        }
+    fun getAccountNameById(accountId: Long): String {
+        return _getAccountsState.value?.accounts?.first { it.accountId == accountId }?.name ?: ""
     }
 
     /**
      * Get accounts with JWT
-     *
-     * @param token user JWT
      */
-    private fun getAccounts(token: String) {
+    fun getAccounts() {
         _getAccountsState.value = GetAccountsState(isLoading = true)
-        getAccountsUseCase(token).onEach {result ->
+        getAccountsUseCase().onEach {result ->
             when (result) {
                 is Resource.Success -> {
                     _getAccountsState.value = GetAccountsState(accounts = result.data ?: emptyList())
@@ -312,26 +257,16 @@ class TransactionsViewModel @Inject constructor(
     /**
      * Get transactions with JWT, account IDs and between dates
      *
-     * @param token user JWT
      * @param accountIds IDs of accounts
      * @param startDate start date
      * @param endDate end date
      */
-    private fun getTransactions(token: String, accountIds: List<Long>, startDate: String, endDate: String) {
+    fun getTransactions(accountIds: List<Long>, startDate: Date, endDate: Date) {
         _getTransactionsState.value = GetTransactionsState(isLoading = true)
-        getTransactionsBetweenDatesUseCase(token, accountIds, startDate, endDate).onEach {result ->
+        getTransactionsBetweenDatesUseCase(accountIds, startDate, endDate).onEach {result ->
             when (result) {
                 is Resource.Success -> {
-                    val transactions = result.data?.map { transactionDto ->
-                        Transaction(
-                            transactionId = transactionDto.transactionId,
-                            accountName = _getAccountsState.value!!.accounts.filter { it.accountId == transactionDto.accountId }.map { it.name }.first(),
-                            category = transactionDto.category,
-                            value = transactionDto.value,
-                            date = transactionDto.date
-                        )
-                    } ?: emptyList()
-                    _getTransactionsState.value = GetTransactionsState(transactions = filterTransactions(transactions))
+                    _getTransactionsState.value = GetTransactionsState(transactions = filterTransactions(result.data ?: emptyList()))
                 }
                 is Resource.Error -> {
                     _getTransactionsState.value = GetTransactionsState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
@@ -348,7 +283,7 @@ class TransactionsViewModel @Inject constructor(
      *
      * @param transactions transactions to sort
      */
-    private fun filterTransactions(transactions: List<Transaction>): List<Transaction> {
+    private fun filterTransactions(transactions: List<SubTransaction>): List<SubTransaction> {
         val transactionsFilterByTypes = when {
             (_currentTransactionType.value ?: 0) > 0 -> transactions.filter { it.value > 0 }
             (_currentTransactionType.value ?: 0) < 0 -> transactions.filter { it.value < 0 }
@@ -356,7 +291,7 @@ class TransactionsViewModel @Inject constructor(
         }
         val transactionsFilterByAccount = when (_currentAccount.value) {
             null -> transactionsFilterByTypes
-            else -> transactionsFilterByTypes.filter { it.accountName == _currentAccount.value }
+            else -> transactionsFilterByTypes.filter { it.name == _currentAccount.value }
         }
         val transactionSortByDate = when (_isDateChecked.value) {
             true -> transactionsFilterByAccount.sortedByDescending { it.date }
@@ -371,27 +306,14 @@ class TransactionsViewModel @Inject constructor(
 
     /**
      * Get transaction with JWT and its ID
-     *
-     * @param token user JWT
      * @param id ID of transaction
      */
-    private fun getTransaction(token: String, id: String) {
+    fun getTransaction(id: Long) {
         _getTransactionState.value = GetTransactionState(isLoading = true)
-        getTransactionUseCase(token, id).onEach { result ->
+        getTransactionUseCase(id).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    val transaction = result.data?.let { transactionDto ->
-                        TransactionDetails(
-                            transactionId = transactionDto.transactionId,
-                            accountName = _getAccountsState.value!!.accounts.filter { it.accountId == transactionDto.accountId }.map { it.name }.first(),
-                            category = transactionDto.category,
-                            value = transactionDto.value,
-                            date = transactionDto.date,
-                            toFromWhom = transactionDto.toFromWhom,
-                            note = transactionDto.note
-                        )
-                    }
-                    _getTransactionState.value = GetTransactionState(transaction = transaction)
+                    _getTransactionState.value = GetTransactionState(transaction = result.data)
                 }
                 is Resource.Error -> {
                     _getTransactionState.value = GetTransactionState(error = result.statusCode ?: Constants.ErrorStatusCodes.CLIENT_ERROR)
@@ -406,12 +328,11 @@ class TransactionsViewModel @Inject constructor(
     /**
      * Update transaction with JWT and TransactionDto
      *
-     * @param token user JWT
-     * @param transactionDto TransactionDto instance
+     * @param transaction TransactionDto instance
      */
-    private fun updateTransaction(token: String, transactionDto: TransactionDto) {
+    fun updateTransaction(transaction: Transaction) {
         _updateTransactionState.value = UpdateTransactionState(isLoading = true)
-        updateTransactionUseCase(token, transactionDto).onEach { result ->
+        updateTransactionUseCase(transaction).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _updateTransactionState.value = UpdateTransactionState()
@@ -429,12 +350,11 @@ class TransactionsViewModel @Inject constructor(
     /**
      * Delete transaction with JWT and its ID
      *
-     * @param token user JWT
      * @param id ID of transaction
      */
-    private fun deleteTransaction(token: String, id: String) {
+    fun deleteTransaction(id: Long) {
         _deleteTransactionState.value = DeleteTransactionState(isLoading = true)
-        deleteTransactionUseCase(token, id).onEach { result ->
+        deleteTransactionUseCase(id).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _deleteTransactionState.value = DeleteTransactionState()

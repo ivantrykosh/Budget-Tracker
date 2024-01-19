@@ -27,29 +27,34 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-        <activity
-            android:name=".presentation.splash_screen.SplashScreenActivity"
-            android:exported="true"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+<!--        <activity-->
+<!--            android:name=".presentation.splash_screen.SplashScreenActivity"-->
+<!--            android:exported="true"-->
+<!--            android:configChanges="orientation"-->
+<!--            android:screenOrientation="portrait">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".presentation.auth.AuthActivity"
-            android:exported="false"
-            android:label="@string/title_activity_login"
-            android:theme="@style/Theme.BudgetTracker"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+<!--        <activity-->
+<!--            android:name=".presentation.auth.AuthActivity"-->
+<!--            android:exported="false"-->
+<!--            android:label="@string/title_activity_login"-->
+<!--            android:theme="@style/Theme.BudgetTracker"-->
+<!--            android:configChanges="orientation"-->
+<!--            android:screenOrientation="portrait" />-->
         <activity
             android:name=".presentation.main.MainActivity"
             android:exported="true"
             android:configChanges="orientation"
             android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 
