@@ -70,9 +70,7 @@ class AddTransactionViewModel @Inject constructor(
     }
 
     /**
-     * Get user accounts with JWT
-     *
-     * @param token user JWT
+     * Get user accounts
      */
     fun getAccounts() {
         _getAccountsState.value = GetAccountsState(isLoading = true)
@@ -92,7 +90,7 @@ class AddTransactionViewModel @Inject constructor(
     }
 
     /**
-     * Create TransactionDto instance
+     * Create Transaction instance
      *
      * @param accountName name of account
      * @param category name of category
@@ -101,7 +99,7 @@ class AddTransactionViewModel @Inject constructor(
      * @param toFromWhom to from/whom information
      * @param note note of transaction
      */
-    fun createTransactionDto(accountName: String, category: String, value: Double, date: String, toFromWhom: String, note: String): Transaction? {
+    fun createTransactionInstance(accountName: String, category: String, value: Double, date: String, toFromWhom: String, note: String): Transaction? {
         return try {
             val accountId = _getAccountsState.value!!.accounts.first { it.name == accountName }.accountId
             Transaction(
@@ -118,7 +116,7 @@ class AddTransactionViewModel @Inject constructor(
     }
 
     /**
-     * Create transaction with JWT and TransactionDto
+     * Create transaction with Transaction instance
      *
      * @param transaction TransactionDto instance
      */

@@ -15,16 +15,16 @@ class TransactionRepositoryImpl @Inject constructor(
 ) : TransactionRepository {
 
     /**
-     * Create transaction with token and transactionDto
+     * Create transaction
      *
-     * @param transaction Transaction data
+     * @param transaction Transaction to create
      */
     override suspend fun createTransaction(transaction: Transaction) {
         return dao.insertTransaction(transaction)
     }
 
     /**
-     * Get transaction with token and id
+     * Get transaction with id
      *
      * @param id Transaction ID to get
      */
@@ -48,16 +48,16 @@ class TransactionRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Update transaction with token and transactionDto
+     * Update transaction
      *
-     * @param transaction Transaction data
+     * @param transaction Transaction to update
      */
     override suspend fun updateTransaction(transaction: Transaction) {
         return dao.updateTransaction(transaction)
     }
 
     /**
-     * Delete transaction with token and id
+     * Delete transaction with id
      *
      * @param id Transaction ID to delete
      */

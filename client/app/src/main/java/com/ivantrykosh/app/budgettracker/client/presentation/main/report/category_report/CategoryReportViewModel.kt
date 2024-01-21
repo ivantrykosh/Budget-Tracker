@@ -102,7 +102,7 @@ class CategoryReportViewModel @Inject constructor(
     }
 
     /**
-     * Get account using JWT
+     * Get account
      */
     fun getAccounts() {
         _getAccountsState.value = GetAccountsState(isLoading = true)
@@ -122,7 +122,7 @@ class CategoryReportViewModel @Inject constructor(
     }
 
     /**
-     * Get transaction using JWT and account IDs, start and end date and type
+     * Get transaction using account IDs, start and end date and type
      *
      * @param accountIds IDs of accounts
      * @param type transaction type

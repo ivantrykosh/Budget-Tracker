@@ -203,7 +203,7 @@ class TransactionsViewModel @Inject constructor(
     }
 
     /**
-     * To TransactionDto instance
+     * To Transaction instance
      *
      * @param id ID of transaction
      * @param accountName name of account
@@ -230,12 +230,17 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Get account name by ID
+     *
+     * @param accountId ID of account
+     */
     fun getAccountNameById(accountId: Long): String {
         return _getAccountsState.value?.accounts?.first { it.accountId == accountId }?.name ?: ""
     }
 
     /**
-     * Get accounts with JWT
+     * Get accounts
      */
     fun getAccounts() {
         _getAccountsState.value = GetAccountsState(isLoading = true)
@@ -255,7 +260,7 @@ class TransactionsViewModel @Inject constructor(
     }
 
     /**
-     * Get transactions with JWT, account IDs and between dates
+     * Get transactions with account IDs and between dates
      *
      * @param accountIds IDs of accounts
      * @param startDate start date
@@ -305,7 +310,7 @@ class TransactionsViewModel @Inject constructor(
     }
 
     /**
-     * Get transaction with JWT and its ID
+     * Get transaction with its ID
      * @param id ID of transaction
      */
     fun getTransaction(id: Long) {
@@ -326,7 +331,7 @@ class TransactionsViewModel @Inject constructor(
     }
 
     /**
-     * Update transaction with JWT and TransactionDto
+     * Update transaction
      *
      * @param transaction TransactionDto instance
      */
@@ -348,7 +353,7 @@ class TransactionsViewModel @Inject constructor(
     }
 
     /**
-     * Delete transaction with JWT and its ID
+     * Delete transaction with its ID
      *
      * @param id ID of transaction
      */

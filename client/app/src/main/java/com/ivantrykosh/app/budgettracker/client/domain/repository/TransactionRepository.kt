@@ -10,21 +10,21 @@ import java.util.Date
 interface TransactionRepository {
 
     /**
-     * Create transaction with token and transactionDto
+     * Create transaction
      *
-     * @param transaction Transaction data
+     * @param transaction Transaction to create
      */
     suspend fun createTransaction(transaction: Transaction)
 
     /**
-     * Get transaction with token and id
+     * Get transaction with id
      *
      * @param id Transaction ID to get
      */
     suspend fun getTransaction(id: Long): Transaction
 
     /**
-     * Get transactions with token, accountIds, startDate and endDate
+     * Get sub transactions with accountIds, startDate and endDate
      *
      * @param accountIds Account IDs by which transactions are got
      * @param startDate start date to get transactions
@@ -33,14 +33,14 @@ interface TransactionRepository {
     suspend fun getTransactionByAllAccountAndDateBetween(accountIds: List<Long>, startDate: Date, endDate: Date): List<SubTransaction>
 
     /**
-     * Update transaction with token and transactionDto
+     * Update transaction
      *
-     * @param transaction Transaction data
+     * @param transaction Transaction to update
      */
     suspend fun updateTransaction(transaction: Transaction)
 
     /**
-     * Delete transaction with token and id
+     * Delete transaction with id
      *
      * @param id Transaction ID to delete
      */

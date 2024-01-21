@@ -7,6 +7,7 @@ import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountReposit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -16,9 +17,9 @@ class UpdateAccountUseCase @Inject constructor(
     private val repository: AccountRepository
 ) {
     /**
-     * Invoke update account use case with token, id and changeAccountDto
+     * Invoke update account use case
      *
-     * @param account account data
+     * @param account AccountEntity to update
      */
     operator fun invoke(account: AccountEntity): Flow<Resource<String>> = flow {
         try {
@@ -27,8 +28,10 @@ class UpdateAccountUseCase @Inject constructor(
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
+        } catch (e: Exception) {
+            emit(Resource.Error(Constants.ErrorStatusCodes.CLIENT_ERROR))
         }
     }
 }

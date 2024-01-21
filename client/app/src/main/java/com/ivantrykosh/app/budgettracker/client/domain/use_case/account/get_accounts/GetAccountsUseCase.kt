@@ -7,6 +7,7 @@ import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountReposit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -16,7 +17,7 @@ class GetAccountsUseCase @Inject constructor(
     private val repository: AccountRepository
 ) {
     /**
-     * Invoke get accounts use case with token
+     * Invoke get accounts use case
      */
     operator fun invoke(): Flow<Resource<List<SubAccount>>> = flow {
         try {
@@ -25,9 +26,10 @@ class GetAccountsUseCase @Inject constructor(
             emit(Resource.Success(result))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))
-        } catch (e: Exception) {
-            println(e)
+        } catch (e: IOException) {
             emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
+        } catch (e: Exception) {
+            emit(Resource.Error(Constants.ErrorStatusCodes.CLIENT_ERROR))
         }
     }
 }

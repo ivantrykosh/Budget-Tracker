@@ -1,6 +1,5 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.pdf_report
 
-import android.Manifest
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
@@ -12,8 +11,6 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,7 +19,6 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Legend
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.ivantrykosh.app.budgettracker.client.R
-import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentPdfReportBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint

@@ -8,6 +8,9 @@ import com.ivantrykosh.app.budgettracker.client.data.dao.TransactionDao
 import com.ivantrykosh.app.budgettracker.client.domain.model.AccountEntity
 import com.ivantrykosh.app.budgettracker.client.domain.model.Transaction
 
+/**
+ * Database of application
+ */
 @Database(
     entities = [AccountEntity::class, Transaction::class],
     version = 1

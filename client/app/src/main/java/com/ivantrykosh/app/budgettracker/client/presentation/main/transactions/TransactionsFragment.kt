@@ -442,10 +442,8 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
 
                         dialogTransactionDetailsBinding.root.requestLayout()
                     }
-                } else when (getTransaction.error) {
-                    else -> {
-                        showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
-                    }
+                } else {
+                    showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                 }
 
                 viewModel.getTransactionState.removeObservers(requireActivity())

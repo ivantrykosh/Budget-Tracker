@@ -23,6 +23,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    /**
+     * Provide database
+     *
+     * @param context Application context
+     */
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
@@ -34,12 +39,22 @@ object AppModule {
         .build()
     }
 
+    /**
+     * Provide transaction dao
+     *
+     * @param db Application DB
+     */
     @Provides
     @Singleton
     fun provideTransactionDao(db: AppDatabase) : TransactionDao {
         return db.transactionDao
     }
 
+    /**
+     * Provide account dao
+     *
+     * @param db Application DB
+     */
     @Provides
     @Singleton
     fun provideAccountDao(db: AppDatabase) : AccountDao {
@@ -47,9 +62,9 @@ object AppModule {
     }
 
     /**
-     * Provide account repository with api instance
+     * Provide account repository with dao instance
      *
-     * @param api instance of AccountApi
+     * @param dao instance of AccountDao
      */
     @Provides
     @Singleton
@@ -58,9 +73,9 @@ object AppModule {
     }
 
     /**
-     * Provide transaction repository with api instance
+     * Provide transaction repository with dao instance
      *
-     * @param api instance of TransactionApi
+     * @param dao instance of TransactionDao
      */
     @Provides
     @Singleton

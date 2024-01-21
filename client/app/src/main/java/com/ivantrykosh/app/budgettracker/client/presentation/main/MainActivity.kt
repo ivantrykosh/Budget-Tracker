@@ -1,6 +1,5 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
@@ -10,7 +9,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.navigation.NavigationView
 import com.ivantrykosh.app.budgettracker.client.R
-import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.databinding.ActivityMainBinding
 import com.ivantrykosh.app.budgettracker.client.presentation.main.overview.OverviewFragment
 import dagger.hilt.android.AndroidEntryPoint

@@ -7,6 +7,7 @@ import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRep
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -16,7 +17,7 @@ class CreateTransactionUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
     /**
-     * Invoke create transaction use case with token and transactionDto
+     * Invoke create transaction use case
      *
      * @param transaction transaction data
      */
@@ -27,9 +28,10 @@ class CreateTransactionUseCase @Inject constructor(
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))
-        } catch (e: Exception) {
-            println(e)
+        } catch (e: IOException) {
             emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
+        } catch (e: Exception) {
+            emit(Resource.Error(Constants.ErrorStatusCodes.CLIENT_ERROR))
         }
     }
 }

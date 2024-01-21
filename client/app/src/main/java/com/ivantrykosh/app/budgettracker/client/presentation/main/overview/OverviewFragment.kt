@@ -41,16 +41,6 @@ class OverviewFragment : Fragment() {
         AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_anti_clock_wise)
     }
 
-    /**
-     * Get format of values
-     */
-    private fun getFormat(): DecimalFormat {
-        val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
-        val format = DecimalFormat(pattern)
-        format.maximumFractionDigits = 2
-        return format
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -122,9 +112,9 @@ class OverviewFragment : Fragment() {
         val stringDate = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date())
         binding.overviewTextViewBalanceFor.text = getString(R.string.balance_for, stringDate)
 
-        binding.overviewMainIncomesValue.text = getFormat().format(0.0)
-        binding.overviewMainExpensesValue.text = getFormat().format(0.0)
-        binding.mainTotalValue.text = getFormat().format(0.0)
+        binding.overviewMainIncomesValue.text = viewModel.getFormat().format(0.0)
+        binding.overviewMainExpensesValue.text = viewModel.getFormat().format(0.0)
+        binding.mainTotalValue.text = viewModel.getFormat().format(0.0)
 
         setIncomesVisible(false)
         setExpensesVisible(false)
@@ -196,9 +186,9 @@ class OverviewFragment : Fragment() {
 
                 when (getTransactions.error) {
                     null -> {
-                        binding.overviewMainIncomesValue.text = getFormat().format(viewModel.getSumOfIncomes())
-                        binding.overviewMainExpensesValue.text = getFormat().format(viewModel.getSumOfExpenses())
-                        binding.mainTotalValue.text = getFormat().format(viewModel.getTotalSum())
+                        binding.overviewMainIncomesValue.text = viewModel.getFormat().format(viewModel.getSumOfIncomes())
+                        binding.overviewMainExpensesValue.text = viewModel.getFormat().format(viewModel.getSumOfExpenses())
+                        binding.mainTotalValue.text = viewModel.getFormat().format(viewModel.getTotalSum())
 
                         if (viewModel.getIncomes().isNotEmpty()) {
                             val incomes = viewModel.getIncomes()

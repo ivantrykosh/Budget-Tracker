@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.model.AccountEntity
@@ -20,6 +21,7 @@ import com.ivantrykosh.app.budgettracker.client.presentation.main.accounts.state
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.text.DecimalFormat
 import javax.inject.Inject
 
 /**
@@ -50,6 +52,16 @@ class AccountsViewModel @Inject constructor(
     val deleteAccountState: LiveData<DeleteAccountState> = _deleteAccountState
 
     /**
+     * Get format
+     */
+    fun getFormat(): DecimalFormat {
+        val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
+        val format = DecimalFormat(pattern)
+        format.maximumFractionDigits = 2
+        return format
+    }
+
+    /**
      * Check account name
      */
     fun checkName(name: String, id: Long = 0): Boolean {
@@ -57,8 +69,7 @@ class AccountsViewModel @Inject constructor(
     }
 
     /**
-     * Get user accounts by JWT
-     *
+     * Get user accounts
      */
     fun getAccounts() {
         _getAccountsState.value = GetAccountsState(isLoading = true)
@@ -100,9 +111,9 @@ class AccountsViewModel @Inject constructor(
     }
 
     /**
-     * Create account with ChangeAccountDto
+     * Create account
      *
-     * @param name ChangeAccountDto instance to create account
+     * @param name name of account to create
      */
     fun createAccount(name: String) {
         _createAccountState.value = CreateAccountState(isLoading = true)
@@ -127,17 +138,17 @@ class AccountsViewModel @Inject constructor(
     }
 
     /**
-     * Update account with ID and ChangeAccountDto
+     * Update account with ID and name
      *
      * @param id account ID to update
-     * @param name ChangeAccountDto instance to create account
+     * @param newName new name of account
      */
-    fun updateAccount(id: Long, name: String) {
+    fun updateAccount(id: Long, newName: String) {
         _updateAccountState.value = UpdateAccountState(isLoading = true)
-        if (!checkName(name, id)) {
+        if (!checkName(newName, id)) {
             _updateAccountState.value = UpdateAccountState(error = Constants.ErrorStatusCodes.INVALID_REQUEST)
         } else {
-            val newAccount = AccountEntity(id, name)
+            val newAccount = AccountEntity(id, newName)
             updateAccountUseCase(newAccount).onEach { result ->
                 when (result) {
                     is Resource.Success -> {

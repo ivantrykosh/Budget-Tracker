@@ -1,12 +1,9 @@
 package com.ivantrykosh.app.budgettracker.client.domain.model
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 import java.util.Date
 
 /**
- * Sub Transaction
+ * Sub Transaction with needed data
  */
 data class SubTransaction(
     val transactionId: Long,

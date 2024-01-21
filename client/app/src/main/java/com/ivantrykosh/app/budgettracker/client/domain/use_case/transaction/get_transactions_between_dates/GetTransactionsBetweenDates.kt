@@ -7,6 +7,7 @@ import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRep
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
+import java.io.IOException
 import java.util.Date
 import javax.inject.Inject
 
@@ -17,7 +18,7 @@ class GetTransactionsBetweenDates @Inject constructor(
     private val repository: TransactionRepository
 ) {
     /**
-     * Invoke get transactions between dates use case with token and accountIds, startDate and endDate
+     * Invoke get transactions between dates use case with accountIds, startDate and endDate
      *
      * @param accountIds account IDs by which transaction are get
      * @param startDate start date to get transactions
@@ -30,8 +31,10 @@ class GetTransactionsBetweenDates @Inject constructor(
             emit(Resource.Success(result))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
+        } catch (e: Exception) {
+            emit(Resource.Error(Constants.ErrorStatusCodes.CLIENT_ERROR))
         }
     }
 }

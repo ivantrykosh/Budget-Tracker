@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
 import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.common.Resource
 import com.ivantrykosh.app.budgettracker.client.domain.model.SubTransaction
@@ -14,6 +15,7 @@ import com.ivantrykosh.app.budgettracker.client.presentation.main.transactions.s
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.text.DecimalFormat
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
@@ -62,7 +64,7 @@ class OverviewViewModel @Inject constructor(
     }
 
     /**
-     * Get accounts with JWT
+     * Get accounts
      *
      */
     fun getAccounts() {
@@ -83,7 +85,7 @@ class OverviewViewModel @Inject constructor(
     }
 
     /**
-     * Get transactions with JWT, account IDs and between dates
+     * Get transactions with account IDs and between dates
      *
      * @param accountIds IDs of accounts
      * @param startDate start date
@@ -104,6 +106,16 @@ class OverviewViewModel @Inject constructor(
                 }
             }
         }.launchIn(viewModelScope)
+    }
+
+    /**
+     * Get format of values
+     */
+    fun getFormat(): DecimalFormat {
+        val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
+        val format = DecimalFormat(pattern)
+        format.maximumFractionDigits = 2
+        return format
     }
 
     /**

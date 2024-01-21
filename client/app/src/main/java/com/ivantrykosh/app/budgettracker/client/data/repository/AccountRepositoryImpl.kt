@@ -15,16 +15,16 @@ class AccountRepositoryImpl @Inject constructor(
 ) : AccountRepository {
 
     /**
-     * Create account with token and request
+     * Create account
      *
-     * @param account ChangeAccountDto request
+     * @param account Account Entity to create
      */
     override suspend fun createAccount(account: AccountEntity) {
         return dao.insertAccount(account)
     }
 
     /**
-     * Get account with token and id
+     * Get account with id
      *
      * @param id Account ID to get
      */
@@ -33,23 +33,23 @@ class AccountRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Get all accounts with token
+     * Get all accounts
      */
     override suspend fun getAllAccounts(): List<SubAccount> {
-        return dao.getAccounts()
+        return dao.getAllAccounts()
     }
 
     /**
-     * Update account with token, id and request
+     * Update account
      *
-     * @param account ChangeAccountDto request
+     * @param account Account Entity to update
      */
     override suspend fun updateAccount(account: AccountEntity) {
         return dao.updateAccount(account)
     }
 
     /**
-     * Delete account with token and id
+     * Delete account with id
      *
      * @param id Account ID to delete
      */
@@ -58,7 +58,7 @@ class AccountRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Delete all accounts with token
+     * Delete all accounts
      */
     override suspend fun deleteAllAccounts() {
         return dao.deleteAllAccounts()

@@ -6,6 +6,7 @@ import com.ivantrykosh.app.budgettracker.client.domain.repository.AccountReposit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -15,7 +16,7 @@ class DeleteAccountUseCase @Inject constructor(
     private val repository: AccountRepository
 ) {
     /**
-     * Invoke delete account use case with token and id
+     * Invoke delete account use case
      *
      * @param id account id to delete
      */
@@ -26,8 +27,10 @@ class DeleteAccountUseCase @Inject constructor(
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
+        } catch (e: Exception) {
+            emit(Resource.Error(Constants.ErrorStatusCodes.CLIENT_ERROR))
         }
     }
 }

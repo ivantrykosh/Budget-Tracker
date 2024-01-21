@@ -200,7 +200,7 @@ class AddExpenseFragment : Fragment() {
         } else if (binding.addExpenseInputDateText.text?.isBlank() != false) {
             binding.addExpenseInputDate.error = resources.getString(R.string.invalid_date)
         } else {
-            val transaction = viewModel.createTransactionDto(
+            val transaction = viewModel.createTransactionInstance(
                 binding.addExpenseInputAccountText.text.toString(),
                 binding.addExpenseInputCategoryText.text.toString(),
                 -binding.addExpenseInputValueEditText.text.toString().toDouble(),

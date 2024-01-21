@@ -200,7 +200,7 @@ class AddIncomeFragment : Fragment() {
         } else if (binding.addIncomeInputDateText.text?.isBlank() != false) {
             binding.addIncomeInputDate.error = resources.getString(R.string.invalid_date)
         } else {
-            val transactionDto = viewModel.createTransactionDto(
+            val transactionDto = viewModel.createTransactionInstance(
                 binding.addIncomeInputAccountText.text.toString(),
                 binding.addIncomeInputCategoryText.text.toString(),
                 binding.addIncomeInputValueEditText.text.toString().toDouble(),

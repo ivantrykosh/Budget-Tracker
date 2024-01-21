@@ -15,8 +15,6 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ivantrykosh.app.budgettracker.client.R
-import com.ivantrykosh.app.budgettracker.client.common.AppPreferences
-import com.ivantrykosh.app.budgettracker.client.common.Constants
 import com.ivantrykosh.app.budgettracker.client.databinding.DialogAccountDetailsBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.DialogCreateAccountBinding
 import com.ivantrykosh.app.budgettracker.client.databinding.FragmentAccountsBinding
@@ -24,7 +22,6 @@ import com.ivantrykosh.app.budgettracker.client.domain.model.SubAccount
 import com.ivantrykosh.app.budgettracker.client.presentation.main.MainActivity
 import com.ivantrykosh.app.budgettracker.client.presentation.main.adapter.AccountItemAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.DecimalFormat
 
 /**
  * Account fragment
@@ -43,13 +40,6 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
     private lateinit var dialogAccountDetails: Dialog
 
     private lateinit var dialogCreateAccount: Dialog
-
-    private fun getFormat(): DecimalFormat {
-        val pattern = Constants.CURRENCIES[AppPreferences.currency] + "#,##0.00"
-        val format = DecimalFormat(pattern)
-        format.maximumFractionDigits = 2
-        return format
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -166,7 +156,7 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
     }
 
     /**
-     * refreshAccounts accounts
+     * Refresh accounts
      */
     private fun refreshAccounts() {
         progressStart()
@@ -216,18 +206,14 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
                     } else {
                         dialogAccountDetails.show()
                         dialogAccountDetailsBinding.accountDetailsInputName.error = null
-                        dialogAccountDetailsBinding.accountDetailsIncomesValue.text = getFormat().format(getAccount.account.incomesSum)
-                        dialogAccountDetailsBinding.accountDetailsExpensesValue.text = getFormat().format(getAccount.account.expensesSum)
-                        dialogAccountDetailsBinding.accountDetailsTotalValue.text = getFormat().format(getAccount.account.incomesSum.plus(getAccount.account.expensesSum))
+                        dialogAccountDetailsBinding.accountDetailsIncomesValue.text = viewModel.getFormat().format(getAccount.account.incomesSum)
+                        dialogAccountDetailsBinding.accountDetailsExpensesValue.text = viewModel.getFormat().format(getAccount.account.expensesSum)
+                        dialogAccountDetailsBinding.accountDetailsTotalValue.text = viewModel.getFormat().format(getAccount.account.incomesSum.plus(getAccount.account.expensesSum))
                         dialogAccountDetailsBinding.accountDetailsInputNameEditText.setText(getAccount.account.name)
                         dialogAccountDetailsBinding.root.requestLayout()
                     }
                 } else {
-                    when (getAccount.error) {
-                        else -> {
-                            showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
-                        }
-                    }
+                    showError(resources.getString(R.string.error), resources.getString(R.string.unexpected_error_occurred))
                 }
 
                 viewModel.getAccountState.removeObservers(requireActivity())

@@ -10,41 +10,40 @@ import com.ivantrykosh.app.budgettracker.client.domain.model.SubAccount
 interface AccountRepository {
 
     /**
-     * Create account with token and request
+     * Create account
      *
-     * @param account ChangeAccountDto request
+     * @param account AccountEntity to create
      */
     suspend fun createAccount(account: AccountEntity)
 
     /**
-     * Get account with token and id
+     * Get full account with id
      *
      * @param id Account ID to get
      */
     suspend fun getAccount(id: Long): FullAccount
 
     /**
-     * Get all accounts with token
+     * Get all accounts
      */
     suspend fun getAllAccounts(): List<SubAccount>
 
     /**
-     * Update account with token, id and request
+     * Update account
      *
-     * @param account ChangeAccountDto request
+     * @param account AccountEntity to update
      */
     suspend fun updateAccount(account: AccountEntity)
 
     /**
-     * Delete account with token and id
+     * Delete account with id
      *
      * @param id Account ID to delete
      */
     suspend fun deleteAccount(id: Long)
 
     /**
-     * Delete all accounts with token
-     *
+     * Delete all accounts
      */
     suspend fun deleteAllAccounts()
 }

@@ -6,6 +6,7 @@ import com.ivantrykosh.app.budgettracker.client.domain.repository.TransactionRep
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -15,7 +16,7 @@ class DeleteTransactionUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
     /**
-     * Invoke delete transaction use case with token and id
+     * Invoke delete transaction use case
      *
      * @param id transaction id to delete
      */
@@ -26,8 +27,10 @@ class DeleteTransactionUseCase @Inject constructor(
             emit(Resource.Success(""))
         } catch (e: HttpException) {
             emit(Resource.Error(e.code()))
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             emit(Resource.Error(Constants.ErrorStatusCodes.NETWORK_ERROR))
+        } catch (e: Exception) {
+            emit(Resource.Error(Constants.ErrorStatusCodes.CLIENT_ERROR))
         }
     }
 }
