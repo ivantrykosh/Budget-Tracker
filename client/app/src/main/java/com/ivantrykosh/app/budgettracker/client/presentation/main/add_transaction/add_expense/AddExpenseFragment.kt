@@ -37,7 +37,6 @@ class AddExpenseFragment : Fragment() {
 
     private val datePicker =
         MaterialDatePicker.Builder.datePicker()
-            .setTitleText("Select date")
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
             .build()
 

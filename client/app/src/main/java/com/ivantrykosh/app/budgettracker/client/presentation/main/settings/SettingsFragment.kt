@@ -1,6 +1,7 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.settings
 
 import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
@@ -60,7 +61,6 @@ class SettingsFragment : Fragment() {
         binding.root.isEnabled = false
 
         timePicker = MaterialTimePicker.Builder()
-            .setTitleText("Select time")
             .setTimeFormat(if (is24HourFormat(requireContext())) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
             .build()
 
@@ -126,7 +126,11 @@ class SettingsFragment : Fragment() {
             showMenu(it, R.menu.reminder_menu)
         }
         timePicker.addOnPositiveButtonClickListener {
-            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                viewModel.setDailyReminder(requireContext(), timePicker.hour, timePicker.minute)
+            }
         }
 
         binding.settingsDeleteDataMain.setOnClickListener {

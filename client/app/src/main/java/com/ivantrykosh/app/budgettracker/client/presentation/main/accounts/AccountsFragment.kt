@@ -371,6 +371,8 @@ class AccountsFragment : Fragment(), OnAccountClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        dialogCreateAccount.dismiss()
+        dialogAccountDetails.dismiss()
         _binding = null
     }
 }

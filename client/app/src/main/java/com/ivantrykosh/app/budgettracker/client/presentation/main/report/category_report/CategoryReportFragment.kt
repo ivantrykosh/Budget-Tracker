@@ -31,7 +31,6 @@ class CategoryReportFragment : Fragment() {
 
     private val datePicker =
         MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText("Select date")
             .setSelection(
                 Pair(
                     MaterialDatePicker.thisMonthInUtcMilliseconds(),

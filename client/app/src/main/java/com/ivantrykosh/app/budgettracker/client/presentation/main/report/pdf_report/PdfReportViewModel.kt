@@ -436,10 +436,6 @@ class PdfReportViewModel @Inject constructor(
          * @param fileName name of file
          */
         private fun saveToPdf(pdfDocument: PdfDocument, directory: File, fileName: String) {
-            if (!directory.exists()) {
-                directory.mkdirs()
-            }
-
             val filePath = File(directory, fileName)
 
             pdfDocument.writeTo(FileOutputStream(filePath))

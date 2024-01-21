@@ -1,8 +1,13 @@
 package com.ivantrykosh.app.budgettracker.client.presentation.main.report.pdf_report
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +16,9 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -36,7 +44,6 @@ class PdfReportFragment : Fragment() {
 
     private val datePicker =
         MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText("Select date")
             .setSelection(
                 Pair(
                     MaterialDatePicker.thisMonthInUtcMilliseconds(),
@@ -44,6 +51,16 @@ class PdfReportFragment : Fragment() {
                 )
             )
             .build()
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            inflateLayout()
+        } else {
+            Toast.makeText(requireContext(),  resources.getString(R.string.report_saved_fail), Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private var isAllAccounts = false
 
@@ -245,7 +262,7 @@ class PdfReportFragment : Fragment() {
                 else -> 0
             }
             viewModel.getTransactions(accountIds, type)
-            viewModel.getTransactionsState.observe(requireActivity()) { getTransactions  ->
+            viewModel.getTransactionsState.observe(requireActivity()) { getTransactions ->
                 if (!getTransactions.isLoading) {
                     progressEnd()
 
@@ -254,7 +271,11 @@ class PdfReportFragment : Fragment() {
                             if (getTransactions.transactions.isEmpty()) {
                                 Toast.makeText(requireContext(), resources.getString(R.string.no_transactions), Toast.LENGTH_SHORT).show()
                             } else {
-                                inflateLayout()
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                    inflateLayout()
+                                } else {
+                                    requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                }
                             }
                         }
                         else -> {

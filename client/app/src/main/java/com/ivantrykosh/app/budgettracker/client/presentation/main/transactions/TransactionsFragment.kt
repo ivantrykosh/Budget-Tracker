@@ -53,7 +53,6 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
 
     private val datePicker =
         MaterialDatePicker.Builder.datePicker()
-            .setTitleText("Select date")
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
             .build()
 
@@ -610,6 +609,8 @@ class TransactionsFragment : Fragment(), OnTransactionClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        dialogFilter.dismiss()
+        dialogTransactionDetails.dismiss()
         _binding = null
     }
 }
