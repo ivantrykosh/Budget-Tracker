@@ -133,9 +133,9 @@ class PdfReportFragment : Fragment() {
         binding.pdfReportInputPeriodText.setOnItemClickListener { parent, _, position, _ ->
             viewModel.setPeriod(
                 when (parent.getItemAtPosition(position).toString()) {
-                    "Days" -> PdfReportViewModel.Period.DAY
-                    "Weeks" -> PdfReportViewModel.Period.WEEK
-                    "Months" -> PdfReportViewModel.Period.MONTH
+                    periods[0] -> PdfReportViewModel.Period.DAY
+                    periods[1] -> PdfReportViewModel.Period.WEEK
+                    periods[2] -> PdfReportViewModel.Period.MONTH
                     else -> PdfReportViewModel.Period.YEAR
                 }
             )

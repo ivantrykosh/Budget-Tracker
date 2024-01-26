@@ -110,9 +110,9 @@ class TimeReportFragment : Fragment() {
         binding.timeReportInputPeriodText.setOnItemClickListener { parent, _, position, _ ->
             viewModel.setPeriod(
                 when (parent.getItemAtPosition(position).toString()) {
-                    "Days" -> TimeReportViewModel.Period.DAY
-                    "Weeks" -> TimeReportViewModel.Period.WEEK
-                    "Months" -> TimeReportViewModel.Period.MONTH
+                    periods[0] -> TimeReportViewModel.Period.DAY
+                    periods[1] -> TimeReportViewModel.Period.WEEK
+                    periods[2] -> TimeReportViewModel.Period.MONTH
                     else -> TimeReportViewModel.Period.YEAR
                 }
             )
